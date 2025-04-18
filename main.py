@@ -6,20 +6,20 @@ from reportlab.lib.utils import ImageReader
 import os
 
 app = Flask(__name__)
-TEMPLATE_IMAGE = "fondo_plantilla.png"
+TEMPLATE_IMAGE = "cdmxdigital2025ppp.pdf"
 OUTPUT_DIR = "static/pdfs"
 
-# Coordenadas desde esquina inferior izquierda
+# Coordenadas finales desde la esquina inferior izquierda
 coords = {
-    "fecha": (247, 507, 20),
-    "folio": (187, 540, 24),
-    "marca": (177, 502, 22),
-    "linea": (177, 489, 22),
-    "anio": (177, 476, 22),
-    "serie": (455, 502, 22),
-    "motor": (455, 489, 22),
-    "vigencia": (455, 459, 22),
-    "nombre": (455, 427, 22),
+    "folio": (87, 662, 12),        # rojo
+    "fecha": (147, 650, 12),
+    "marca": (97, 365, 12),
+    "serie": (455, 365, 12),
+    "linea": (97, 358, 12),
+    "motor": (430, 358, 12),
+    "anio": (97, 333, 12),
+    "vigencia": (455, 333, 12),
+    "nombre": (451, 326, 8),
 }
 
 @app.route("/", methods=["GET", "POST"])
@@ -27,6 +27,7 @@ def index():
     if request.method == "POST":
         data = request.form
 
+        # Fechas
         fecha_actual = datetime.now()
         fecha_expedicion = fecha_actual.strftime("%d DE %B DEL %Y").upper()
         vigencia = (fecha_actual + timedelta(days=30)).strftime("%d/%m/%Y")
@@ -37,24 +38,32 @@ def index():
 
         c = canvas.Canvas(output_path, pagesize=letter)
 
-        # Fondo como imagen
-        bg = ImageReader(TEMPLATE_IMAGE)
-        c.drawImage(bg, 0, 0, width=612, height=792)
+        # Fondo PDF como imagen
+        fondo = ImageReader(TEMPLATE_IMAGE)
+        c.drawImage(fondo, 0, 0, width=612, height=792)
 
-        # Insertar texto
-        c.setFont("Helvetica-Bold", coords["fecha"][2])
-        c.drawString(coords["fecha"][0], coords["fecha"][1], fecha_expedicion)
-
+        # Folio en rojo
         c.setFont("Helvetica-Bold", coords["folio"][2])
         c.setFillColorRGB(1, 0, 0)
         c.drawString(coords["folio"][0], coords["folio"][1], data["folio"])
         c.setFillColorRGB(0, 0, 0)
 
-        campos = ["marca", "linea", "anio", "serie", "motor", "vigencia", "nombre"]
-        valores = [data["marca"], data["linea"], data["anio"], data["serie"],
-                   data["motor"], vigencia, data["nombre"]]
+        # Fecha
+        c.setFont("Helvetica-Bold", coords["fecha"][2])
+        c.drawString(coords["fecha"][0], coords["fecha"][1], fecha_expedicion)
 
-        for campo, valor in zip(campos, valores):
+        # Resto de campos
+        valores = {
+            "marca": data["marca"],
+            "linea": data["linea"],
+            "anio": data["anio"],
+            "serie": data["serie"],
+            "motor": data["motor"],
+            "vigencia": vigencia,
+            "nombre": data["nombre"],
+        }
+
+        for campo, valor in valores.items():
             c.setFont("Helvetica-Bold", coords[campo][2])
             c.drawString(coords[campo][0], coords[campo][1], valor)
 
