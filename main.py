@@ -39,7 +39,6 @@ def index():
         page.insert_text((coords["vigencia"][0], coords["vigencia"][1]), data["vigencia"], fontsize=coords["vigencia"][2])
         page.insert_text((coords["nombre"][0], coords["nombre"][1]), data["nombre"], fontsize=coords["nombre"][2])
 
-        # Guardar PDF
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         output_path = os.path.join(OUTPUT_DIR, f"{data['serie']}.pdf")
         doc.save(output_path)
