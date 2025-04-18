@@ -1,23 +1,25 @@
 from flask import Flask, render_template, request, send_file
 from datetime import datetime, timedelta
-import fitz
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.utils import ImageReader
 import os
 
 app = Flask(__name__)
-TEMPLATE_PATH = "cdmxdigital2025ppp.pdf"
+TEMPLATE_IMAGE = "fondo_plantilla.png"
 OUTPUT_DIR = "static/pdfs"
 
-# Coordenadas fijas
+# Coordenadas desde esquina inferior izquierda
 coords = {
-    "fecha": (247, 285, 20),
-    "folio": (187, 252, 24),
-    "marca": (177, 290, 22),
-    "linea": (177, 293, 22),
-    "anio": (177, 296, 22),
-    "serie": (455, 290, 22),
-    "motor": (455, 296, 22),
-    "vigencia": (455, 328, 22),
-    "nombre": (455, 360, 22),
+    "fecha": (247, 507, 20),
+    "folio": (187, 540, 24),
+    "marca": (177, 502, 22),
+    "linea": (177, 489, 22),
+    "anio": (177, 476, 22),
+    "serie": (455, 502, 22),
+    "motor": (455, 489, 22),
+    "vigencia": (455, 459, 22),
+    "nombre": (455, 427, 22),
 }
 
 @app.route("/", methods=["GET", "POST"])
@@ -25,28 +27,39 @@ def index():
     if request.method == "POST":
         data = request.form
 
-        # Fecha actual y vigencia automática
         fecha_actual = datetime.now()
         fecha_expedicion = fecha_actual.strftime("%d DE %B DEL %Y").upper()
         vigencia = (fecha_actual + timedelta(days=30)).strftime("%d/%m/%Y")
 
-        doc = fitz.open(TEMPLATE_PATH)
-        page = doc[0]
-
-        page.insert_text((coords["fecha"][0], coords["fecha"][1]), fecha_expedicion, fontsize=coords["fecha"][2])
-        page.insert_text((coords["folio"][0], coords["folio"][1]), data["folio"], fontsize=coords["folio"][2], color=(1, 0, 0))
-        page.insert_text((coords["marca"][0], coords["marca"][1]), data["marca"], fontsize=coords["marca"][2])
-        page.insert_text((coords["linea"][0], coords["linea"][1]), data["linea"], fontsize=coords["linea"][2])
-        page.insert_text((coords["anio"][0], coords["anio"][1]), data["anio"], fontsize=coords["anio"][2])
-        page.insert_text((coords["serie"][0], coords["serie"][1]), data["serie"], fontsize=coords["serie"][2])
-        page.insert_text((coords["motor"][0], coords["motor"][1]), data["motor"], fontsize=coords["motor"][2])
-        page.insert_text((coords["vigencia"][0], coords["vigencia"][1]), vigencia, fontsize=coords["vigencia"][2])
-        page.insert_text((coords["nombre"][0], coords["nombre"][1]), data["nombre"], fontsize=coords["nombre"][2])
-
+        serie = data["serie"]
         os.makedirs(OUTPUT_DIR, exist_ok=True)
-        output_path = os.path.join(OUTPUT_DIR, f"{data['serie']}.pdf")
-        doc.save(output_path)
-        doc.close()
+        output_path = os.path.join(OUTPUT_DIR, f"{serie}.pdf")
+
+        c = canvas.Canvas(output_path, pagesize=letter)
+
+        # Fondo como imagen
+        bg = ImageReader(TEMPLATE_IMAGE)
+        c.drawImage(bg, 0, 0, width=612, height=792)
+
+        # Insertar texto
+        c.setFont("Helvetica-Bold", coords["fecha"][2])
+        c.drawString(coords["fecha"][0], coords["fecha"][1], fecha_expedicion)
+
+        c.setFont("Helvetica-Bold", coords["folio"][2])
+        c.setFillColorRGB(1, 0, 0)
+        c.drawString(coords["folio"][0], coords["folio"][1], data["folio"])
+        c.setFillColorRGB(0, 0, 0)
+
+        campos = ["marca", "linea", "anio", "serie", "motor", "vigencia", "nombre"]
+        valores = [data["marca"], data["linea"], data["anio"], data["serie"],
+                   data["motor"], vigencia, data["nombre"]]
+
+        for campo, valor in zip(campos, valores):
+            c.setFont("Helvetica-Bold", coords[campo][2])
+            c.drawString(coords[campo][0], coords[campo][1], valor)
+
+        c.showPage()
+        c.save()
 
         return send_file(output_path, as_attachment=True)
 
