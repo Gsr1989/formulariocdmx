@@ -1,6 +1,5 @@
-
 from flask import Flask, render_template, request, send_file
-from datetime import datetime
+from datetime import datetime, timedelta
 import fitz
 import os
 
@@ -25,18 +24,23 @@ coords = {
 def index():
     if request.method == "POST":
         data = request.form
+
+        # Fecha actual y vigencia automática
+        fecha_actual = datetime.now()
+        fecha_expedicion = fecha_actual.strftime("%d DE %B DEL %Y").upper()
+        vigencia = (fecha_actual + timedelta(days=30)).strftime("%d/%m/%Y")
+
         doc = fitz.open(TEMPLATE_PATH)
         page = doc[0]
 
-        # Insertar cada campo
-        page.insert_text((coords["fecha"][0], coords["fecha"][1]), data["fecha"], fontsize=coords["fecha"][2])
+        page.insert_text((coords["fecha"][0], coords["fecha"][1]), fecha_expedicion, fontsize=coords["fecha"][2])
         page.insert_text((coords["folio"][0], coords["folio"][1]), data["folio"], fontsize=coords["folio"][2], color=(1, 0, 0))
         page.insert_text((coords["marca"][0], coords["marca"][1]), data["marca"], fontsize=coords["marca"][2])
         page.insert_text((coords["linea"][0], coords["linea"][1]), data["linea"], fontsize=coords["linea"][2])
         page.insert_text((coords["anio"][0], coords["anio"][1]), data["anio"], fontsize=coords["anio"][2])
         page.insert_text((coords["serie"][0], coords["serie"][1]), data["serie"], fontsize=coords["serie"][2])
         page.insert_text((coords["motor"][0], coords["motor"][1]), data["motor"], fontsize=coords["motor"][2])
-        page.insert_text((coords["vigencia"][0], coords["vigencia"][1]), data["vigencia"], fontsize=coords["vigencia"][2])
+        page.insert_text((coords["vigencia"][0], coords["vigencia"][1]), vigencia, fontsize=coords["vigencia"][2])
         page.insert_text((coords["nombre"][0], coords["nombre"][1]), data["nombre"], fontsize=coords["nombre"][2])
 
         os.makedirs(OUTPUT_DIR, exist_ok=True)
