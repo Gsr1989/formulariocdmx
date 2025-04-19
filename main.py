@@ -59,7 +59,7 @@ coords_morelos = {
 
 # Coordenadas OAXACA
 coords_oaxaca = {
-    "folio": (87, 662, 12, (1, 0, 0)),
+    "folio": (400, 100, 16, (1, 0, 0)),
     "fecha1": (147, 650, 12, (0, 0, 0)),
     "fecha2": (147, 636, 12, (0, 0, 0)),
     "marca": (97, 365, 12, (0, 0, 0)),
