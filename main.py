@@ -65,8 +65,12 @@ def login():
         user = request.form["user"]
         pw = request.form["pass"]
         if user == USUARIO and pw == CONTRASENA:
-            return redirect(url_for("formulario"))
+            return redirect(url_for("seleccionar_entidad"))
     return render_template("login.html")
+
+@app.route("/seleccionar_entidad")
+def seleccionar_entidad():
+    return render_template("seleccionar_entidad.html")
 
 @app.route("/formulario", methods=["GET", "POST"])
 def formulario():
