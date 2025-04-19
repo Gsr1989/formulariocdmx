@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>¡Listo!</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f7f7f7;
+            padding: 30px;
+            text-align: center;
+        }
+        .container {
+            display: inline-block;
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .btn {
+            display: inline-block;
+            margin: 10px 15px;
+            padding: 12px 25px;
+            font-size: 16px;
+            background-color: #c8102e;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #a50d24;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>PDF generado con éxito</h2>
+        <!-- Enlace para descargar el PDF generado -->
+        <a href="{{ url_for('static', filename='pdfs/' ~ archivo) }}" download class="btn">
+            📄 Descargar PDF
+        </a>
+        <!-- Botón para generar otro del mismo formulario -->
+        <button class="btn" onclick="window.history.back()">
+            🔄 Generar otro
+        </button>
+        <!-- Botón para volver al menú principal -->
+        <a href="{{ url_for('seleccionar_entidad') }}" class="btn">
+            🏠 Menú Principal
+        </a>
+    </div>
+</body>
+</html>
