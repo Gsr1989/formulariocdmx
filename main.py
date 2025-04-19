@@ -1,11 +1,19 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, redirect, url_for, session
 from datetime import datetime, timedelta
 import fitz  # PyMuPDF
 import os
+import locale
 
 app = Flask(__name__)
+app.secret_key = "clave_super_secreta"
 TEMPLATE_PDF = "cdmxdigital2025ppp.pdf"
 OUTPUT_DIR = "static/pdfs"
+
+# Configura la fecha en español
+try:
+    locale.setlocale(locale.LC_TIME, 'es_ES.utf8')
+except:
+    locale.setlocale(locale.LC_TIME, 'es_MX.utf8')
 
 # Coordenadas finales (X, Y, tamaño, color)
 coords = {
@@ -21,10 +29,23 @@ coords = {
 }
 
 @app.route("/", methods=["GET", "POST"])
-def index():
+def login():
+    if request.method == "POST":
+        usuario = request.form["usuario"]
+        contrasena = request.form["contrasena"]
+        if usuario == "Gsr89roja" and contrasena == "serg890105":
+            session["usuario"] = usuario
+            return redirect(url_for("formulario"))
+        return "Acceso denegado"
+    return render_template("login.html")
+
+@app.route("/formulario", methods=["GET", "POST"])
+def formulario():
+    if "usuario" not in session:
+        return redirect(url_for("login"))
+
     if request.method == "POST":
         data = request.form
-
         fecha_actual = datetime.now()
         fecha_expedicion = fecha_actual.strftime("%d DE %B DEL %Y").upper()
         vigencia_final = (fecha_actual + timedelta(days=30)).strftime("%d/%m/%Y")
@@ -35,7 +56,6 @@ def index():
         doc = fitz.open(TEMPLATE_PDF)
         page = doc[0]
 
-        # Insertar textos
         page.insert_text((coords["folio"][0], coords["folio"][1]), data["folio"], fontsize=coords["folio"][2], color=coords["folio"][3])
         page.insert_text((coords["fecha"][0], coords["fecha"][1]), fecha_expedicion, fontsize=coords["fecha"][2], color=coords["fecha"][3])
 
@@ -52,3 +72,8 @@ def index():
         return send_file(output_path, as_attachment=True)
 
     return render_template("formulario.html")
+
+@app.route("/logout")
+def logout():
+    session.pop("usuario", None)
+    return redirect(url_for("login"))
