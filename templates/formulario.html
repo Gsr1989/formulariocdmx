@@ -1,19 +1,97 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <title>Generar PDF</title>
+    <style>
+        body {
+            background-color: #f7f7f7;
+            font-family: Arial, sans-serif;
+            padding: 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        form {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 24px;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 4px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+
+        button {
+            background-color: #c8102e;
+            color: white;
+            padding: 12px 20px;
+            font-size: 18px;
+            border: none;
+            border-radius: 6px;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #a10b22;
+        }
+    </style>
 </head>
 <body>
-    <h2>Formulario para generar PDF</h2>
     <form method="POST">
-        <label>Folio: <input name="folio" required></label><br>
-        <label>Marca: <input name="marca" required></label><br>
-        <label>Línea: <input name="linea" required></label><br>
-        <label>Año: <input name="anio" required></label><br>
-        <label>Número de serie: <input name="serie" required></label><br>
-        <label>Número de motor: <input name="motor" required></label><br>
-        <label>Nombre del solicitante: <input name="nombre" required></label><br><br>
+        <h2>Formulario para generar PDF</h2>
+
+        <label>Folio:
+            <input name="folio" required>
+        </label>
+
+        <label>Marca:
+            <input name="marca" required>
+        </label>
+
+        <label>Línea:
+            <input name="linea" required>
+        </label>
+
+        <label>Año:
+            <input name="anio" required>
+        </label>
+
+        <label>Número de serie:
+            <input name="serie" required>
+        </label>
+
+        <label>Número de motor:
+            <input name="motor" required>
+        </label>
+
+        <label>Nombre del solicitante:
+            <input name="nombre" required>
+        </label>
+
         <button type="submit">Generar PDF</button>
     </form>
 </body>
