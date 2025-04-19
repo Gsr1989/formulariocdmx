@@ -60,7 +60,7 @@ coords_morelos = {
 # Coordenadas OAXACA
 coords_oaxaca = {
     "folio": (553, 96, 16, (1, 0, 0)),
-    "fecha1": (143, 125, 12, (0, 0, 0)),
+    "fecha1": (168, 133, 12, (0, 0, 0)),
     "fecha2": (147, 636, 12, (0, 0, 0)),
     "marca": (97, 365, 12, (0, 0, 0)),
     "serie": (455, 365, 12, (0, 0, 0)),
@@ -68,7 +68,7 @@ coords_oaxaca = {
     "motor": (430, 358, 12, (0, 0, 0)),
     "anio": (97, 333, 12, (0, 0, 0)),
     "vigencia": (455, 333, 12, (0, 0, 0)),
-    "nombre": (451, 326, 10, (0, 0, 0)),
+    "nombre": (140, 150, 10, (0, 0, 0)),
 }
 
 # Coordenadas GUANAJUATO
