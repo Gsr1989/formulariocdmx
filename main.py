@@ -9,7 +9,7 @@ OUTPUT_DIR = "static/pdfs"
 
 # Coordenadas finales (X, Y, tamaño, color)
 coords = {
-    "folio": (87, 659, 12, (1, 0, 0)),
+    "folio": (100, 659, 12, (1, 0, 0)),
     "fecha": (147, 650, 12, (0, 0, 0)),
     "marca": (97, 365, 12, (0, 0, 0)),
     "serie": (455, 365, 12, (0, 0, 0)),
