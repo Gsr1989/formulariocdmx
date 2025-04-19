@@ -73,7 +73,7 @@ coords_oaxaca = {
 
 # Coordenadas GUANAJUATO
 coords_gto = {
-    "folio": (650, 300, 16, (1, 0, 0)),
+    "folio": (1300, 300, 35, (1, 0, 0)),
     "marca": (100, 250, 12, (0, 0, 0)),
     "linea": (300, 250, 12, (0, 0, 0)),
     "anio": (500, 250, 12, (0, 0, 0)),
