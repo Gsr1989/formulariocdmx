@@ -31,6 +31,25 @@ coords = {
     "nombre": (375, 340, 12, (0, 0, 0)),
 }
 
+def generar_folio_automatico(ruta_archivo="folios_usados.txt"):
+    mes_actual = datetime.now().strftime("%m")
+
+    if not os.path.exists(ruta_archivo):
+        with open(ruta_archivo, "w") as f:
+            pass
+
+    with open(ruta_archivo, "r") as f:
+        folios = [line.strip() for line in f.readlines()]
+
+    folios_mes = [f for f in folios if f.startswith(mes_actual)]
+    siguiente_numero = len(folios_mes) + 1
+    folio_generado = f"{mes_actual}{siguiente_numero:03d}"
+
+    with open(ruta_archivo, "a") as f:
+        f.write(folio_generado + "\n")
+
+    return folio_generado
+
 @app.route("/", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
@@ -45,19 +64,20 @@ def formulario():
     if request.method == "POST":
         data = request.form
 
+        folio = generar_folio_automatico()
+
         ahora = datetime.now()
         mes_es = meses_es[ahora.strftime("%B")]
         fecha_expedicion = ahora.strftime(f"%d DE {mes_es} DEL %Y").upper()
         vigencia_final = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
 
-        output_path = os.path.join(OUTPUT_DIR, f"{data['folio']}.pdf")
+        output_path = os.path.join(OUTPUT_DIR, f"{folio}.pdf")
         os.makedirs(OUTPUT_DIR, exist_ok=True)
 
         doc = fitz.open(TEMPLATE_PDF)
         page = doc[0]
 
-        # Insertar textos
-        page.insert_text((coords["folio"][0], coords["folio"][1]), data["folio"], fontsize=coords["folio"][2], color=coords["folio"][3])
+        page.insert_text((coords["folio"][0], coords["folio"][1]), folio, fontsize=coords["folio"][2], color=coords["folio"][3])
         page.insert_text((coords["fecha"][0], coords["fecha"][1]), fecha_expedicion, fontsize=coords["fecha"][2], color=coords["fecha"][3])
 
         campos = ["marca", "serie", "linea", "motor", "anio", "vigencia", "nombre"]
