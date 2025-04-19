@@ -14,7 +14,6 @@ meses_es = {
     "September": "SEPTIEMBRE", "October": "OCTUBRE", "November": "NOVIEMBRE", "December": "DICIEMBRE"
 }
 
-# Coordenadas
 coords_cdmx = {
     "folio": (87, 130, 12, (1, 0, 0)),
     "fecha": (130, 145, 12, (0, 0, 0)),
@@ -55,6 +54,19 @@ coords_morelos = {
     "fecha_hoja2": (100, 100, 14, (0, 0, 0)),
 }
 
+coords_oaxaca = {
+    "folio": (87, 662, 12, (1, 0, 0)),
+    "fecha1": (147, 650, 12, (0, 0, 0)),
+    "fecha2": (147, 636, 12, (0, 0, 0)),
+    "marca": (97, 365, 12, (0, 0, 0)),
+    "serie": (455, 365, 12, (0, 0, 0)),
+    "linea": (97, 358, 12, (0, 0, 0)),
+    "motor": (430, 358, 12, (0, 0, 0)),
+    "anio": (97, 333, 12, (0, 0, 0)),
+    "vigencia": (455, 333, 12, (0, 0, 0)),
+    "nombre": (451, 326, 10, (0, 0, 0)),
+}
+
 def generar_folio_automatico(ruta="folios_globales.txt"):
     mes_actual = datetime.now().strftime("%m")
     if not os.path.exists(ruta):
@@ -80,81 +92,30 @@ def login():
 def seleccionar_entidad():
     return render_template("seleccionar_entidad.html")
 
-@app.route("/formulario", methods=["GET", "POST"])
-def formulario_cdmx():
+@app.route("/formulario_oaxaca", methods=["GET", "POST"])
+def formulario_oaxaca():
     if request.method == "POST":
         data = request.form
         folio = generar_folio_automatico()
         ahora = datetime.now()
-        fecha_exp = ahora.strftime(f"%d DE {meses_es[ahora.strftime('%B')]} DEL %Y").upper()
-        vigencia = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-        path = os.path.join(OUTPUT_DIR, f"{folio}_cdmx.pdf")
+        fecha1 = ahora.strftime("%d/%m/%Y")
+        fecha2 = fecha1
+        vencimiento = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+        path = os.path.join(OUTPUT_DIR, f"{folio}_oaxaca.pdf")
         os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-        doc = fitz.open("cdmxdigital2025ppp.pdf")
+        doc = fitz.open("oaxacachido.pdf")
         page = doc[0]
-        page.insert_text((coords_cdmx["folio"][0], coords_cdmx["folio"][1]), folio, fontsize=coords_cdmx["folio"][2], color=coords_cdmx["folio"][3])
-        page.insert_text((coords_cdmx["fecha"][0], coords_cdmx["fecha"][1]), fecha_exp, fontsize=coords_cdmx["fecha"][2], color=coords_cdmx["fecha"][3])
+
+        page.insert_text((coords_oaxaca["folio"][0], coords_oaxaca["folio"][1]), folio, fontsize=coords_oaxaca["folio"][2], color=coords_oaxaca["folio"][3])
+        page.insert_text((coords_oaxaca["fecha1"][0], coords_oaxaca["fecha1"][1]), fecha1, fontsize=coords_oaxaca["fecha1"][2], color=coords_oaxaca["fecha1"][3])
+        page.insert_text((coords_oaxaca["fecha2"][0], coords_oaxaca["fecha2"][1]), fecha2, fontsize=coords_oaxaca["fecha2"][2], color=coords_oaxaca["fecha2"][3])
 
         for campo in ["marca", "serie", "linea", "motor", "anio", "vigencia", "nombre"]:
-            x, y, size, color = coords_cdmx[campo]
-            val = vigencia if campo == "vigencia" else data[campo]
+            x, y, size, color = coords_oaxaca[campo]
+            val = vencimiento if campo == "vigencia" else data[campo]
             page.insert_text((x, y), val, fontsize=size, color=color)
 
         doc.save(path)
         return send_file(path, as_attachment=True)
-    return render_template("formulario.html")
-
-@app.route("/formulario_edomex", methods=["GET", "POST"])
-def formulario_edomex():
-    if request.method == "POST":
-        data = request.form
-        folio = generar_folio_automatico()
-        ahora = datetime.now()
-        fecha_exp = ahora.strftime("%d/%m/%Y")
-        fecha_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-        path = os.path.join(OUTPUT_DIR, f"{folio}_edomex.pdf")
-        os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-        doc = fitz.open("edomex_plantilla_alta_res.pdf")
-        page = doc[0]
-        page.insert_text((coords_edomex["folio"][0], coords_edomex["folio"][1]), folio, fontsize=coords_edomex["folio"][2], color=coords_edomex["folio"][3])
-
-        for campo in ["marca", "linea", "anio", "motor", "serie", "color", "fecha_exp", "fecha_ven", "nombre"]:
-            x, y, size, color = coords_edomex[campo]
-            val = fecha_exp if campo == "fecha_exp" else fecha_ven if campo == "fecha_ven" else data[campo]
-            page.insert_text((x, y), val, fontsize=size, color=color)
-
-        doc.save(path)
-        return send_file(path, as_attachment=True)
-    return render_template("formulario_edomex.html")
-
-@app.route("/formulario_morelos", methods=["GET", "POST"])
-def formulario_morelos():
-    if request.method == "POST":
-        data = request.form
-        folio = generar_folio_automatico()
-        ahora = datetime.now()
-        fecha_larga = ahora.strftime(f"%d DE {meses_es[ahora.strftime('%B')]} DEL %Y").upper()
-        fecha_corta = ahora.strftime("%d/%m/%Y")
-        fecha_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-        path = os.path.join(OUTPUT_DIR, f"{folio}_morelos.pdf")
-        os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-        doc = fitz.open("morelos_hoja1_imagen.pdf")
-        page = doc[0]
-        page.insert_text((coords_morelos["folio"][0], coords_morelos["folio"][1]), folio, fontsize=coords_morelos["folio"][2], color=coords_morelos["folio"][3])
-        page.insert_text((coords_morelos["fecha"][0], coords_morelos["fecha"][1]), fecha_larga, fontsize=coords_morelos["fecha"][2], color=coords_morelos["fecha"][3])
-        page.insert_text((coords_morelos["vigencia"][0], coords_morelos["vigencia"][1]), fecha_ven, fontsize=coords_morelos["vigencia"][2], color=coords_morelos["vigencia"][3])
-
-        for campo in ["marca", "linea", "anio", "serie", "motor", "color", "tipo", "nombre"]:
-            x, y, size, color = coords_morelos[campo]
-            page.insert_text((x, y), data[campo], fontsize=size, color=color)
-
-        if len(doc) > 1:
-            fx, fy, fz, fc = coords_morelos["fecha_hoja2"]
-            doc[1].insert_text((fx, fy), fecha_corta, fontsize=fz, color=fc)
-
-        doc.save(path)
-        return send_file(path, as_attachment=True)
-    return render_template("formulario_morelos.html")
+    return render_template("formulario_oaxaca.html")
