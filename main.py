@@ -80,7 +80,7 @@ coords_gto = {
     "motor":    (1290, 800, 35, (0, 0, 0)),
     "color":    (1960, 715, 35, (0, 0, 0)),
     "nombre":   (950, 1100, 90, (0, 0, 0)),
-    "vigencia": (2200, 630, 35, (0, 0, 0))
+    "vigencia": (2200, 645, 35, (0, 0, 0))
 }
 
 def generar_folio_automatico(ruta="folios_globales.txt"):
