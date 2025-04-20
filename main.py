@@ -1,5 +1,3 @@
-Y donde está cdmx edomex Morelos oaxaca??
-
 from flask import Flask, render_template, request, send_file, redirect, url_for
 from datetime import datetime, timedelta
 import fitz  # PyMuPDF
