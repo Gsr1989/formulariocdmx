@@ -5,20 +5,96 @@
   <title>Registro Exitoso</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: Arial, sans-serif; background: #fff; margin:0; padding:0; text-align:center }
-    header, footer { width:100% }
-    header img, footer img { width:100%; max-height:100px; object-fit:contain }
-    .mensaje { margin:30px auto; font-size:22px; font-weight:bold; color:#28a745 }
-    .botones { display:flex; flex-direction:column; gap:10px; margin:20px }
-    .botones a { padding:12px; text-decoration:none; color:#fff; border-radius:8px; font-weight:bold }
-    .verde{background:#28a745} .azul{background:#2874A6} .rojo{background:#a83232}
-    .modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);
-      display:flex;align-items:center;justify-content:center;z-index:999}
-    .modal-contenido{background:#fff;padding:20px;border-radius:10px;max-width:90%;text-align:center}
-    .modal-contenido h2{margin-bottom:15px;font-size:18px}
-    .modal-contenido button{margin:10px;padding:10px 20px;font-weight:bold;border:none;
-      border-radius:5px;cursor:pointer}
-    .si{background:#007bff;color:#fff} .no{background:#dc3545;color:#fff}
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9f9f9;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header, footer {
+      width: 100%;
+      background-color: #8a1538;
+    }
+
+    header img, footer img {
+      width: 100%;
+      max-width: 500px;
+      object-fit: contain;
+      display: block;
+      margin: auto;
+    }
+
+    .mensaje {
+      margin: 30px auto 15px;
+      font-size: 24px;
+      font-weight: bold;
+      color: #28a745;
+      text-align: center;
+    }
+
+    .botones {
+      width: 90%;
+      max-width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin: 20px auto 40px;
+    }
+
+    .botones a {
+      padding: 15px;
+      text-align: center;
+      color: white;
+      font-weight: bold;
+      text-decoration: none;
+      border-radius: 10px;
+      font-size: 18px;
+    }
+
+    .verde { background: #28a745; }
+    .azul { background: #007bff; }
+    .rojo { background: #a83232; }
+
+    .modal {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+    }
+
+    .modal-contenido {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      text-align: center;
+      width: 90%;
+      max-width: 320px;
+    }
+
+    .modal-contenido h2 {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+
+    .modal-contenido button {
+      padding: 10px 25px;
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .si { background: #007bff; color: white; }
+    .no { background: #dc3545; color: white; }
   </style>
 </head>
 <body>
