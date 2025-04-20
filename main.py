@@ -100,7 +100,7 @@ def generar_folio_automatico(ruta="folios_globales.txt"):
 @app.route("/", methods=["GET","POST"])
 def login():
     if request.method=="POST":
-        if request.form["user"]==USUARIO and request.form["pass"]==CONTRASENA:
+        if request.form["user"] == USUARIO and request.form["pass"] == CONTRASENA:
             return redirect(url_for("seleccionar_entidad"))
     return render_template("login.html")
 
@@ -110,7 +110,7 @@ def seleccionar_entidad():
 
 @app.route("/formulario", methods=["GET","POST"])
 def formulario_cdmx():
-    if request.method=="POST":
+    if request.method == "POST":
         d = request.form
         folio = generar_folio_automatico()
         ahora = datetime.now()
@@ -118,7 +118,7 @@ def formulario_cdmx():
         f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
         out = os.path.join(OUTPUT_DIR, f"{folio}_cdmx.pdf")
         os.makedirs(OUTPUT_DIR, exist_ok=True)
-        doc = fitz.open("cdmxdigital2025ppp.pdf"); pg=doc[0]
+        doc = fitz.open("cdmxdigital2025ppp.pdf"); pg = doc[0]
         pg.insert_text(coords_cdmx["folio"][:2], folio,
                        fontsize=coords_cdmx["folio"][2], color=coords_cdmx["folio"][3])
         pg.insert_text(coords_cdmx["fecha"][:2], f_exp,
@@ -133,7 +133,7 @@ def formulario_cdmx():
 
 @app.route("/formulario_edomex", methods=["GET","POST"])
 def formulario_edomex():
-    if request.method=="POST":
+    if request.method == "POST":
         d = request.form
         folio = generar_folio_automatico()
         ahora = datetime.now()
@@ -141,7 +141,7 @@ def formulario_edomex():
         f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
         out = os.path.join(OUTPUT_DIR, f"{folio}_edomex.pdf")
         os.makedirs(OUTPUT_DIR, exist_ok=True)
-        doc = fitz.open("edomex_plantilla_alta_res.pdf"); pg=doc[0]
+        doc = fitz.open("edomex_plantilla_alta_res.pdf"); pg = doc[0]
         pg.insert_text(coords_edomex["folio"][:2], folio,
                        fontsize=coords_edomex["folio"][2], color=coords_edomex["folio"][3])
         for c,val in [("marca",d["marca"]),("linea",d["linea"]),("anio",d["anio"]),
@@ -156,7 +156,7 @@ def formulario_edomex():
 
 @app.route("/formulario_morelos", methods=["GET","POST"])
 def formulario_morelos():
-    if request.method=="POST":
+    if request.method == "POST":
         d = request.form
         folio = generar_folio_automatico()
         ahora = datetime.now()
@@ -165,7 +165,7 @@ def formulario_morelos():
         f_ven   = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
         out = os.path.join(OUTPUT_DIR, f"{folio}_morelos.pdf")
         os.makedirs(OUTPUT_DIR, exist_ok=True)
-        doc = fitz.open("morelos_hoja1_imagen.pdf"); pg=doc[0]
+        doc = fitz.open("morelos_hoja1_imagen.pdf"); pg = doc[0]
         pg.insert_text(coords_morelos["folio"][:2], folio,
                        fontsize=coords_morelos["folio"][2], color=coords_morelos["folio"][3])
         pg.insert_text(coords_morelos["fecha"][:2], f_larga,
@@ -175,7 +175,7 @@ def formulario_morelos():
         for c in ["marca","linea","anio","serie","motor","color","tipo"]:
             x,y,s,col = coords_morelos[c]; pg.insert_text((x,y), d[c], fontsize=s, color=col)
         x,y,s,col = coords_morelos["nombre"]; pg.insert_text((x,y), d["nombre"], fontsize=s, color=col)
-        if len(doc)>1:
+        if len(doc) > 1:
             x,y,s,col = coords_morelos["fecha_hoja2"]; doc[1].insert_text((x,y), f_corta, fontsize=s, color=col)
         doc.save(out); doc.close()
         return send_file(out, as_attachment=True)
@@ -183,7 +183,7 @@ def formulario_morelos():
 
 @app.route("/formulario_oaxaca", methods=["GET","POST"])
 def formulario_oaxaca():
-    if request.method=="POST":
+    if request.method == "POST":
         d = request.form
         folio = generar_folio_automatico()
         ahora = datetime.now()
@@ -192,7 +192,7 @@ def formulario_oaxaca():
         f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
         out = os.path.join(OUTPUT_DIR, f"{folio}_oaxaca.pdf")
         os.makedirs(OUTPUT_DIR, exist_ok=True)
-        doc = fitz.open("oaxacachido.pdf"); pg=doc[0]
+        doc = fitz.open("oaxacachido.pdf"); pg = doc[0]
         pg.insert_text(coords_oaxaca["folio"][:2], folio,
                        fontsize=coords_oaxaca["folio"][2], color=coords_oaxaca["folio"][3])
         pg.insert_text(coords_oaxaca["fecha1"][:2], f1,
@@ -209,7 +209,7 @@ def formulario_oaxaca():
 
 @app.route("/formulario_gto", methods=["GET","POST"])
 def formulario_gto():
-    if request.method=="POST":
+    if request.method == "POST":
         d = request.form
         folio = generar_folio_automatico()
         ahora = datetime.now()
@@ -217,7 +217,7 @@ def formulario_gto():
         f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
         out = os.path.join(OUTPUT_DIR, f"{folio}_gto.pdf")
         os.makedirs(OUTPUT_DIR, exist_ok=True)
-        doc = fitz.open("permiso guanajuato.pdf"); pg=doc[0]
+        doc = fitz.open("permiso guanajuato.pdf"); pg = doc[0]
         pg.insert_text(coords_gto["folio"][:2], folio,
                        fontsize=coords_gto["folio"][2], color=coords_gto["folio"][3])
         pg.insert_text(coords_gto["fecha"][:2], f_exp,
@@ -225,7 +225,7 @@ def formulario_gto():
         for c in ["marca","linea","anio","serie","motor","color"]:
             x,y,s,col = coords_gto[c]; pg.insert_text((x,y), d[c], fontsize=s, color=col)
         x,y,s,col = coords_gto["vigencia"]; pg.insert_text((x,y), f_ven, fontsize=s, color=col)
-        x,y,s,col = coords_gto["nombre"];  pg.insert_text((x,y), d["nombre"], fontsize=s, color=col)
+        x,y,s,col = coords_gto["nombre"]; pg.insert_text((x,y), d["nombre"], fontsize=s, color=col)
         doc.save(out); doc.close()
         return send_file(out, as_attachment=True)
     return render_template("formulario_gto.html")
@@ -237,6 +237,11 @@ def abrir_pdf(folio):
     if os.path.exists(ruta):
         return send_file(ruta, as_attachment=True)
     return "Archivo no encontrado", 404
+
+# LOGOUT
+@app.route("/logout")
+def logout():
+    return redirect(url_for("login"))
 
 if __name__ == "__main__":
     app.run()
