@@ -3,59 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <title>Formulario Oaxaca</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: #f7f7f7;
-            padding: 30px;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 0;
             text-align: center;
         }
 
+        header, footer {
+            width: 100%;
+            background-color: #8a1538;
+        }
+
+        header img, footer img {
+            width: 100%;
+            max-width: 500px;
+        }
+
         h2 {
-            color: #333;
+            margin: 30px 0 10px;
+            font-size: 22px;
         }
 
         form {
-            display: inline-block;
-            text-align: left;
             background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin: 10px auto 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 8px rgba(0,0,0,0.1);
+            max-width: 400px;
+            width: 90%;
+            text-align: left;
         }
 
         label {
+            font-size: 15px;
+            margin: 10px 0 5px;
             display: block;
-            margin-top: 15px;
-            font-weight: bold;
         }
 
         input {
             width: 100%;
-            padding: 8px;
-            font-size: 14px;
-            border-radius: 5px;
+            padding: 10px;
+            font-size: 15px;
+            margin-bottom: 15px;
             border: 1px solid #ccc;
-            margin-top: 5px;
+            border-radius: 6px;
         }
 
-        button {
-            margin-top: 25px;
-            padding: 12px 25px;
+        .boton {
+            width: 100%;
+            padding: 12px;
             font-size: 16px;
-            background-color: #c8102e;
-            color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
+            color: white;
+            margin-top: 10px;
         }
 
-        button:hover {
-            background-color: #a50d24;
+        .rojo {
+            background-color: #c8102e;
+        }
+
+        .gris {
+            background-color: #555;
+        }
+
+        .boton:hover {
+            opacity: 0.9;
         }
     </style>
 </head>
 <body>
+
+    <header>
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Encabezado">
+    </header>
+
     <h2>Formulario de Permiso - Oaxaca</h2>
     <form method="POST">
         <label>Marca: <input type="text" name="marca" required></label>
@@ -65,7 +93,16 @@
         <label>Número de motor: <input type="text" name="motor" required></label>
         <label>Color: <input type="text" name="color" required></label>
         <label>Nombre del solicitante: <input type="text" name="nombre" required></label>
-        <button type="submit">Generar PDF</button>
+        <button class="boton rojo" type="submit">Generar PDF</button>
     </form>
+
+    <form action="/seleccionar_entidad">
+        <button class="boton gris" type="submit">Menú principal</button>
+    </form>
+
+    <footer>
+        <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
+    </footer>
+
 </body>
 </html>
