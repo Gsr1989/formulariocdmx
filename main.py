@@ -108,7 +108,6 @@ def login():
 def seleccionar_entidad():
     return render_template("seleccionar_entidad.html")
 
-# CDMX
 @app.route("/formulario", methods=["GET","POST"])
 def formulario_cdmx():
     if request.method=="POST":
@@ -126,14 +125,12 @@ def formulario_cdmx():
                        fontsize=coords_cdmx["fecha"][2], color=coords_cdmx["fecha"][3])
         for c in ["marca","serie","linea","motor","anio"]:
             x,y,s,col = coords_cdmx[c]; pg.insert_text((x,y), d[c], fontsize=s, color=col)
-        # vigencia y nombre
         x,y,s,col = coords_cdmx["vigencia"]; pg.insert_text((x,y), f_ven, fontsize=s, color=col)
         x,y,s,col = coords_cdmx["nombre"]; pg.insert_text((x,y), d["nombre"], fontsize=s, color=col)
         doc.save(out); doc.close()
-        return render_template("exitoso.html", folio=folio, cdmx=True)  # <- cambio aquí
+        return render_template("exitoso.html", folio=folio, cdmx=True)
     return render_template("formulario.html")
 
-# EDOMEX
 @app.route("/formulario_edomex", methods=["GET","POST"])
 def formulario_edomex():
     if request.method=="POST":
@@ -157,7 +154,6 @@ def formulario_edomex():
         return send_file(out, as_attachment=True)
     return render_template("formulario_edomex.html")
 
-# Morelos
 @app.route("/formulario_morelos", methods=["GET","POST"])
 def formulario_morelos():
     if request.method=="POST":
@@ -185,7 +181,6 @@ def formulario_morelos():
         return send_file(out, as_attachment=True)
     return render_template("formulario_morelos.html")
 
-# Oaxaca
 @app.route("/formulario_oaxaca", methods=["GET","POST"])
 def formulario_oaxaca():
     if request.method=="POST":
@@ -212,7 +207,6 @@ def formulario_oaxaca():
         return send_file(out, as_attachment=True)
     return render_template("formulario_oaxaca.html")
 
-# Guanajuato
 @app.route("/formulario_gto", methods=["GET","POST"])
 def formulario_gto():
     if request.method=="POST":
@@ -235,6 +229,14 @@ def formulario_gto():
         doc.save(out); doc.close()
         return send_file(out, as_attachment=True)
     return render_template("formulario_gto.html")
+
+# ABRIR PDF SOLO PARA CDMX
+@app.route("/abrir_pdf/<folio>")
+def abrir_pdf(folio):
+    ruta = os.path.join(OUTPUT_DIR, f"{folio}_cdmx.pdf")
+    if os.path.exists(ruta):
+        return send_file(ruta, as_attachment=True)
+    return "Archivo no encontrado", 404
 
 if __name__ == "__main__":
     app.run()
