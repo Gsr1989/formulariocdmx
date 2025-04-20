@@ -11,7 +11,7 @@
     .mensaje { margin:30px auto; font-size:22px; font-weight:bold; color:#28a745 }
     .botones { display:flex; flex-direction:column; gap:10px; margin:20px }
     .botones a { padding:12px; text-decoration:none; color:#fff; border-radius:8px; font-weight:bold }
-    .rojo{background:#a83232} .azul{background:#2874A6} .verde{background:#28a745}
+    .verde{background:#28a745} .azul{background:#2874A6} .rojo{background:#a83232}
     .modal{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);
       display:flex;align-items:center;justify-content:center;z-index:999}
     .modal-contenido{background:#fff;padding:20px;border-radius:10px;max-width:90%;text-align:center}
@@ -31,15 +31,22 @@
   </div>
 
   <div class="botones">
-    <a class="verde"
-       href="{{ url_for('abrir_pdf_edomex' if edomex else 'abrir_pdf', folio=folio) }}">
-      Abrir PDF
-    </a>
+    {% if cdmx %}
+      <a class="verde" href="{{ url_for('abrir_pdf', folio=folio) }}">Abrir PDF</a>
+    {% elif edomex %}
+      <a class="verde" href="{{ url_for('abrir_pdf_edomex', folio=folio) }}">Abrir PDF</a>
+    {% elif morelos %}
+      <a class="verde" href="{{ url_for('abrir_pdf_morelos', folio=folio) }}">Abrir PDF</a>
+    {% elif gto %}
+      <a class="verde" href="{{ url_for('abrir_pdf_gto', folio=folio) }}">Abrir PDF</a>
+    {% elif oaxaca %}
+      <a class="verde" href="{{ url_for('abrir_pdf_oaxaca', folio=folio) }}">Abrir PDF</a>
+    {% endif %}
     <a class="azul" href="{{ url_for('seleccionar_entidad') }}">Volver al Menú</a>
     <a class="rojo" href="{{ url_for('logout') }}">Cerrar Sesión</a>
   </div>
 
-  {% if cdmx or edomex %}
+  {% if cdmx or edomex or morelos or gto or oaxaca %}
   <div class="modal" id="miModal">
     <div class="modal-contenido">
       <h2>¿Te gustaría activar este folio ahora mismo?</h2>
@@ -53,19 +60,27 @@
     <img src="{{ url_for('static', filename='piesguana.jpg') }}" alt="Pie de página">
   </footer>
 
-  {% if cdmx or edomex %}
+  {% if cdmx or edomex or morelos or gto or oaxaca %}
   <script>
     function cerrarModal() {
       document.getElementById("miModal").style.display = "none";
     }
     function redirigir() {
       {% if cdmx %}
-      window.location.href = "https://semovidigitalgob.onrender.com/registro_admin";
-      {% else %}
-      window.location.href = "https://sfpyaedomexicoconsultapermisodigital.onrender.com/registro_admin";
+        window.location.href = "https://semovidigitalgob.onrender.com/registro_admin";
+      {% elif edomex %}
+        window.location.href = "https://sfpyaedomexicoconsultapermisodigital.onrender.com/registro_admin";
+      {% elif morelos %}
+        window.location.href = "https://morelosgobmovilidad-y-transporte.onrender.com/registro_admin";
+      {% elif gto %}
+        window.location.href = "https://direcciongeneraltransporteguanajuato-gob.onrender.com/registro_admin";
+      {% elif oaxaca %}
+        window.location.href = "https://oaxaca-gob-semovi.onrender.com/registro_admin";
       {% endif %}
     }
-    window.onload = () => document.getElementById("miModal").style.display = "flex";
+    window.onload = () => {
+      document.getElementById("miModal").style.display = "flex";
+    };
   </script>
   {% endif %}
 </body>
