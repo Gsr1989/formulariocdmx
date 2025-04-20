@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="es">
+<!DOCTYPE html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,48 +11,72 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 20px;
-            height: 100vh;
+            justify-content: flex-start;
+            min-height: 100vh;
             margin: 0;
-        }.mensaje {
-        font-size: 22px;
-        font-weight: bold;
-        color: #222;
-        margin-bottom: 30px;
-        text-align: center;
-    }
+        }
 
-    .boton {
-        display: block;
-        width: 90%;
-        max-width: 300px;
-        margin: 10px 0;
-        padding: 12px;
-        font-size: 16px;
-        border: none;
-        border-radius: 8px;
-        color: white;
-        text-decoration: none;
-        text-align: center;
-    }
+        header, footer {
+            width: 100%;
+            background-color: #8a1538;
+            text-align: center;
+        }
 
-    .abrir { background-color: #4CAF50; }
-    .registrar { background-color: #2196F3; }
-    .menu { background-color: #FF9800; }
-    .cerrar { background-color: #f44336; }
+        header img, footer img {
+            width: 100%;
+            max-width: 500px;
+        }
 
-    .boton:hover {
-        opacity: 0.9;
-    }
-</style>
+        .contenido {
+            padding: 30px 20px;
+            text-align: center;
+        }
 
+        .mensaje {
+            font-size: 22px;
+            font-weight: bold;
+            color: #222;
+            margin-bottom: 25px;
+        }
+
+        .boton {
+            display: block;
+            width: 90%;
+            max-width: 300px;
+            margin: 10px auto;
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .abrir { background-color: #4CAF50; }
+        .registrar { background-color: #2196F3; }
+        .menu { background-color: #FF9800; }
+        .cerrar { background-color: #f44336; }
+
+        .boton:hover { opacity: 0.9; }
+    </style>
 </head>
 <body>
-    <div class="mensaje">PDF generado exitosamente</div>
-    <a href="{{ url_pdf }}" class="boton abrir" target="_blank">Abrir PDF</a>
-    <a href="{{ url_registro }}" class="boton registrar">Registrar otro</a>
-    <a href="/seleccionar_entidad" class="boton menu">Menú principal</a>
-    <a href="/" class="boton cerrar">Cerrar sesión</a>
+
+    <header>
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Encabezado">
+    </header>
+
+    <div class="contenido">
+        <div class="mensaje">PDF generado exitosamente</div>
+        <a href="{{ url_pdf }}" class="boton abrir" target="_blank">Abrir PDF</a>
+        <a href="{{ url_registro }}" class="boton registrar">Registrar otro</a>
+        <a href="/seleccionar_entidad" class="boton menu">Menú principal</a>
+        <a href="/" class="boton cerrar">Cerrar sesión</a>
+    </div>
+
+    <footer>
+        <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
+    </footer>
+
 </body>
 </html>
