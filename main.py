@@ -65,7 +65,7 @@ coords_oaxaca = {
     "linea":  (200, 215, 12, (0, 0, 0)),
     "motor":  (360, 258, 12, (0, 0, 0)),
     "anio":   (360, 215, 12, (0, 0, 0)),
-    "color":  (50, 258, 12, (0, 0, 0)),  # coordenadas a media hoja
+    "color":  (50, 258, 12, (0, 0, 0)),
     "vigencia":(410, 130, 12, (0, 0, 0)),
     "nombre":  (133, 149, 10, (0, 0, 0)),
 }
@@ -130,7 +130,7 @@ def formulario_cdmx():
         x,y,s,col = coords_cdmx["vigencia"]; pg.insert_text((x,y), f_ven, fontsize=s, color=col)
         x,y,s,col = coords_cdmx["nombre"]; pg.insert_text((x,y), d["nombre"], fontsize=s, color=col)
         doc.save(out); doc.close()
-        return send_file(out, as_attachment=True)
+        return render_template("exitoso.html", folio=folio, cdmx=True)  # <- cambio aquí
     return render_template("formulario.html")
 
 # EDOMEX
@@ -150,7 +150,6 @@ def formulario_edomex():
         for c,val in [("marca",d["marca"]),("linea",d["linea"]),("anio",d["anio"]),
                       ("motor",d["motor"]),("serie",d["serie"]),("color",d["color"])]:
             x,y,s,col = coords_edomex[c]; pg.insert_text((x,y), val, fontsize=s, color=col)
-        # fechas y nombre
         x,y,s,col = coords_edomex["fecha_exp"]; pg.insert_text((x,y), f_exp, fontsize=s, color=col)
         x,y,s,col = coords_edomex["fecha_ven"]; pg.insert_text((x,y), f_ven, fontsize=s, color=col)
         x,y,s,col = coords_edomex["nombre"];  pg.insert_text((x,y), d["nombre"], fontsize=s, color=col)
@@ -180,7 +179,6 @@ def formulario_morelos():
         for c in ["marca","linea","anio","serie","motor","color","tipo"]:
             x,y,s,col = coords_morelos[c]; pg.insert_text((x,y), d[c], fontsize=s, color=col)
         x,y,s,col = coords_morelos["nombre"]; pg.insert_text((x,y), d["nombre"], fontsize=s, color=col)
-        # hoja 2
         if len(doc)>1:
             x,y,s,col = coords_morelos["fecha_hoja2"]; doc[1].insert_text((x,y), f_corta, fontsize=s, color=col)
         doc.save(out); doc.close()
@@ -206,10 +204,8 @@ def formulario_oaxaca():
                        fontsize=coords_oaxaca["fecha1"][2], color=coords_oaxaca["fecha1"][3])
         pg.insert_text(coords_oaxaca["fecha2"][:2], f2,
                        fontsize=coords_oaxaca["fecha2"][2], color=coords_oaxaca["fecha2"][3])
-        # datos + color
         for c in ["marca","serie","linea","motor","anio","color"]:
             x,y,s,col = coords_oaxaca[c]; pg.insert_text((x,y), d[c], fontsize=s, color=col)
-        # vigencia y nombre
         x,y,s,col = coords_oaxaca["vigencia"]; pg.insert_text((x,y), f_ven, fontsize=s, color=col)
         x,y,s,col = coords_oaxaca["nombre"]; pg.insert_text((x,y), d["nombre"], fontsize=s, color=col)
         doc.save(out); doc.close()
