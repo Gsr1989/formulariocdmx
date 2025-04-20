@@ -12,6 +12,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh;
         }
 
         header, footer {
@@ -38,6 +39,7 @@
             gap: 15px;
             width: 100%;
             max-width: 300px;
+            margin-bottom: 40px; /* Esto baja el footer */
         }
 
         .btn {
@@ -51,25 +53,11 @@
             border: none;
         }
 
-        .cdmx {
-            background-color: #8a1538; /* Guinda */
-        }
-
-        .edomex {
-            background-color: #b28dde; /* Morado claro */
-        }
-
-        .morelos {
-            background-color: #4b5320; /* Verde militar */
-        }
-
-        .guanajuato {
-            background-color: #0057a0; /* Azul */
-        }
-
-        .oaxaca {
-            background-color: #4b4b4b; /* Gris Oxford */
-        }
+        .btn-cdmx       { background-color: #8a1538; }
+        .btn-edomex     { background-color: #c9a0dc; color: black; }
+        .btn-morelos    { background-color: #4b5320; }
+        .btn-guanajuato { background-color: #005bac; }
+        .btn-oaxaca     { background-color: #555; }
 
         .btn:hover {
             opacity: 0.9;
@@ -84,11 +72,11 @@
     <h2>Selecciona la entidad</h2>
 
     <div class="botones">
-        <a href="/formulario" class="btn cdmx">CDMX</a>
-        <a href="/formulario_edomex" class="btn edomex">EDOMEX</a>
-        <a href="/formulario_morelos" class="btn morelos">Morelos</a>
-        <a href="/formulario_gto" class="btn guanajuato">Guanajuato</a>
-        <a href="/formulario_oaxaca" class="btn oaxaca">Oaxaca</a>
+        <a href="/formulario" class="btn btn-cdmx">CDMX</a>
+        <a href="/formulario_edomex" class="btn btn-edomex">EDOMEX</a>
+        <a href="/formulario_morelos" class="btn btn-morelos">Morelos</a>
+        <a href="/formulario_gto" class="btn btn-guanajuato">Guanajuato</a>
+        <a href="/formulario_oaxaca" class="btn btn-oaxaca">Oaxaca</a>
     </div>
 
     <footer>
