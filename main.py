@@ -70,17 +70,16 @@ coords_oaxaca = {
 }
 
 coords_gto = {
-    "folio":    (1800, 455, 60, (1, 0, 0)),
-    "fecha":    (2200, 580, 35, (0, 0, 0)),
-    "marca":    (385, 715, 35, (0, 0, 0)),
-    "linea":    (800, 715, 35, (0, 0, 0)),
-    "anio":     (1145, 715, 35, (0, 0, 0)),
-    "serie":    (350, 800, 35, (0, 0, 0)),
-    "motor":    (1290, 800, 35, (0, 0, 0)),
-    "color":    (1960, 715, 35, (0, 0, 0)),
-    "nombre":   (950, 1100, 90, (0, 0, 0)),
+    "folio": (1800, 455, 60, (1, 0, 0)),
+    "fecha": (2200, 580, 35, (0, 0, 0)),
+    "marca": (385, 715, 35, (0, 0, 0)),
+    "linea": (800, 715, 35, (0, 0, 0)),
+    "anio": (1145, 715, 35, (0, 0, 0)),
+    "serie": (350, 800, 35, (0, 0, 0)),
+    "motor": (1290, 800, 35, (0, 0, 0)),
+    "color": (1960, 715, 35, (0, 0, 0)),
+    "nombre": (950, 1100, 90, (0, 0, 0)),
     "vigencia": (2270, 700, 35, (0, 0, 0))
-}
 }
 
 def generar_folio_automatico(ruta="folios_globales.txt"):
@@ -106,110 +105,54 @@ def login():
 def seleccionar_entidad():
     return render_template("seleccionar_entidad.html")
 
-# Cada entidad
-@app.route("/formulario", methods=["GET", "POST"])
-def formulario_cdmx():
+@app.route("/formulario_<entidad>", methods=["GET", "POST"])
+def formulario(entidad):
     if request.method == "POST":
         d = request.form
         folio = generar_folio_automatico()
         ahora = datetime.now()
-        fecha = ahora.strftime(f"%d DE {meses_es[ahora.strftime('%B')]} DEL %Y").upper()
-        vencimiento = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-        path = os.path.join(OUTPUT_DIR, f"{folio}_cdmx.pdf")
-        os.makedirs(OUTPUT_DIR, exist_ok=True)
-        doc = fitz.open("cdmxdigital2025ppp.pdf")
-        page = doc[0]
-        for campo in coords_cdmx:
-            x, y, s, col = coords_cdmx[campo]
-            val = folio if campo == "folio" else fecha if campo == "fecha" else vencimiento if campo == "vigencia" else d[campo]
-            page.insert_text((x, y), val, fontsize=s, color=col)
-        doc.save(path)
-        return send_file(path, as_attachment=True)
-    return render_template("formulario.html")
-
-@app.route("/formulario_edomex", methods=["GET", "POST"])
-def formulario_edomex():
-    if request.method == "POST":
-        d = request.form
-        folio = generar_folio_automatico()
-        ahora = datetime.now()
-        fecha_exp = ahora.strftime("%d/%m/%Y")
-        fecha_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-        path = os.path.join(OUTPUT_DIR, f"{folio}_edomex.pdf")
-        os.makedirs(OUTPUT_DIR, exist_ok=True)
-        doc = fitz.open("edomex_plantilla_alta_res.pdf")
-        page = doc[0]
-        for campo in coords_edomex:
-            x, y, s, col = coords_edomex[campo]
-            val = folio if campo == "folio" else fecha_exp if campo == "fecha_exp" else fecha_ven if campo == "fecha_ven" else d[campo]
-            page.insert_text((x, y), val, fontsize=s, color=col)
-        doc.save(path)
-        return send_file(path, as_attachment=True)
-    return render_template("formulario_edomex.html")
-
-@app.route("/formulario_morelos", methods=["GET", "POST"])
-def formulario_morelos():
-    if request.method == "POST":
-        d = request.form
-        folio = generar_folio_automatico()
-        ahora = datetime.now()
+        fecha = ahora.strftime("%d/%m/%Y")
         fecha_larga = ahora.strftime(f"%d DE {meses_es[ahora.strftime('%B')]} DEL %Y").upper()
-        fecha_corta = ahora.strftime("%d/%m/%Y")
         vencimiento = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-        path = os.path.join(OUTPUT_DIR, f"{folio}_morelos.pdf")
         os.makedirs(OUTPUT_DIR, exist_ok=True)
-        doc = fitz.open("morelos_hoja1_imagen.pdf")
-        page = doc[0]
-        for campo in coords_morelos:
-            x, y, s, col = coords_morelos[campo]
-            val = folio if campo == "folio" else fecha_larga if campo == "fecha" else vencimiento if campo == "vigencia" else d.get(campo, "")
-            page.insert_text((x, y), val, fontsize=s, color=col)
-        if len(doc) > 1:
-            x, y, s, col = coords_morelos["fecha_hoja2"]
-            doc[1].insert_text((x, y), fecha_corta, fontsize=s, color=col)
-        doc.save(path)
-        return send_file(path, as_attachment=True)
-    return render_template("formulario_morelos.html")
 
-@app.route("/formulario_oaxaca", methods=["GET", "POST"])
-def formulario_oaxaca():
-    if request.method == "POST":
-        d = request.form
-        folio = generar_folio_automatico()
-        ahora = datetime.now()
-        fecha = ahora.strftime("%d/%m/%Y")
-        vencimiento = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-        path = os.path.join(OUTPUT_DIR, f"{folio}_oaxaca.pdf")
-        os.makedirs(OUTPUT_DIR, exist_ok=True)
-        doc = fitz.open("oaxacachido.pdf")
-        page = doc[0]
-        for campo in coords_oaxaca:
-            x, y, s, col = coords_oaxaca[campo]
-            val = folio if campo == "folio" else fecha if campo in ["fecha1", "fecha2"] else vencimiento if campo == "vigencia" else d.get(campo, "")
-            page.insert_text((x, y), val, fontsize=s, color=col)
-        doc.save(path)
-        return send_file(path, as_attachment=True)
-    return render_template("formulario_oaxaca.html")
+        archivos = {
+            "cdmx": ("cdmxdigital2025ppp.pdf", coords_cdmx),
+            "edomex": ("edomex_plantilla_alta_res.pdf", coords_edomex),
+            "morelos": ("morelos_hoja1_imagen.pdf", coords_morelos),
+            "oaxaca": ("oaxacachido.pdf", coords_oaxaca),
+            "gto": ("permiso guanajuato.pdf", coords_gto)
+        }
 
-@app.route("/formulario_gto", methods=["GET", "POST"])
-def formulario_gto():
-    if request.method == "POST":
-        d = request.form
-        folio = generar_folio_automatico()
-        ahora = datetime.now()
-        fecha = ahora.strftime("%d/%m/%Y")
-        vencimiento = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-        path = os.path.join(OUTPUT_DIR, f"{folio}_gto.pdf")
-        os.makedirs(OUTPUT_DIR, exist_ok=True)
-        doc = fitz.open("permiso guanajuato.pdf")
+        plantilla, coords = archivos[entidad]
+        path = os.path.join(OUTPUT_DIR, f"{folio}_{entidad}.pdf")
+        doc = fitz.open(plantilla)
         page = doc[0]
-        for campo in coords_gto:
-            x, y, s, col = coords_gto[campo]
-            val = folio if campo == "folio" else fecha if campo == "fecha" else vencimiento if campo == "vigencia" else d[campo]
+
+        for campo in coords:
+            x, y, s, col = coords[campo]
+            if entidad == "morelos" and campo == "fecha":
+                val = fecha_larga
+            elif entidad == "morelos" and campo == "fecha_hoja2":
+                continue
+            elif campo == "folio":
+                val = folio
+            elif campo in ["fecha", "fecha1", "fecha2"]:
+                val = fecha
+            elif campo == "vigencia":
+                val = vencimiento
+            else:
+                val = d.get(campo, "")
             page.insert_text((x, y), val, fontsize=s, color=col)
+
+        if entidad == "morelos" and len(doc) > 1:
+            x, y, s, col = coords["fecha_hoja2"]
+            doc[1].insert_text((x, y), fecha, fontsize=s, color=col)
+
         doc.save(path)
         return send_file(path, as_attachment=True)
-    return render_template("formulario_gto.html")
+
+    return render_template(f"formulario_{entidad}.html")
 
 if __name__ == "__main__":
     app.run()
