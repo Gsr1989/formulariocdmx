@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulario Guanajuato</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f8f8;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        h2 {
+            color: #c8102e;
+            margin-bottom: 20px;
+        }
+        form {
+            display: inline-block;
+            max-width: 320px;
+            text-align: left;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 6px 0;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: none;
+            margin-top: 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .rojo {
+            background-color: #c8102e;
+            color: white;
+        }
+        .gris {
+            background-color: #555;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h2>Formulario Guanajuato</h2>
+    <form method="post">
+        <input name="marca" placeholder="Marca" required>
+        <input name="linea" placeholder="Línea" required>
+        <input name="anio" placeholder="Año" required>
+        <input name="serie" placeholder="Serie" required>
+        <input name="motor" placeholder="Motor" required>
+        <input name="color" placeholder="Color" required>
+        <input name="nombre" placeholder="Nombre del solicitante" required>
+        <button class="rojo" type="submit">Generar PDF</button>
+    </form>
+    <form action="/seleccionar_entidad">
+        <button class="gris" type="submit">Menú principal</button>
+    </form>
+</body>
+</html>
