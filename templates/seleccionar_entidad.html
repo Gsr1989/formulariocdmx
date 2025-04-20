@@ -1,26 +1,79 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>Selecciona la entidad</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body { font-family: Arial, sans-serif; background: #f1f1f1; text-align: center; padding: 50px; }
-        h2 { margin-bottom: 30px; }
-        .btn {
-            display: inline-block; margin: 15px; padding: 15px 30px;
-            background-color: #c8102e; color: white; border: none;
-            font-size: 18px; border-radius: 8px; cursor: pointer; text-decoration: none;
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        .btn:hover { background-color: #a50d24; }
+
+        header, footer {
+            width: 100%;
+            background-color: #8a1538;
+            text-align: center;
+        }
+
+        header img, footer img {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h2 {
+            margin: 30px 0 20px;
+            font-size: 22px;
+            color: #333;
+        }
+
+        .botones {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .btn {
+            background-color: #c8102e;
+            color: white;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 16px;
+            width: 100%;
+            text-align: center;
+            border: none;
+        }
+
+        .btn:hover {
+            background-color: #a50d24;
+        }
     </style>
 </head>
 <body>
+    <header>
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Encabezado">
+    </header>
+
     <h2>Selecciona la entidad</h2>
-    <a href="/formulario" class="btn">CDMX</a>
-    <a href="/formulario_edomex" class="btn">EDOMEX</a>
-    <a href="/formulario_morelos" class="btn">Morelos</a>
-    <a href="/formulario_gto" class="btn">Guanajuato</a>
-    <a href="/formulario_oaxaca" class="btn">Oaxaca</a>
+
+    <div class="botones">
+        <a href="/formulario" class="btn">CDMX</a>
+        <a href="/formulario_edomex" class="btn">EDOMEX</a>
+        <a href="/formulario_morelos" class="btn">Morelos</a>
+        <a href="/formulario_gto" class="btn">Guanajuato</a>
+        <a href="/formulario_oaxaca" class="btn">Oaxaca</a>
+    </div>
+
+    <footer>
+        <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
+    </footer>
 </body>
 </html>
