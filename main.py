@@ -44,7 +44,7 @@ coords_edomex = {
 }
 coords_morelos = {
     "folio":       (665, 282, 18, (1, 0, 0)),
-    "placa":       (350, 260, 60, (0, 0, 0)),  # placa digital
+    "placa":       (200, 200, 60, (0, 0, 0)),  # placa digital
     "fecha":       (200, 340, 14, (0, 0, 0)),
     "vigencia":    (600, 340, 14, (0, 0, 0)),
     "marca":       (110, 425, 14, (0, 0, 0)),
