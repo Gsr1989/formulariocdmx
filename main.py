@@ -1,101 +1,16 @@
-from flask import Flask, render_template, request, send_file, redirect, url_for
-from datetime import datetime, timedelta
-import fitz  # PyMuPDF
-import os
+from flask import Flask, render_template, request, send_file, redirect, url_for from datetime import datetime, timedelta import fitz  # PyMuPDF import os import string
 
-app = Flask(__name__)
-OUTPUT_DIR = "static/pdfs"
-USUARIO = "Gsr89roja"
-CONTRASENA = "serg890105"
+app = Flask(name) OUTPUT_DIR = "static/pdfs" USUARIO = "Gsr89roja" CONTRASENA = "serg890105"
 
-meses_es = {
-    "January":   "ENERO",      "February": "FEBRERO",
-    "March":     "MARZO",      "April":    "ABRIL",
-    "May":       "MAYO",       "June":     "JUNIO",
-    "July":      "JULIO",      "August":   "AGOSTO",
-    "September": "SEPTIEMBRE", "October":  "OCTUBRE",
-    "November":  "NOVIEMBRE",  "December": "DICIEMBRE"
-}
+meses_es = { "January":   "ENERO",      "February": "FEBRERO", "March":     "MARZO",      "April":    "ABRIL", "May":       "MAYO",       "June":     "JUNIO", "July":      "JULIO",      "August":   "AGOSTO", "September": "SEPTIEMBRE", "October":  "OCTUBRE", "November":  "NOVIEMBRE",  "December": "DICIEMBRE" }
 
-# — Coordenadas para cada plantilla PDF —
-coords_cdmx = {
-    "folio":    (87, 130, 14, (1, 0, 0)),
-    "fecha":    (130, 145, 12, (0, 0, 0)),
-    "marca":    (87, 290, 11, (0, 0, 0)),
-    "serie":    (375, 290, 11, (0, 0, 0)),
-    "linea":    (87, 307, 11, (0, 0, 0)),
-    "motor":    (375, 307, 11, (0, 0, 0)),
-    "anio":     (87, 323, 11, (0, 0, 0)),
-    "vigencia": (375, 323, 11, (0, 0, 0)),
-    "nombre":   (375, 340, 11, (0, 0, 0)),
-}
-coords_edomex = {
-    "folio":     (535, 135, 14, (1, 0, 0)),
-    "marca":     (109, 190, 10, (0, 0, 0)),
-    "linea":     (238, 190, 10, (0, 0, 0)),
-    "anio":      (410, 190, 10, (0, 0, 0)),
-    "motor":     (104, 233, 10, (0, 0, 0)),
-    "serie":     (230, 233, 10, (0, 0, 0)),
-    "color":     (400, 233, 10, (0, 0, 0)),
-    "fecha_exp": (190, 280, 10, (0, 0, 0)),
-    "fecha_ven": (380, 280, 10, (0, 0, 0)),
-    "nombre":    (394, 320, 10, (0, 0, 0)),
-}
-coords_morelos = {
-    "folio":       (665, 282, 18, (1, 0, 0)),
-    "fecha":       (200, 340, 14, (0, 0, 0)),
-    "vigencia":    (600, 340, 14, (0, 0, 0)),
-    "marca":       (110, 425, 14, (0, 0, 0)),
-    "linea":       (110, 455, 14, (0, 0, 0)),
-    "anio":        (110, 485, 14, (0, 0, 0)),
-    "serie":       (460, 420, 14, (0, 0, 0)),
-    "motor":       (460, 445, 14, (0, 0, 0)),
-    "color":       (460, 395, 14, (0, 0, 0)),
-    "tipo":        (510, 470, 14, (0, 0, 0)),
-    "nombre":      (150, 370, 14, (0, 0, 0)),
-    "fecha_hoja2": (100, 100, 14, (0, 0, 0)),
-}
-coords_oaxaca = {
-    "folio":    (553,  96, 16, (1, 0, 0)),
-    "fecha1":   (168, 130, 12, (0, 0, 0)),
-    "fecha2":   (140, 540, 10, (0, 0, 0)),
-    "marca":    (50, 215, 12, (0, 0, 0)),
-    "serie":    (200, 258, 12, (0, 0, 0)),
-    "linea":    (200, 215, 12, (0, 0, 0)),
-    "motor":    (360, 258, 12, (0, 0, 0)),
-    "anio":     (360, 215, 12, (0, 0, 0)),
-    "color":    (50, 258, 12, (0, 0, 0)),
-    "vigencia": (410, 130, 12, (0, 0, 0)),
-    "nombre":   (133, 149, 10, (0, 0, 0)),
-}
-coords_gto = {
-    "folio":    (1800, 455, 60, (1, 0, 0)),
-    "fecha":    (2200, 580, 35, (0, 0, 0)),
-    "marca":    (385, 715, 35, (0, 0, 0)),
-    "linea":    (800, 715, 35, (0, 0, 0)),
-    "anio":     (1145, 715, 35, (0, 0, 0)),
-    "serie":    (350, 800, 35, (0, 0, 0)),
-    "motor":    (1290, 800, 35, (0, 0, 0)),
-    "color":    (1960, 715, 35, (0, 0, 0)),
-    "nombre":   (950, 1100, 90, (0, 0, 0)),
-    "vigencia": (2200, 645, 35, (0, 0, 0)),
-}
+— Coordenadas para cada plantilla PDF —
 
-def generar_folio_automatico(ruta="folios_globales.txt"):
-    mes_actual = datetime.now().strftime("%m")
-    if not os.path.exists(ruta):
-        open(ruta, "w").close()
-    with open(ruta, "r") as f:
-        existentes = [l.strip() for l in f]
-    este_mes = [x for x in existentes if x.startswith(mes_actual)]
-    nuevo = f"{mes_actual}{len(este_mes)+1:03d}"
-    with open(ruta, "a") as f:
-        f.write(nuevo + "\n")
-    return nuevo
+coords_cdmx = { "folio":    (87, 130, 14, (1, 0, 0)), "fecha":    (130, 145, 12, (0, 0, 0)), "marca":    (87, 290, 11, (0, 0, 0)), "serie":    (375, 290, 11, (0, 0, 0)), "linea":    (87, 307, 11, (0, 0, 0)), "motor":    (375, 307, 11, (0, 0, 0)), "anio":     (87, 323, 11, (0, 0, 0)), "vigencia": (375, 323, 11, (0, 0, 0)), "nombre":   (375, 340, 11, (0, 0, 0)), } coords_edomex = { "folio":     (535, 135, 14, (1, 0, 0)), "marca":     (109, 190, 10, (0, 0, 0)), "linea":     (238, 190, 10, (0, 0, 0)), "anio":      (410, 190, 10, (0, 0, 0)), "motor":     (104, 233, 10, (0, 0, 0)), "serie":     (230, 233, 10, (0, 0, 0)), "color":     (400, 233, 10, (0, 0, 0)), "fecha_exp": (190, 280, 10, (0, 0, 0)), "fecha_ven": (380, 280, 10, (0, 0, 0)), "nombre":    (394, 320, 10, (0, 0, 0)), } coords_morelos = { "folio":       (665, 282, 18, (1, 0, 0)), "placa":       (350, 260, 60, (0, 0, 0)),  # coordenadas para placa digital "fecha":       (200, 340, 14, (0, 0, 0)), "vigencia":    (600, 340, 14, (0, 0, 0)), "marca":       (110, 425, 14, (0, 0, 0)), "linea":       (110, 455, 14, (0, 0, 0)), "anio":        (110, 485, 14, (0, 0, 0)), "serie":       (460, 420, 14, (0, 0, 0)), "motor":       (460, 445, 14, (0, 0, 0)), "color":       (460, 395, 14, (0, 0, 0)), "tipo":        (510, 470, 14, (0, 0, 0)), "nombre":      (150, 370, 14, (0, 0, 0)), "fecha_hoja2": (100, 100, 14, (0, 0, 0)), } coords_oaxaca = { "folio":    (553,  96, 16, (1, 0, 0)), "fecha1":   (168, 130, 12, (0, 0, 0)), "fecha2":   (140, 540, 10, (0, 0, 0)), "marca":    (50, 215, 12, (0, 0, 0)), "serie":    (200, 258, 12, (0, 0, 0)), "linea":    (200, 215, 12, (0, 0, 0)), "motor":    (360, 258, 12, (0, 0, 0)), "anio":     (360, 215, 12, (0, 0, 0)), "color":    (50, 258, 12, (0, 0, 0)), "vigencia": (410, 130, 12, (0, 0, 0)), "nombre":   (133, 149, 10, (0, 0, 0)), } coords_gto = { "folio":    (1800, 455, 60, (1, 0, 0)), "fecha":    (2200, 580, 35, (0, 0, 0)), "marca":    (385, 715, 35, (0, 0, 0)), "linea":    (800, 715, 35, (0, 0, 0)), "anio":     (1145, 715, 35, (0, 0, 0)), "serie":    (350, 800, 35, (0, 0, 0)), "motor":    (1290, 800, 35, (0, 0, 0)), "color":    (1960, 715, 35, (0, 0, 0)), "nombre":   (950, 1100, 90, (0, 0, 0)), "vigencia": (2200, 645, 35, (0, 0, 0)), }
 
-@app.context_processor
-def inject_folio():
-    return dict(folio_actual=generar_folio_automatico())
+def generar_folio_automatico(ruta="folios_globales.txt"): mes_actual = datetime.now().strftime("%m") if not os.path.exists(ruta): open(ruta, "w").close() with open(ruta, "r") as f: existentes = [l.strip() for l in f] este_mes = [x for x in existentes if x.startswith(mes_actual)] nuevo = f"{mes_actual}{len(este_mes)+1:03d}" with open(ruta, "a") as f: f.write(nuevo + "\n") return nuevo
+
+def generar_placa_digital(): archivo = "placas_digitales.txt" letras = list(string.ascii_uppercase) if not os.path.exists(archivo): with open(archivo, "w") as f: f.write("LRU0000\n") with open(archivo, "r") as f: ult = f.read().strip().split("\n")[-1] pref, num = ult[:3], int(ult[3:]) if num < 9999: nuevo = f"{pref}{num + 1:04d}" else: l1, l2, l3 = list(pref) i3 = letras.index(l3) if i3 < 25: l3 = letras[i3 + 1] else: i2 = letras.index(l2) if i2 < 25: l2 = letras[i2 + 1]; l3 = 'A' else: i1 = letras.index(l1) l1 = letras[(i1 + 1) % 26]; l2 = 'A'; l3 = 'A' nuevo = f"{l1}{l2}{l3}0000" with open(archivo, "a") as f: f.write(nuevo + "\n") return nuevo
 
 # — RUTAS —
 @app.route("/", methods=["GET","POST"])
