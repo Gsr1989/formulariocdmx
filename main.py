@@ -18,7 +18,6 @@ meses_es = {
     "November":  "NOVIEMBRE",  "December": "DICIEMBRE"
 }
 
-# - Coordenadas para cada plantilla PDF -
 coords_cdmx = {
     "folio":    (87, 130, 14, (1, 0, 0)),
     "fecha":    (130, 145, 12, (0, 0, 0)),
@@ -44,7 +43,7 @@ coords_edomex = {
 }
 coords_morelos = {
     "folio":       (665, 282, 18, (1, 0, 0)),
-    "placa":       (200, 200, 60, (0, 0, 0)),  # placa digital
+    "placa":       (200, 200, 60, (0, 0, 0)),
     "fecha":       (200, 340, 14, (0, 0, 0)),
     "vigencia":    (600, 340, 14, (0, 0, 0)),
     "marca":       (110, 425, 14, (0, 0, 0)),
@@ -122,7 +121,7 @@ def generar_placa_digital():
         f.write(nuevo + "\n")
     return nuevo
 
-# - RUTAS -
+# — RUTAS —
 @app.route("/", methods=["GET","POST"])
 def login():
     if request.method == "POST":
@@ -245,6 +244,7 @@ def formulario_oaxaca():
         pg.insert_text((x,y), d["nombre"], fontsize=s, color=col)
         doc.save(out); doc.close()
         return render_template("exitoso.html", folio=folio, oaxaca=True)
+    return render_template("formulario_oaxaca.html")
 
 @app.route("/formulario_gto", methods=["GET","POST"])
 def formulario_gto():
@@ -270,8 +270,9 @@ def formulario_gto():
         pg.insert_text((x,y), d["nombre"], fontsize=s, color=col)
         doc.save(out); doc.close()
         return render_template("exitoso.html", folio=folio, gto=True)
+    return render_template("formulario_gto.html")
 
-# - Endpoints para descarga de PDF -
+# — Endpoints para descarga de PDF —
 @app.route("/abrir_pdf/<folio>")
 def abrir_pdf(folio):
     ruta = os.path.join(OUTPUT_DIR, f"{folio}_cdmx.pdf")
@@ -307,7 +308,7 @@ def abrir_pdf_gto(folio):
         return send_file(ruta, as_attachment=True)
     return "Archivo no encontrado", 404
 
-# - Logout -
+# — Logout —
 @app.route("/logout")
 def logout():
     return redirect(url_for("login"))
