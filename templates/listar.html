@@ -1,65 +1,133 @@
+<!-- templates/listar.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Lista de Permisos Generados</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    h1 { color: #8a1538; }
-    input { width: 100%; padding: 8px; margin-bottom: 10px; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 8px; border: 1px solid #ccc; text-align: left; }
-    th { background: #8a1538; color: white; }
-    a { color: #005bac; text-decoration: none; }
-  </style>
+    <meta charset="UTF-8">
+    <title>Lista de Permisos Generados</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+        #search {
+            display: block;
+            margin: 10px auto 20px;
+            padding: 8px;
+            width: 90%;
+            max-width: 400px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+        table {
+            width: 100%;
+            max-width: 800px;
+            margin: auto;
+            border-collapse: collapse;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        th {
+            background-color: #8a1538;
+            color: white;
+        }
+        a.download {
+            display: inline-block;
+            padding: 6px 12px;
+            background-color: #8a1538;
+            color: white;
+            border-radius: 4px;
+            text-decoration: none;
+        }
+        a.download:hover {
+            opacity: 0.9;
+        }
+        .btn-back {
+            display: block;
+            margin: 20px auto 0;
+            padding: 10px 20px;
+            background-color: #555;
+            color: white;
+            text-decoration: none;
+            width: 150px;
+            text-align: center;
+            border-radius: 6px;
+        }
+        .btn-back:hover {
+            opacity: 0.9;
+        }
+    </style>
 </head>
 <body>
-  <h1>Lista de Permisos Generados</h1>
-  <input id="filtro" placeholder="Buscar por folio, entidad o nombre…" />
 
-  <table id="tabla">
-    <thead>
-      <tr>
-        <th>Folio</th>
-        <th>Entidad</th>
-        <th>Fecha</th>
-        <th>Contribuyente</th>
-        <th>PDF</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for r in registros %}
-      <tr>
-        <td>{{ r.folio }}</td>
-        <td>{{ r.entidad }}</td>
-        <td>{{ r.fecha }}</td>
-        <td>{{ r.nombre }}</td>
-        <td>
-          {% if r.entidad == 'CDMX' %}
-            <a href="{{ url_for('abrir_pdf', folio=r.folio) }}">Descargar</a>
-          {% elif r.entidad == 'EDOMEX' %}
-            <a href="{{ url_for('abrir_pdf_edomex', folio=r.folio) }}">Descargar</a>
-          {% elif r.entidad == 'Morelos' %}
-            <a href="{{ url_for('abrir_pdf_morelos', folio=r.folio) }}">Descargar</a>
-          {% elif r.entidad == 'Oaxaca' %}
-            <a href="{{ url_for('abrir_pdf_oaxaca', folio=r.folio) }}">Descargar</a>
-          {% elif r.entidad == 'GTO' %}
-            <a href="{{ url_for('abrir_pdf_gto', folio=r.folio) }}">Descargar</a>
-          {% endif %}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+    <h2>Lista de Permisos Generados</h2>
 
-  <script>
-    document.getElementById('filtro').addEventListener('keyup', function(){
-      const term = this.value.toLowerCase();
-      document.querySelectorAll('#tabla tbody tr').forEach(row=>{
-        row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
-      });
-    });
-  </script>
+    <input
+        id="search"
+        type="text"
+        placeholder="Buscar por folio o entidad..."
+    />
+
+    <table id="tabla">
+        <thead>
+            <tr>
+                <th>Folio</th>
+                <th>Entidad</th>
+                <th>Fecha</th>
+                <th>Contribuyente</th>
+                <th>PDF</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reg in registros %}
+            <tr>
+                <td>{{ reg.folio }}</td>
+                <td>{{ reg.entidad }}</td>
+                <td>{{ reg.fecha }}</td>
+                <td>{{ reg.nombre }}</td>
+                <td>
+                    {% if reg.entidad == 'CDMX' %}
+                        <a class="download" href="{{ url_for('abrir_pdf', folio=reg.folio) }}">Descargar</a>
+                    {% elif reg.entidad == 'EDOMEX' %}
+                        <a class="download" href="{{ url_for('abrir_pdf_edomex', folio=reg.folio) }}">Descargar</a>
+                    {% elif reg.entidad == 'Morelos' %}
+                        <a class="download" href="{{ url_for('abrir_pdf_morelos', folio=reg.folio) }}">Descargar</a>
+                    {% elif reg.entidad == 'Oaxaca' %}
+                        <a class="download" href="{{ url_for('abrir_pdf_oaxaca', folio=reg.folio) }}">Descargar</a>
+                    {% elif reg.entidad == 'GTO' %}
+                        <a class="download" href="{{ url_for('abrir_pdf_gto', folio=reg.folio) }}">Descargar</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ url_for('seleccionar_entidad') }}" class="btn-back">Volver</a>
+
+    <script>
+        document.getElementById('search').addEventListener('keyup', function() {
+            const q = this.value.toLowerCase();
+            document.querySelectorAll('#tabla tbody tr').forEach(row => {
+                const folio   = row.children[0].textContent.toLowerCase();
+                const entidad = row.children[1].textContent.toLowerCase();
+                row.style.display = (folio.includes(q) || entidad.includes(q))
+                    ? '' : 'none';
+            });
+        });
+    </script>
+
 </body>
 </html>
