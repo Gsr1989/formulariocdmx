@@ -1,6 +1,4 @@
-<!-- templates/listar.html -->
-<!DOCTYPE html>
-<html lang="es">
+<!DOCTYPE html><html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>Lista de Permisos Generados</title>
@@ -70,64 +68,65 @@
         }
     </style>
 </head>
-<body>
+<body><h2>Lista de Permisos Generados</h2>
 
-    <h2>Lista de Permisos Generados</h2>
+<input
+    id="search"
+    type="text"
+    placeholder="Buscar por folio, nombre o serie..."
+/>
 
-    <input
-        id="search"
-        type="text"
-        placeholder="Buscar por folio o entidad..."
-    />
+<table id="tabla">
+    <thead>
+        <tr>
+            <th>Folio</th>
+            <th>Entidad</th>
+            <th>Serie</th>
+            <th>Fecha</th>
+            <th>Contribuyente</th>
+            <th>PDF</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for reg in registros %}
+        <tr>
+            <td>{{ reg.folio }}</td>
+            <td>{{ reg.entidad }}</td>
+            <td>{{ reg.serie }}</td>
+            <td>{{ reg.fecha }}</td>
+            <td>{{ reg.nombre }}</td>
+            <td>
+                {% if reg.entidad == 'CDMX' %}
+                    <a class="download" href="{{ url_for('abrir_pdf', folio=reg.folio) }}">Descargar</a>
+                {% elif reg.entidad == 'EDOMEX' %}
+                    <a class="download" href="{{ url_for('abrir_pdf_edomex', folio=reg.folio) }}">Descargar</a>
+                {% elif reg.entidad == 'Morelos' %}
+                    <a class="download" href="{{ url_for('abrir_pdf_morelos', folio=reg.folio) }}">Descargar</a>
+                {% elif reg.entidad == 'Oaxaca' %}
+                    <a class="download" href="{{ url_for('abrir_pdf_oaxaca', folio=reg.folio) }}">Descargar</a>
+                {% elif reg.entidad == 'GTO' %}
+                    <a class="download" href="{{ url_for('abrir_pdf_gto', folio=reg.folio) }}">Descargar</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
-    <table id="tabla">
-        <thead>
-            <tr>
-                <th>Folio</th>
-                <th>Entidad</th>
-                <th>Fecha</th>
-                <th>Contribuyente</th>
-                <th>PDF</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for reg in registros %}
-            <tr>
-                <td>{{ reg.folio }}</td>
-                <td>{{ reg.entidad }}</td>
-                <td>{{ reg.fecha }}</td>
-                <td>{{ reg.nombre }}</td>
-                <td>
-                    {% if reg.entidad == 'CDMX' %}
-                        <a class="download" href="{{ url_for('abrir_pdf', folio=reg.folio) }}">Descargar</a>
-                    {% elif reg.entidad == 'EDOMEX' %}
-                        <a class="download" href="{{ url_for('abrir_pdf_edomex', folio=reg.folio) }}">Descargar</a>
-                    {% elif reg.entidad == 'Morelos' %}
-                        <a class="download" href="{{ url_for('abrir_pdf_morelos', folio=reg.folio) }}">Descargar</a>
-                    {% elif reg.entidad == 'Oaxaca' %}
-                        <a class="download" href="{{ url_for('abrir_pdf_oaxaca', folio=reg.folio) }}">Descargar</a>
-                    {% elif reg.entidad == 'GTO' %}
-                        <a class="download" href="{{ url_for('abrir_pdf_gto', folio=reg.folio) }}">Descargar</a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<a href="{{ url_for('seleccionar_entidad') }}" class="btn-back">Volver</a>
 
-    <a href="{{ url_for('seleccionar_entidad') }}" class="btn-back">Volver</a>
-
-    <script>
-        document.getElementById('search').addEventListener('keyup', function() {
-            const q = this.value.toLowerCase();
-            document.querySelectorAll('#tabla tbody tr').forEach(row => {
-                const folio   = row.children[0].textContent.toLowerCase();
-                const entidad = row.children[1].textContent.toLowerCase();
-                row.style.display = (folio.includes(q) || entidad.includes(q))
-                    ? '' : 'none';
-            });
+<script>
+    document.getElementById('search').addEventListener('input', function() {
+        const term = this.value.toLowerCase();
+        document.querySelectorAll('#tabla tbody tr').forEach(row => {
+            const folio  = row.children[0].textContent.toLowerCase();
+            const serie  = row.children[2].textContent.toLowerCase();
+            const nombre = row.children[4].textContent.toLowerCase();
+            row.style.display = (folio.includes(term) || serie.includes(term) || nombre.includes(term))
+                ? '' : 'none';
         });
-    </script>
+    });
+</script>
 
 </body>
 </html>
