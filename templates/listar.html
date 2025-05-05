@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Permisos</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+            background-color: white;
+        }
+        th, td {
+            border: 1px solid #999;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #006400;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #eef9ee;
+        }
+        .btn-descargar {
+            background-color: #007bff;
+            color: white;
+            padding: 6px 12px;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+        .btn-descargar:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <h1>Lista de Permisos Generados</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Folio</th>
+                <th>Entidad</th>
+                <th>Fecha de Expedición</th>
+                <th>Contribuyente</th>
+                <th>PDF</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for r in registros %}
+            <tr>
+                <td>{{ r.folio }}</td>
+                <td>{{ r.entidad }}</td>
+                <td>{{ r.fecha }}</td>
+                <td>{{ r.nombre }}</td>
+                <td><a class="btn-descargar" href="{{ r.url }}">Descargar</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
