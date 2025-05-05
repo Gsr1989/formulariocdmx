@@ -3,24 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <title>Lista de Permisos Generados</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
-    table { width: 100%; border-collapse: collapse; background: white; }
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    h1 { color: #8a1538; }
+    input { width: 100%; padding: 8px; margin-bottom: 10px; }
+    table { width: 100%; border-collapse: collapse; }
     th, td { padding: 8px; border: 1px solid #ccc; text-align: left; }
     th { background: #8a1538; color: white; }
-    .buscar { margin-bottom: 10px; padding: 8px; width: 100%; max-width: 300px; }
+    a { color: #005bac; text-decoration: none; }
   </style>
 </head>
 <body>
-  <h2>Lista de Permisos Generados</h2>
-  <input type="text" id="filtro" class="buscar" placeholder="Buscar por folio o entidad…">
+  <h1>Lista de Permisos Generados</h1>
+  <input id="filtro" placeholder="Buscar por folio, entidad o nombre…" />
 
   <table id="tabla">
     <thead>
       <tr>
         <th>Folio</th>
         <th>Entidad</th>
+        <th>Fecha</th>
+        <th>Contribuyente</th>
         <th>PDF</th>
       </tr>
     </thead>
@@ -29,20 +33,31 @@
       <tr>
         <td>{{ r.folio }}</td>
         <td>{{ r.entidad }}</td>
-        <td><a href="{{ r.url }}">Descargar</a></td>
+        <td>{{ r.fecha }}</td>
+        <td>{{ r.nombre }}</td>
+        <td>
+          {% if r.entidad == 'CDMX' %}
+            <a href="{{ url_for('abrir_pdf', folio=r.folio) }}">Descargar</a>
+          {% elif r.entidad == 'EDOMEX' %}
+            <a href="{{ url_for('abrir_pdf_edomex', folio=r.folio) }}">Descargar</a>
+          {% elif r.entidad == 'Morelos' %}
+            <a href="{{ url_for('abrir_pdf_morelos', folio=r.folio) }}">Descargar</a>
+          {% elif r.entidad == 'Oaxaca' %}
+            <a href="{{ url_for('abrir_pdf_oaxaca', folio=r.folio) }}">Descargar</a>
+          {% elif r.entidad == 'GTO' %}
+            <a href="{{ url_for('abrir_pdf_gto', folio=r.folio) }}">Descargar</a>
+          {% endif %}
+        </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
 
   <script>
-    // filtro cliente simple
-    const input = document.getElementById('filtro');
-    input.addEventListener('keyup', ()=> {
-      const q = input.value.toLowerCase();
-      document.querySelectorAll('#tabla tbody tr').forEach(tr => {
-        const txt = tr.textContent.toLowerCase();
-        tr.style.display = txt.includes(q) ? '' : 'none';
+    document.getElementById('filtro').addEventListener('keyup', function(){
+      const term = this.value.toLowerCase();
+      document.querySelectorAll('#tabla tbody tr').forEach(row=>{
+        row.style.display = row.textContent.toLowerCase().includes(term) ? '' : 'none';
       });
     });
   </script>
