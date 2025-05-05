@@ -29,6 +29,7 @@ coords_cdmx = {
     "vigencia": (375, 323, 11, (0, 0, 0)),
     "nombre":   (375, 340, 11, (0, 0, 0)),
 }
+
 coords_edomex = {
     "folio":     (535, 135, 14, (1, 0, 0)),
     "marca":     (109, 190, 10, (0, 0, 0)),
@@ -41,6 +42,7 @@ coords_edomex = {
     "fecha_ven": (380, 280, 10, (0, 0, 0)),
     "nombre":    (394, 320, 10, (0, 0, 0)),
 }
+
 coords_morelos = {
     "folio":       (665, 282, 18, (1, 0, 0)),
     "placa":       (200, 200, 60, (0, 0, 0)),
@@ -56,6 +58,7 @@ coords_morelos = {
     "nombre":      (150, 370, 14, (0, 0, 0)),
     "fecha_hoja2": (100, 100, 14, (0, 0, 0)),
 }
+
 coords_oaxaca = {
     "folio":    (553,  96, 16, (1, 0, 0)),
     "fecha1":   (168, 130, 12, (0, 0, 0)),
@@ -69,6 +72,7 @@ coords_oaxaca = {
     "vigencia": (410, 130, 12, (0, 0, 0)),
     "nombre":   (133, 149, 10, (0, 0, 0)),
 }
+
 coords_gto = {
     "folio":    (1800, 455, 60, (1, 0, 0)),
     "fecha":    (2200, 580, 35, (0, 0, 0)),
@@ -96,42 +100,37 @@ def generar_folio_automatico(ruta="folios_globales.txt"):
 
 def generar_placa_digital():
     archivo = "placas_digitales.txt"
-    alfabet = list(string.ascii_uppercase)
+    letras = list(string.ascii_uppercase)
     if not os.path.exists(archivo):
         with open(archivo, "w") as f:
             f.write("LRU0000\n")
-    ult = open(archivo).read().strip().split("\n")[-1]
-    pref, num = ult[:3], int(ult[3:])
+    ult_line = open(archivo).read().strip().split("\n")[-1]
+    pref, num = ult_line[:3], int(ult_line[3:])
     if num < 9999:
         nuevo = f"{pref}{num+1:04d}"
     else:
         l1, l2, l3 = list(pref)
-        i3 = alfabet.index(l3)
+        i3 = letras.index(l3)
         if i3 < 25:
-            l3 = alfabet[i3+1]
+            l3 = letras[i3+1]
         else:
-            i2 = alfabet.index(l2)
+            i2 = letras.index(l2)
             if i2 < 25:
-                l2 = alfabet[i2+1]; l3 = 'A'
+                l2 = letras[i2+1]; l3 = 'A'
             else:
-                i1 = alfabet.index(l1)
-                l1 = alfabet[(i1+1)%26]; l2 = 'A'; l3 = 'A'
+                i1 = letras.index(l1)
+                l1 = letras[(i1+1)%26]; l2 = 'A'; l3 = 'A'
         nuevo = f"{l1}{l2}{l3}0000"
     with open(archivo, "a") as f:
         f.write(nuevo + "\n")
     return nuevo
 
 # — RUTAS —
-
 @app.route("/", methods=["GET","POST"])
 def login():
     if request.method == "POST":
-        usuario = request.form.get("user")
-        password = request.form.get("pass")
-        if usuario == USUARIO and password == CONTRASENA:
+        if request.form["user"] == USUARIO and request.form["pass"] == CONTRASENA:
             return redirect(url_for("seleccionar_entidad"))
-        # si falla simplemente recarga con 401 o flash si quieres
-        return render_template("login.html"), 401
     return render_template("login.html")
 
 @app.route("/seleccionar_entidad")
@@ -154,11 +153,11 @@ def formulario_cdmx():
         pg.insert_text(coords_cdmx["fecha"][:2], f_exp,
                        fontsize=coords_cdmx["fecha"][2], color=coords_cdmx["fecha"][3])
         for k in ["marca","serie","linea","motor","anio"]:
-            x,y,s,col = coords_cdmx[k]
+            x, y, s, col = coords_cdmx[k]
             pg.insert_text((x,y), d[k], fontsize=s, color=col)
-        x,y,s,col = coords_cdmx["vigencia"]
+        x, y, s, col = coords_cdmx["vigencia"]
         pg.insert_text((x,y), f_ven, fontsize=s, color=col)
-        x,y,s,col = coords_cdmx["nombre"]
+        x, y, s, col = coords_cdmx["nombre"]
         pg.insert_text((x,y), d["nombre"], fontsize=s, color=col)
         doc.save(out); doc.close()
         return render_template("exitoso.html", folio=folio, cdmx=True)
@@ -178,13 +177,13 @@ def formulario_edomex():
         pg.insert_text(coords_edomex["folio"][:2], folio,
                        fontsize=coords_edomex["folio"][2], color=coords_edomex["folio"][3])
         for key in ["marca","linea","anio","motor","serie","color"]:
-            x,y,s,col = coords_edomex[key]
+            x, y, s, col = coords_edomex[key]
             pg.insert_text((x,y), d[key], fontsize=s, color=col)
-        x,y,s,col = coords_edomex["fecha_exp"]
+        x, y, s, col = coords_edomex["fecha_exp"]
         pg.insert_text((x,y), f_exp, fontsize=s, color=col)
-        x,y,s,col = coords_edomex["fecha_ven"]
+        x, y, s, col = coords_edomex["fecha_ven"]
         pg.insert_text((x,y), f_ven, fontsize=s, color=col)
-        x,y,s,col = coords_edomex["nombre"]
+        x, y, s, col = coords_edomex["nombre"]
         pg.insert_text((x,y), d["nombre"], fontsize=s, color=col)
         doc.save(out); doc.close()
         return render_template("exitoso.html", folio=folio, edomex=True)
@@ -212,12 +211,12 @@ def formulario_morelos():
         pg.insert_text(coords_morelos["vigencia"][:2], f_ven,
                        fontsize=coords_morelos["vigencia"][2], color=coords_morelos["vigencia"][3])
         for key in ["marca","linea","anio","serie","motor","color","tipo"]:
-            x,y,s,col = coords_morelos[key]
+            x, y, s, col = coords_morelos[key]
             pg.insert_text((x,y), d[key], fontsize=s, color=col)
-        x,y,s,col = coords_morelos["nombre"]
+        x, y, s, col = coords_morelos["nombre"]
         pg.insert_text((x,y), d["nombre"], fontsize=s, color=col)
         if len(doc) > 1:
-            x,y,s,col = coords_morelos["fecha_hoja2"]
+            x, y, s, col = coords_morelos["fecha_hoja2"]
             doc[1].insert_text((x,y), f_corta, fontsize=s, color=col)
         doc.save(out); doc.close()
         return render_template("exitoso.html", folio=folio, morelos=True)
@@ -241,11 +240,11 @@ def formulario_oaxaca():
         pg.insert_text(coords_oaxaca["fecha2"][:2], f1,
                        fontsize=coords_oaxaca["fecha2"][2], color=coords_oaxaca["fecha2"][3])
         for key in ["marca","serie","linea","motor","anio","color"]:
-            x,y,s,col = coords_oaxaca[key]
+            x, y, s, col = coords_oaxaca[key]
             pg.insert_text((x,y), d[key], fontsize=s, color=col)
-        x,y,s,col = coords_oaxaca["vigencia"]
+        x, y, s, col = coords_oaxaca["vigencia"]
         pg.insert_text((x,y), f_ven, fontsize=s, color=col)
-        x,y,s,col = coords_oaxaca["nombre"]
+        x, y, s, col = coords_oaxaca["nombre"]
         pg.insert_text((x,y), d["nombre"], fontsize=s, color=col)
         doc.save(out); doc.close()
         return render_template("exitoso.html", folio=folio, oaxaca=True)
@@ -267,18 +266,36 @@ def formulario_gto():
         pg.insert_text(coords_gto["fecha"][:2], f_exp,
                        fontsize=coords_gto["fecha"][2], color=coords_gto["fecha"][3])
         for key in ["marca","linea","anio","serie","motor","color"]:
-            x,y,s,col = coords_gto[key]
+            x, y, s, col = coords_gto[key]
             pg.insert_text((x,y), d[key], fontsize=s, color=col)
-        x,y,s,col = coords_gto["vigencia"]
+        x, y, s, col = coords_gto["vigencia"]
         pg.insert_text((x,y), f_ven, fontsize=s, color=col)
-        x,y,s,col = coords_gto["nombre"]
+        x, y, s, col = coords_gto["nombre"]
         pg.insert_text((x,y), d["nombre"], fontsize=s, color=col)
         doc.save(out); doc.close()
         return render_template("exitoso.html", folio=folio, gto=True)
     return render_template("formulario_gto.html")
 
-# Endpoints de descarga
+# — NUEVA RUTA: LISTAR FOLIOS —
+@app.route("/listar")
+def listar():
+    registros = []
+    ruta = "folios_globales.txt"
+    if os.path.exists(ruta):
+        with open(ruta, "r") as f:
+            for linea in f:
+                folio = linea.strip()
+                registros.append({
+                    "folio": folio,
+                    "cdmx":    os.path.exists(os.path.join(OUTPUT_DIR, f"{folio}_cdmx.pdf")),
+                    "edomex":  os.path.exists(os.path.join(OUTPUT_DIR, f"{folio}_edomex.pdf")),
+                    "morelos": os.path.exists(os.path.join(OUTPUT_DIR, f"{folio}_morelos.pdf")),
+                    "oaxaca":  os.path.exists(os.path.join(OUTPUT_DIR, f"{folio}_oaxaca.pdf")),
+                    "gto":     os.path.exists(os.path.join(OUTPUT_DIR, f"{folio}_gto.pdf")),
+                })
+    return render_template("listar.html", registros=registros)
 
+# — Endpoints para descarga de PDF —
 @app.route("/abrir_pdf/<folio>")
 def abrir_pdf(folio):
     ruta = os.path.join(OUTPUT_DIR, f"{folio}_cdmx.pdf")
@@ -314,9 +331,10 @@ def abrir_pdf_gto(folio):
         return send_file(ruta, as_attachment=True)
     return "Archivo no encontrado", 404
 
+# — Logout —
 @app.route("/logout")
 def logout():
     return redirect(url_for("login"))
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
