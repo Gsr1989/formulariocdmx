@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
+<!DOCTYPE html><html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Formulario para generar PDF</title>
@@ -69,15 +68,9 @@
     }
   </style>
 </head>
-<body>
-
-<header>
+<body><header>
   <img src="{{ url_for('static', filename='logo.png') }}" alt="Encabezado">
-</header>
-
-<h2>Formulario para generar PDF</h2>
-
-<form method="POST">
+</header><h2>Formulario para generar PDF</h2><form method="POST">
   <label>Marca: <input type="text" name="marca" id="marca" required></label>
   <label>Línea: <input type="text" name="linea" id="linea" required></label>
   <label>Año: <input type="text" name="anio" id="anio" required></label>
@@ -85,17 +78,13 @@
   <label>Número de motor: <input type="text" name="motor" id="motor" required></label>
   <label>Nombre del solicitante: <input type="text" name="nombre" id="nombre" required></label>
   <button type="submit">Generar PDF</button>
-</form>
-
-<div class="autobox">
+</form><div class="autobox">
   <label>
     <input type="checkbox" id="modoAuto" checked>
     Activar detección automática
   </label>
   <textarea id="autotexto" rows="6" placeholder="Pega aquí la descripción completa..."></textarea>
-</div>
-
-<script>
+</div><script>
   const campo = document.getElementById("autotexto");
   const auto = document.getElementById("modoAuto");
 
@@ -111,13 +100,13 @@
     const linea = texto.match(/L[ÍI]NEA\s+[A-Z0-9\s]+/);
     if (linea) document.getElementById("linea").value = limpiar(linea[0]);
 
-    const año = texto.match(/\b(19[8-9][0-9]|20[0-3][0-9])\b/);
+    const año = texto.match(/\b(19[5-9][0-9]|20[0-4][0-9]|[1-4][0-9]{3}|50000)\b/);
     if (año) document.getElementById("anio").value = año[0];
 
-    const serie = texto.match(/\b[A-HJ-NPR-Z0-9]{17}\b/);
+    const serie = texto.match(/\b[A-HJ-NPR-Z0-9]{11,17}\b/);
     if (serie) document.getElementById("serie").value = limpiar(serie[0]);
 
-    const motor = texto.match(/(HECHO EN|FABRICADO EN|MOTOR)\s+[A-Z0-9\s]+/);
+    const motor = texto.match(/(HECHO EN|FABRICADO EN|MOTOR|SIN NÚMERO|S\/N|SN|NO TIENE|NO CUENTA)\s*[A-Z0-9ÁÉÍÓÚÑ\s]*/);
     if (motor) document.getElementById("motor").value = limpiar(motor[0]);
 
     const lineas = texto.split("\n").map(l => l.trim()).filter(l => l.length > 5 && isNaN(l));
@@ -126,11 +115,7 @@
       document.getElementById("nombre").value = limpiar(posibleNombre);
     }
   });
-</script>
-
-<footer>
+</script><footer>
   <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
-</footer>
-
-</body>
+</footer></body>
 </html>
