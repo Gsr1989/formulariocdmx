@@ -1,65 +1,124 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Formulario Permiso - Guanajuato</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f7f7f7;
-            padding: 30px;
-            text-align: center;
-        }
-        h2 {
-            color: #333;
-        }
-        form {
-            display: inline-block;
-            text-align: left;
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        }
-        label {
-            display: block;
-            margin-top: 15px;
-            font-weight: bold;
-        }
-        input {
-            width: 100%;
-            padding: 8px;
-            font-size: 14px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            margin-top: 5px;
-        }
-        button {
-            margin-top: 25px;
-            padding: 12px 25px;
-            font-size: 16px;
-            background-color: #c8102e;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #a50d24;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <title>Formulario Permiso - Guanajuato</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      padding: 30px;
+      text-align: center;
+    }
+    h2 {
+      color: #333;
+    }
+    form {
+      display: inline-block;
+      text-align: left;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      max-width: 400px;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      font-size: 14px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      margin-top: 5px;
+      text-transform: uppercase;
+    }
+    button {
+      margin-top: 25px;
+      padding: 12px 25px;
+      font-size: 16px;
+      background-color: #c8102e;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #a50d24;
+    }
+    .autobox {
+      margin: 20px auto;
+      max-width: 400px;
+      text-align: left;
+    }
+  </style>
 </head>
 <body>
-    <h2>Formulario Permiso - Guanajuato</h2>
-    <form method="POST">
-        <label>Marca: <input type="text" name="marca" required></label>
-        <label>Línea: <input type="text" name="linea" required></label>
-        <label>Año: <input type="text" name="anio" required></label>
-        <label>Número de serie: <input type="text" name="serie" required></label>
-        <label>Número de motor: <input type="text" name="motor" required></label>
-        <label>Color: <input type="text" name="color" required></label>
-        <label>Nombre del solicitante: <input type="text" name="nombre" required></label>
-        <button type="submit">Generar PDF</button>
-    </form>
+
+<h2>Formulario Permiso - Guanajuato</h2>
+
+<form method="POST">
+  <label>Marca: <input type="text" name="marca" id="marca" required></label>
+  <label>Línea: <input type="text" name="linea" id="linea" required></label>
+  <label>Año: <input type="text" name="anio" id="anio" required></label>
+  <label>Número de serie: <input type="text" name="serie" id="serie" required></label>
+  <label>Número de motor: <input type="text" name="motor" id="motor" required></label>
+  <label>Color: <input type="text" name="color" id="color" required></label>
+  <label>Nombre del solicitante: <input type="text" name="nombre" id="nombre" required></label>
+  <button type="submit">Generar PDF</button>
+</form>
+
+<div class="autobox">
+  <label>
+    <input type="checkbox" id="modoAuto" checked>
+    Activar detección automática
+  </label>
+  <textarea id="autotexto" rows="6" placeholder="Pega aquí la descripción completa..."></textarea>
+</div>
+
+<script>
+  const campo = document.getElementById("autotexto");
+  const auto = document.getElementById("modoAuto");
+
+  campo.addEventListener("input", () => {
+    if (!auto.checked) return;
+
+    const texto = campo.value.toUpperCase();
+    const limpiar = txt => txt.replace(/(MARCA|L[ÍI]NEA|SUBMARCA|MODELO|AÑO|N[ÚU]MERO DE SERIE|SERIE|MOTOR|COLOR|NOMBRE DEL SOLICITANTE|NOMBRE|:)/g, '').trim();
+
+    const marca = texto.match(/MARCA\s+[A-Z0-9\s]+/);
+    if (marca) document.getElementById("marca").value = limpiar(marca[0]);
+
+    const linea = texto.match(/L[ÍI]NEA\s+[A-Z0-9\s]+/);
+    if (linea) document.getElementById("linea").value = limpiar(linea[0]);
+
+    const año = texto.match(/\b(19[8-9][0-9]|20[0-3][0-9])\b/);
+    if (año) document.getElementById("anio").value = año[0];
+
+    const serie = texto.match(/\b[A-HJ-NPR-Z0-9]{17}\b/);
+    if (serie) document.getElementById("serie").value = limpiar(serie[0]);
+
+    const motor = texto.match(/(MOTOR|HECHO EN|FABRICADO EN)\s+[A-Z0-9\s]+/);
+    if (motor) document.getElementById("motor").value = limpiar(motor[0]);
+
+    const colores = ["NEGRO","BLANCO","ROJO","AZUL","GRIS","PLATA","VERDE","CAFÉ","AMARILLO","NARANJA","VINO","DORADO","MARRÓN","TURQUESA","BEIGE"];
+    for (let color of colores) {
+      if (texto.includes(color)) {
+        document.getElementById("color").value = color;
+        break;
+      }
+    }
+
+    const lineas = texto.split("\n").map(l => l.trim()).filter(l => l.length > 5 && isNaN(l));
+    if (lineas.length > 0) {
+      const posibleNombre = lineas[lineas.length - 1];
+      document.getElementById("nombre").value = limpiar(posibleNombre);
+    }
+  });
+</script>
+
 </body>
 </html>
