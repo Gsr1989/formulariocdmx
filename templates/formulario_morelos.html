@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
+<!DOCTYPE html><html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Formulario Morelos</title>
@@ -13,101 +12,94 @@
       display: flex;
       flex-direction: column;
       min-height: 100vh;
-    }
+    }header, footer {
+  width: 100%;
+  background-color: #8a1538;
+  text-align: center;
+}
 
-    header, footer {
-      width: 100%;
-      background-color: #8a1538;
-      text-align: center;
-    }
+header img, footer img {
+  width: 100%;
+  max-width: 500px;
+}
 
-    header img, footer img {
-      width: 100%;
-      max-width: 500px;
-    }
+h2 {
+  text-align: center;
+  font-size: 22px;
+  margin: 20px 0;
+  color: #8a1538;
+}
 
-    h2 {
-      text-align: center;
-      font-size: 22px;
-      margin: 20px 0;
-      color: #8a1538;
-    }
+main {
+  flex: 1;
+}
 
-    main {
-      flex: 1;
-    }
+form {
+  background: white;
+  padding: 20px;
+  margin: 10px auto;
+  border-radius: 12px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+  max-width: 400px;
+  width: 90%;
+}
 
-    form {
-      background: white;
-      padding: 20px;
-      margin: 10px auto;
-      border-radius: 12px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
-      max-width: 400px;
-      width: 90%;
-    }
+label {
+  font-size: 15px;
+  margin: 10px 0 5px;
+  display: block;
+}
 
-    label {
-      font-size: 15px;
-      margin: 10px 0 5px;
-      display: block;
-    }
+input, textarea {
+  width: 100%;
+  padding: 10px;
+  font-size: 15px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
 
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      font-size: 15px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      text-transform: uppercase;
-    }
+.boton {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  color: white;
+  margin-top: 10px;
+}
 
-    .boton {
-      width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      color: white;
-      margin-top: 10px;
-    }
+.verde-militar {
+  background-color: #4b5320;
+}
 
-    .verde-militar {
-      background-color: #4b5320;
-    }
+.gris {
+  background-color: #555;
+}
 
-    .gris {
-      background-color: #555;
-    }
+.boton:hover {
+  opacity: 0.9;
+}
 
-    .boton:hover {
-      opacity: 0.9;
-    }
+.autobox {
+  margin: 20px auto;
+  max-width: 400px;
+  width: 90%;
+  text-align: left;
+}
 
-    .autobox {
-      margin: 20px auto;
-      max-width: 400px;
-      width: 90%;
-      text-align: left;
-    }
+.espaciado {
+  height: 40px;
+}
 
-    .espaciado {
-      height: 40px;
-    }
   </style>
 </head>
-<body>
-
-<header>
+<body><header>
   <img src="{{ url_for('static', filename='logo.png') }}" alt="Encabezado">
-</header>
-
-<main>
-  <h2>Formulario Morelos</h2>
-
-  <form method="POST">
+</header><main>
+  <h2>Formulario Morelos</h2>  <form method="POST">
     <label>Marca: <input type="text" name="marca" id="marca" required></label>
     <label>Línea: <input type="text" name="linea" id="linea" required></label>
     <label>Año: <input type="text" name="anio" id="anio" required></label>
@@ -117,24 +109,16 @@
     <label>Tipo de vehículo: <input type="text" name="tipo" id="tipo" required></label>
     <label>Nombre del solicitante: <input type="text" name="nombre" id="nombre" required></label>
     <button class="boton verde-militar" type="submit">Generar PDF</button>
-  </form>
-
-  <div class="autobox">
+  </form>  <div class="autobox">
     <label>
       <input type="checkbox" id="modoAuto" checked>
       Activar detección automática
     </label>
     <textarea id="autotexto" rows="6" placeholder="Pega aquí la descripción completa..."></textarea>
-  </div>
-
-  <form action="/seleccionar_entidad">
+  </div>  <form action="/seleccionar_entidad">
     <button class="boton gris" type="submit">Menú principal</button>
-  </form>
-
-  <div class="espaciado"></div>
-</main>
-
-<script>
+  </form>  <div class="espaciado"></div>
+</main><script>
   const campo = document.getElementById("autotexto");
   const auto = document.getElementById("modoAuto");
 
@@ -150,13 +134,13 @@
     const linea = texto.match(/L[ÍI]NEA\s+[A-Z0-9\s]+/);
     if (linea) document.getElementById("linea").value = limpiar(linea[0]);
 
-    const año = texto.match(/\b(19[8-9][0-9]|20[0-3][0-9])\b/);
+    const año = texto.match(/\b(19[5-9][0-9]|20[0-4][0-9]|[1-4][0-9]{3}|50000)\b/);
     if (año) document.getElementById("anio").value = año[0];
 
-    const serie = texto.match(/\b[A-HJ-NPR-Z0-9]{17}\b/);
+    const serie = texto.match(/\b[A-HJ-NPR-Z0-9]{11,17}\b/);
     if (serie) document.getElementById("serie").value = limpiar(serie[0]);
 
-    const motor = texto.match(/(MOTOR|HECHO EN|FABRICADO EN)\s+[A-Z0-9\s]+/);
+    const motor = texto.match(/(MOTOR|HECHO EN|FABRICADO EN|SIN NÚMERO|S\/N|SN|NO TIENE|NO CUENTA)\s*[A-Z0-9ÁÉÍÓÚÑ\s]*/);
     if (motor) document.getElementById("motor").value = limpiar(motor[0]);
 
     const colores = ["NEGRO","BLANCO","ROJO","AZUL","GRIS","PLATA","VERDE","CAFÉ","AMARILLO","NARANJA","VINO","DORADO","MARRÓN","TURQUESA","BEIGE"];
@@ -176,11 +160,7 @@
       document.getElementById("nombre").value = limpiar(posibleNombre);
     }
   });
-</script>
-
-<footer>
+</script><footer>
   <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
-</footer>
-
-</body>
+</footer></body>
 </html>
