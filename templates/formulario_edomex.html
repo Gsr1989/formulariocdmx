@@ -92,6 +92,13 @@
 </div>
 
 <script>
+  // Convertir a mayúsculas en tiempo real
+  document.querySelectorAll('input[type="text"]').forEach(input => {
+    input.addEventListener('input', () => {
+      input.value = input.value.toUpperCase();
+    });
+  });
+
   const campo = document.getElementById("autotexto");
   const auto = document.getElementById("modoAuto");
 
@@ -116,7 +123,6 @@
     const serie = texto.match(/\b[A-HJ-NPR-Z0-9]{11,17}\b/);
     if (serie) {
       document.getElementById("serie").value = limpiar(serie[0]);
-
       try {
         const url = `https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/${serie[0]}?format=json`;
         const response = await fetch(url);
