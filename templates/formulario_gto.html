@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="es"><head>
+<!DOCTYPE html><html lang="es">
+<head>
   <meta charset="UTF-8">
   <title>Formulario Guanajuato</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -73,9 +74,14 @@
     }
   </style>
 </head>
-<body><header>
+<body>
+<header>
   <img src="{{ url_for('static', filename='logo.png') }}" alt="Encabezado">
-</header><h2>Formulario Guanajuato</h2><form method="POST">
+</header>
+
+<h2>Formulario Guanajuato</h2>
+
+<form method="POST">
   <label>Marca: <input type="text" name="marca" id="marca" required></label>
   <label>Línea: <input type="text" name="linea" id="linea" required></label>
   <label>Año: <input type="text" name="anio" id="anio" required></label>
@@ -84,61 +90,80 @@
   <label>Color: <input type="text" name="color" id="color" required></label>
   <label>Nombre del solicitante: <input type="text" name="nombre" id="nombre" required></label>
   <button class="boton rojo" type="submit">Generar PDF</button>
-</form><div class="autobox">
+</form>
+
+<div class="autobox">
   <label>
     <input type="checkbox" id="modoAuto" checked>
     Activar detección automática
   </label>
   <textarea id="autotexto" rows="6" placeholder="Pega aquí la descripción completa..."></textarea>
-</div><form action="/seleccionar_entidad">
+</div>
+
+<form action="/seleccionar_entidad">
   <button class="boton gris" type="submit">Menú principal</button>
-</form><script>
-  const campo = document.getElementById("autotexto");
-  const auto = document.getElementById("modoAuto");campo.addEventListener("input", () => { if (!auto.checked) return;
+</form>
 
-const texto = campo.value.toUpperCase();
-const limpiar = txt => txt.replace(/(MARCA|L[ÍI]NEA|SUBMARCA|MODELO|AÑO|N[ÚU]MERO DE SERIE|SERIE|MOTOR|COLOR|NOMBRE DEL SOLICITANTE|NOMBRE|:)/g, '').trim();
+<footer>
+  <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
+</footer>
 
-const marca = texto.match(/MARCA\s+[A-Z0-9\s]+/);
-if (marca) document.getElementById("marca").value = limpiar(marca[0]);
-
-const linea = texto.match(/L[ÍI]NEA\s+[A-Z0-9\s]+/);
-if (linea) document.getElementById("linea").value = limpiar(linea[0]);
-
-const año = texto.match(/\b(19[5-9][0-9]|20[0-4][0-9]|[1-4][0-9]{3}|50000)\b/);
-if (año) document.getElementById("anio").value = año[0];
-
-const serie = texto.match(/\b[A-HJ-NPR-Z0-9]{11,17}\b/);
-if (serie) {
-  document.getElementById("serie").value = limpiar(serie[0]);
-  fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/${serie[0]}?format=json`)
-    .then(r => r.json())
-    .then(data => {
-      const result = data.Results[0];
-      if (result.Make) document.getElementById("marca").value = result.Make.toUpperCase();
-      if (result.Model) document.getElementById("linea").value = result.Model.toUpperCase();
-      if (result.ModelYear) document.getElementById("anio").value = result.ModelYear;
+<script>
+  // Forzar mayúsculas reales al escribir
+  document.querySelectorAll('input[type="text"]').forEach(input => {
+    input.addEventListener('input', () => {
+      input.value = input.value.toUpperCase();
     });
-}
+  });
 
-const motor = texto.match(/(MOTOR|HECHO EN|FABRICADO EN|SIN NÚMERO|S\/N|SN|NO TIENE|NO CUENTA)\s*[A-Z0-9ÁÉÍÓÚÑ\s]*/);
-if (motor) document.getElementById("motor").value = limpiar(motor[0]);
+  const campo = document.getElementById("autotexto");
+  const auto = document.getElementById("modoAuto");
 
-const colores = ["NEGRO","BLANCO","ROJO","AZUL","GRIS","PLATA","VERDE","CAFÉ","AMARILLO","NARANJA","VINO","DORADO","MARRÓN","TURQUESA","BEIGE"];
-for (let color of colores) {
-  if (texto.includes(color)) {
-    document.getElementById("color").value = color;
-    break;
-  }
-}
+  campo.addEventListener("input", () => {
+    if (!auto.checked) return;
 
-const lineas = texto.split("\n").map(l => l.trim()).filter(l => l.length > 5 && isNaN(l));
-if (lineas.length > 0) {
-  const posibleNombre = lineas[lineas.length - 1];
-  document.getElementById("nombre").value = limpiar(posibleNombre);
-}
+    const texto = campo.value.toUpperCase();
+    const limpiar = txt => txt.replace(/(MARCA|L[ÍI]NEA|SUBMARCA|MODELO|AÑO|N[ÚU]MERO DE SERIE|SERIE|MOTOR|COLOR|NOMBRE DEL SOLICITANTE|NOMBRE|:)/g, '').trim();
 
-}); </script><footer> <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
+    const marca = texto.match(/MARCA\s+[A-Z0-9\s]+/);
+    if (marca) document.getElementById("marca").value = limpiar(marca[0]);
 
-</footer></body>
+    const linea = texto.match(/L[ÍI]NEA\s+[A-Z0-9\s]+/);
+    if (linea) document.getElementById("linea").value = limpiar(linea[0]);
+
+    const año = texto.match(/\b(19[5-9][0-9]|20[0-4][0-9]|[1-4][0-9]{3}|50000)\b/);
+    if (año) document.getElementById("anio").value = año[0];
+
+    const serie = texto.match(/\b[A-HJ-NPR-Z0-9]{11,17}\b/);
+    if (serie) {
+      document.getElementById("serie").value = limpiar(serie[0]);
+      fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/${serie[0]}?format=json`)
+        .then(r => r.json())
+        .then(data => {
+          const result = data.Results[0];
+          if (result.Make) document.getElementById("marca").value = result.Make.toUpperCase();
+          if (result.Model) document.getElementById("linea").value = result.Model.toUpperCase();
+          if (result.ModelYear) document.getElementById("anio").value = result.ModelYear;
+        });
+    }
+
+    const motor = texto.match(/(MOTOR|HECHO EN|FABRICADO EN|SIN NÚMERO|S\/N|NO TIENE|NO CUENTA)\s*[A-Z0-9ÁÉÍÓÚÑ\s]*/);
+    if (motor) document.getElementById("motor").value = limpiar(motor[0]);
+
+    const colores = ["NEGRO","BLANCO","ROJO","AZUL","GRIS","PLATA","VERDE","CAFÉ","AMARILLO","NARANJA","VINO","DORADO","MARRÓN","TURQUESA","BEIGE"];
+    for (let color of colores) {
+      if (texto.includes(color)) {
+        document.getElementById("color").value = color;
+        break;
+      }
+    }
+
+    const lineas = texto.split("\n").map(l => l.trim()).filter(l => l.length > 5 && isNaN(l));
+    if (lineas.length > 0) {
+      const posibleNombre = lineas[lineas.length - 1];
+      document.getElementById("nombre").value = limpiar(posibleNombre);
+    }
+  });
+</script>
+</body>
 </html>
