@@ -96,6 +96,17 @@
   const campo = document.getElementById("autotexto");
   const auto = document.getElementById("modoAuto");
 
+  function toUpper(id) {
+    const el = document.getElementById(id);
+    if (el && el.value) el.value = el.value.toUpperCase();
+  }
+
+  document.querySelectorAll('input[type="text"]').forEach(input => {
+    input.addEventListener('input', () => {
+      input.value = input.value.toUpperCase();
+    });
+  });
+
   campo.addEventListener("input", async () => {
     if (!auto.checked) return;
 
