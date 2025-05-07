@@ -57,15 +57,9 @@
       color: white;
       margin-top: 10px;
     }
-    .rojo {
-      background-color: #c8102e;
-    }
-    .gris {
-      background-color: #555;
-    }
-    .boton:hover {
-      opacity: 0.9;
-    }
+    .rojo { background-color: #c8102e; }
+    .gris { background-color: #555; }
+    .boton:hover { opacity: 0.9; }
     .autobox {
       margin: 20px auto;
       max-width: 400px;
@@ -105,6 +99,12 @@
 </footer>
 
 <script>
+  document.querySelectorAll('input[type="text"]').forEach(input => {
+    input.addEventListener("input", () => {
+      input.value = input.value.toUpperCase();
+    });
+  });
+
   const campo = document.getElementById("autotexto");
   const auto = document.getElementById("modoAuto");
 
@@ -118,8 +118,8 @@
       const linea = info.find(e => e.Variable === "Model")?.Value;
       const anio = info.find(e => e.Variable === "Model Year")?.Value;
 
-      if (marca && marca !== "NULL") document.getElementById("marca").value = marca;
-      if (linea && linea !== "NULL") document.getElementById("linea").value = linea;
+      if (marca && marca !== "NULL") document.getElementById("marca").value = marca.toUpperCase();
+      if (linea && linea !== "NULL") document.getElementById("linea").value = linea.toUpperCase();
       if (anio && anio !== "NULL") document.getElementById("anio").value = anio;
     } catch (e) {
       console.error("Consulta gabacha falló:", e);
