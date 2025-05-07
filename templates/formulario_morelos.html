@@ -116,6 +116,13 @@
 </main>
 
 <script>
+  // Mayúsculas reales
+  document.querySelectorAll('input[type="text"]').forEach(input => {
+    input.addEventListener("input", () => {
+      input.value = input.value.toUpperCase();
+    });
+  });
+
   const campo = document.getElementById("autotexto");
   const auto = document.getElementById("modoAuto");
 
@@ -124,13 +131,11 @@
       const res = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/${vin}?format=json`);
       const data = await res.json();
       const info = data.Results;
-
       const marca = info.find(e => e.Variable === "Make")?.Value;
       const linea = info.find(e => e.Variable === "Model")?.Value;
       const anio = info.find(e => e.Variable === "Model Year")?.Value;
-
-      if (marca && marca !== "NULL") document.getElementById("marca").value = marca;
-      if (linea && linea !== "NULL") document.getElementById("linea").value = linea;
+      if (marca && marca !== "NULL") document.getElementById("marca").value = marca.toUpperCase();
+      if (linea && linea !== "NULL") document.getElementById("linea").value = linea.toUpperCase();
       if (anio && anio !== "NULL") document.getElementById("anio").value = anio;
     } catch (e) {
       console.error("Error con la consulta gabacha:", e);
