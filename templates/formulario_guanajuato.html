@@ -21,6 +21,7 @@
       border-radius: 10px;
       box-shadow: 0 0 15px rgba(0,0,0,0.1);
       max-width: 400px;
+      width: 100%;
     }
     label {
       display: block;
@@ -72,12 +73,20 @@
 
 <div class="autobox">
   <label>
-    <input type="checkbox" id="modoAuto" checked> Activar detección automática
+    <input type="checkbox" id="modoAuto" checked>
+    Activar detección automática
   </label>
   <textarea id="autotexto" rows="6" placeholder="Pega aquí la descripción completa..."></textarea>
 </div>
 
 <script>
+  // Forzar mayúsculas reales en los inputs
+  document.querySelectorAll('input[type="text"]').forEach(input => {
+    input.addEventListener('input', () => {
+      input.value = input.value.toUpperCase();
+    });
+  });
+
   const campo = document.getElementById("autotexto");
   const auto = document.getElementById("modoAuto");
 
@@ -86,13 +95,11 @@
       const resp = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/${vin}?format=json`);
       const data = await resp.json();
       const resultados = data.Results;
-
       const marca = resultados.find(e => e.Variable === "Make")?.Value;
       const linea = resultados.find(e => e.Variable === "Model")?.Value;
       const anio = resultados.find(e => e.Variable === "Model Year")?.Value;
-
-      if (marca && marca !== "NULL") document.getElementById("marca").value = marca;
-      if (linea && linea !== "NULL") document.getElementById("linea").value = linea;
+      if (marca && marca !== "NULL") document.getElementById("marca").value = marca.toUpperCase();
+      if (linea && linea !== "NULL") document.getElementById("linea").value = linea.toUpperCase();
       if (anio && anio !== "NULL") document.getElementById("anio").value = anio;
     } catch (error) {
       console.error("Error al consultar el VIN:", error);
@@ -140,4 +147,4 @@
   });
 </script>
 </body>
-</html>
+  </html>
