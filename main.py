@@ -287,7 +287,7 @@ def formulario_oaxaca():
         pg.insert_text(coords_oaxaca["folio"][:2], folio,
                        fontsize=coords_oaxaca["folio"][2], color=coords_oaxaca["folio"][3])
         pg.insert_text(coords_oaxaca["fecha1"][:2], f1,
-                       fontsize=coords_oaxaca["fecha1"][2"], color=coords_oaxaca["fecha1"][3])
+                       fontsize=coords_oaxaca["fecha1"][2], color=coords_oaxaca["fecha1"][3])
         pg.insert_text(coords_oaxaca["fecha2"][:2], f1,
                        fontsize=coords_oaxaca["fecha2"][2], color=coords_oaxaca["fecha2"][3])
         for key in ["marca", "serie", "linea", "motor", "anio", "color"]:
@@ -321,7 +321,7 @@ def formulario_gto():
         pg.insert_text(coords_gto["folio"][:2], folio,
                        fontsize=coords_gto["folio"][2], color=coords_gto["folio"][3])
         pg.insert_text(coords_gto["fecha"][:2], f_exp,
-                       fontsize=coords_gto["fecha"][2"], color=coords_gto["fecha"][3])
+                       fontsize=coords_gto["fecha"][2], color=coords_gto["fecha"][3])
         for key in ["marca", "serie", "linea", "motor", "anio", "color"]:
             x, y, s, col = coords_gto[key]
             pg.insert_text((x, y), d[key], fontsize=s, color=col)
@@ -339,20 +339,7 @@ def formulario_gto():
 
 @app.route("/listar")
 def listar():
-    registros = []
-    if os.path.exists("registros.csv"):
-        with open("registros.csv", encoding="utf-8") as f:
-            for row in csv.reader(f):
-                if len(row) != 5:
-                    continue
-                folio, entidad, serie, fecha, nombre = row
-                registros.append({
-                    "folio": folio,
-                    "entidad": entidad,
-                    "serie": serie,
-                    "fecha": fecha,
-                    "nombre": nombre
-                })
+    registros = cargar_registros()
     return render_template("listar.html", registros=registros)
 
 @app.route("/eliminar/<folio>", methods=["POST"])
