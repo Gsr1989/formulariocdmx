@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="es">
+<!DOCTYPE html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>Lista de Permisos Generados</title>
@@ -41,15 +42,23 @@
             background-color: #8a1538;
             color: white;
         }
-        a.download {
+        a.download, button.delete {
             display: inline-block;
             padding: 6px 12px;
-            background-color: #8a1538;
             color: white;
             border-radius: 4px;
             text-decoration: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
         }
-        a.download:hover {
+        a.download {
+            background-color: #8a1538;
+        }
+        button.delete {
+            background-color: #c0392b;
+        }
+        a.download:hover, button.delete:hover {
             opacity: 0.9;
         }
         .btn-back {
@@ -68,65 +77,72 @@
         }
     </style>
 </head>
-<body><h2>Lista de Permisos Generados</h2>
+<body>
+    <h2>Lista de Permisos Generados</h2>
 
-<input
-    id="search"
-    type="text"
-    placeholder="Buscar por folio, nombre o serie..."
-/>
+    <input
+        id="search"
+        type="text"
+        placeholder="Buscar por folio, nombre o serie..."
+    />
 
-<table id="tabla">
-    <thead>
-        <tr>
-            <th>Folio</th>
-            <th>Entidad</th>
-            <th>Serie</th>
-            <th>Fecha</th>
-            <th>Contribuyente</th>
-            <th>PDF</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for reg in registros %}
-        <tr>
-            <td>{{ reg.folio }}</td>
-            <td>{{ reg.entidad }}</td>
-            <td>{{ reg.serie }}</td>
-            <td>{{ reg.fecha }}</td>
-            <td>{{ reg.nombre }}</td>
-            <td>
-                {% if reg.entidad == 'CDMX' %}
-                    <a class="download" href="{{ url_for('abrir_pdf', folio=reg.folio) }}">Descargar</a>
-                {% elif reg.entidad == 'EDOMEX' %}
-                    <a class="download" href="{{ url_for('abrir_pdf_edomex', folio=reg.folio) }}">Descargar</a>
-                {% elif reg.entidad == 'Morelos' %}
-                    <a class="download" href="{{ url_for('abrir_pdf_morelos', folio=reg.folio) }}">Descargar</a>
-                {% elif reg.entidad == 'Oaxaca' %}
-                    <a class="download" href="{{ url_for('abrir_pdf_oaxaca', folio=reg.folio) }}">Descargar</a>
-                {% elif reg.entidad == 'GTO' %}
-                    <a class="download" href="{{ url_for('abrir_pdf_gto', folio=reg.folio) }}">Descargar</a>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    <table id="tabla">
+        <thead>
+            <tr>
+                <th>Folio</th>
+                <th>Entidad</th>
+                <th>Serie</th>
+                <th>Fecha</th>
+                <th>Contribuyente</th>
+                <th>PDF</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for reg in registros %}
+            <tr>
+                <td>{{ reg.folio }}</td>
+                <td>{{ reg.entidad }}</td>
+                <td>{{ reg.serie }}</td>
+                <td>{{ reg.fecha }}</td>
+                <td>{{ reg.nombre }}</td>
+                <td>
+                    {% if reg.entidad == 'CDMX' %}
+                        <a class="download" href="{{ url_for('abrir_pdf', folio=reg.folio) }}">Descargar</a>
+                    {% elif reg.entidad == 'EDOMEX' %}
+                        <a class="download" href="{{ url_for('abrir_pdf_edomex', folio=reg.folio) }}">Descargar</a>
+                    {% elif reg.entidad == 'Morelos' %}
+                        <a class="download" href="{{ url_for('abrir_pdf_morelos', folio=reg.folio) }}">Descargar</a>
+                    {% elif reg.entidad == 'Oaxaca' %}
+                        <a class="download" href="{{ url_for('abrir_pdf_oaxaca', folio=reg.folio) }}">Descargar</a>
+                    {% elif reg.entidad == 'GTO' %}
+                        <a class="download" href="{{ url_for('abrir_pdf_gto', folio=reg.folio) }}">Descargar</a>
+                    {% endif %}
+                </td>
+                <td>
+                    <form action="{{ url_for('eliminar_folio', folio=reg.folio) }}" method="post"
+                          onsubmit="return confirm('¿Eliminar folio {{ reg.folio }}?');">
+                        <button type="submit" class="delete">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 
-<a href="{{ url_for('seleccionar_entidad') }}" class="btn-back">Volver</a>
+    <a href="{{ url_for('seleccionar_entidad') }}" class="btn-back">Volver</a>
 
-<script>
-    document.getElementById('search').addEventListener('input', function() {
-        const term = this.value.toLowerCase();
-        document.querySelectorAll('#tabla tbody tr').forEach(row => {
-            const folio  = row.children[0].textContent.toLowerCase();
-            const serie  = row.children[2].textContent.toLowerCase();
-            const nombre = row.children[4].textContent.toLowerCase();
-            row.style.display = (folio.includes(term) || serie.includes(term) || nombre.includes(term))
-                ? '' : 'none';
+    <script>
+        document.getElementById('search').addEventListener('input', function() {
+            const term = this.value.toLowerCase();
+            document.querySelectorAll('#tabla tbody tr').forEach(row => {
+                const folio  = row.children[0].textContent.toLowerCase();
+                const serie  = row.children[2].textContent.toLowerCase();
+                const nombre = row.children[4].textContent.toLowerCase();
+                row.style.display = (folio.includes(term) || serie.includes(term) || nombre.includes(term))
+                    ? '' : 'none';
+            });
         });
-    });
-</script>
-
+    </script>
 </body>
 </html>
