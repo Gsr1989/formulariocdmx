@@ -144,6 +144,30 @@ def _guardar(folio, entidad, serie, fecha, nombre):
     with open("registros.csv", "a", newline="", encoding="utf-8") as f:
         csv.writer(f).writerow([folio, entidad, serie, fecha, nombre])
 
+# --- Helpers para eliminar folios ---
+def cargar_registros():
+    registros = []
+    if os.path.exists("registros.csv"):
+        with open("registros.csv", encoding="utf-8") as f:
+            for row in csv.reader(f):
+                if len(row) != 5:
+                    continue
+                folio, entidad, serie, fecha, nombre = row
+                registros.append({
+                    "folio": folio,
+                    "entidad": entidad,
+                    "serie": serie,
+                    "fecha": fecha,
+                    "nombre": nombre
+                })
+    return registros
+
+def guardar_registros(registros):
+    with open("registros.csv", "w", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+        for r in registros:
+            writer.writerow([r["folio"], r["entidad"], r["serie"], r["fecha"], r["nombre"]])
+
 @app.route("/formulario", methods=["GET", "POST"])
 def formulario_cdmx():
     if request.method == "POST":
@@ -161,13 +185,13 @@ def formulario_cdmx():
                        fontsize=coords_cdmx["folio"][2], color=coords_cdmx["folio"][3])
         pg.insert_text(coords_cdmx["fecha"][:2], f_exp,
                        fontsize=coords_cdmx["fecha"][2], color=coords_cdmx["fecha"][3])
-        for k in ["marca","serie","linea","motor","anio"]:
-            x,y,s,col = coords_cdmx[k]
-            pg.insert_text((x,y), d[k], fontsize=s, color=col)
-        x,y,s,col = coords_cdmx["vigencia"]
-        pg.insert_text((x,y), f_ven, fontsize=s, color=col)
-        x,y,s,col = coords_cdmx["nombre"]
-        pg.insert_text((x,y), d["nombre"], fontsize=s, color=col)
+        for k in ["marca", "serie", "linea", "motor", "anio"]:
+            x, y, s, col = coords_cdmx[k]
+            pg.insert_text((x, y), d[k], fontsize=s, color=col)
+        x, y, s, col = coords_cdmx["vigencia"]
+        pg.insert_text((x, y), f_ven, fontsize=s, color=col)
+        x, y, s, col = coords_cdmx["nombre"]
+        pg.insert_text((x, y), d["nombre"], fontsize=s, color=col)
 
         doc.save(out); doc.close()
 
@@ -191,15 +215,15 @@ def formulario_edomex():
 
         pg.insert_text(coords_edomex["folio"][:2], folio,
                        fontsize=coords_edomex["folio"][2], color=coords_edomex["folio"][3])
-        for key in ["marca","serie","linea","motor","anio","color"]:
-            x,y,s,col = coords_edomex[key]
-            pg.insert_text((x,y), d[key], fontsize=s, color=col)
-        x,y,s,col = coords_edomex["fecha_exp"]
-        pg.insert_text((x,y), f_exp, fontsize=s, color=col)
-        x,y,s,col = coords_edomex["fecha_ven"]
-        pg.insert_text((x,y), f_ven, fontsize=s, color=col)
-        x,y,s,col = coords_edomex["nombre"]
-        pg.insert_text((x,y), d["nombre"], fontsize=s, color=col)
+        for key in ["marca", "serie", "linea", "motor", "anio", "color"]:
+            x, y, s, col = coords_edomex[key]
+            pg.insert_text((x, y), d[key], fontsize=s, color=col)
+        x, y, s, col = coords_edomex["fecha_exp"]
+        pg.insert_text((x, y), f_exp, fontsize=s, color=col)
+        x, y, s, col = coords_edomex["fecha_ven"]
+        pg.insert_text((x, y), f_ven, fontsize=s, color=col)
+        x, y, s, col = coords_edomex["nombre"]
+        pg.insert_text((x, y), d["nombre"], fontsize=s, color=col)
 
         doc.save(out); doc.close()
 
@@ -231,14 +255,14 @@ def formulario_morelos():
                        fontsize=coords_morelos["fecha"][2], color=coords_morelos["fecha"][3])
         pg.insert_text(coords_morelos["vigencia"][:2], f_ven,
                        fontsize=coords_morelos["vigencia"][2], color=coords_morelos["vigencia"][3])
-        for key in ["marca","serie","linea","motor","anio","color","tipo"]:
-            x,y,s,col = coords_morelos[key]
-            pg.insert_text((x,y), d[key], fontsize=s, color=col)
-        x,y,s,col = coords_morelos["nombre"]
-        pg.insert_text((x,y), d["nombre"], fontsize=s, color=col)
+        for key in ["marca", "serie", "linea", "motor", "anio", "color", "tipo"]:
+            x, y, s, col = coords_morelos[key]
+            pg.insert_text((x, y), d[key], fontsize=s, color=col)
+        x, y, s, col = coords_morelos["nombre"]
+        pg.insert_text((x, y), d["nombre"], fontsize=s, color=col)
         if len(doc) > 1:
-            x,y,s,col = coords_morelos["fecha_hoja2"]
-            doc[1].insert_text((x,y), f_corta, fontsize=s, color=col)
+            x, y, s, col = coords_morelos["fecha_hoja2"]
+            doc[1].insert_text((x, y), f_corta, fontsize=s, color=col)
 
         doc.save(out); doc.close()
 
@@ -263,16 +287,16 @@ def formulario_oaxaca():
         pg.insert_text(coords_oaxaca["folio"][:2], folio,
                        fontsize=coords_oaxaca["folio"][2], color=coords_oaxaca["folio"][3])
         pg.insert_text(coords_oaxaca["fecha1"][:2], f1,
-                       fontsize=coords_oaxaca["fecha1"][2], color=coords_oaxaca["fecha1"][3])
+                       fontsize=coords_oaxaca["fecha1"][2"], color=coords_oaxaca["fecha1"][3])
         pg.insert_text(coords_oaxaca["fecha2"][:2], f1,
                        fontsize=coords_oaxaca["fecha2"][2], color=coords_oaxaca["fecha2"][3])
-        for key in ["marca","serie","linea","motor","anio","color"]:
-            x,y,s,col = coords_oaxaca[key]
-            pg.insert_text((x,y), d[key], fontsize=s, color=col)
-        x,y,s,col = coords_oaxaca["vigencia"]
-        pg.insert_text((x,y), f_ven, fontsize=s, color=col)
-        x,y,s,col = coords_oaxaca["nombre"]
-        pg.insert_text((x,y), d["nombre"], fontsize=s, color=col)
+        for key in ["marca", "serie", "linea", "motor", "anio", "color"]:
+            x, y, s, col = coords_oaxaca[key]
+            pg.insert_text((x, y), d[key], fontsize=s, color=col)
+        x, y, s, col = coords_oaxaca["vigencia"]
+        pg.insert_text((x, y), f_ven, fontsize=s, color=col)
+        x, y, s, col = coords_oaxaca["nombre"]
+        pg.insert_text((x, y), d["nombre"], fontsize=s, color=col)
 
         doc.save(out); doc.close()
 
@@ -297,14 +321,14 @@ def formulario_gto():
         pg.insert_text(coords_gto["folio"][:2], folio,
                        fontsize=coords_gto["folio"][2], color=coords_gto["folio"][3])
         pg.insert_text(coords_gto["fecha"][:2], f_exp,
-                       fontsize=coords_gto["fecha"][2], color=coords_gto["fecha"][3])
-        for key in ["marca","serie","linea","motor","anio","color"]:
-            x,y,s,col = coords_gto[key]
-            pg.insert_text((x,y), d[key], fontsize=s, color=col)
-        x,y,s,col = coords_gto["vigencia"]
-        pg.insert_text((x,y), f_ven, fontsize=s, color=col)
-        x,y,s,col = coords_gto["nombre"]
-        pg.insert_text((x,y), d["nombre"], fontsize=s, color=col)
+                       fontsize=coords_gto["fecha"][2"], color=coords_gto["fecha"][3])
+        for key in ["marca", "serie", "linea", "motor", "anio", "color"]:
+            x, y, s, col = coords_gto[key]
+            pg.insert_text((x, y), d[key], fontsize=s, color=col)
+        x, y, s, col = coords_gto["vigencia"]
+        pg.insert_text((x, y), f_ven, fontsize=s, color=col)
+        x, y, s, col = coords_gto["nombre"]
+        pg.insert_text((x, y), d["nombre"], fontsize=s, color=col)
 
         doc.save(out); doc.close()
 
@@ -330,6 +354,13 @@ def listar():
                     "nombre": nombre
                 })
     return render_template("listar.html", registros=registros)
+
+@app.route("/eliminar/<folio>", methods=["POST"])
+def eliminar_folio(folio):
+    registros = cargar_registros()
+    registros = [r for r in registros if r["folio"] != folio]
+    guardar_registros(registros)
+    return redirect(url_for("listar"))
 
 # Rutas de descarga según entidad
 @app.route("/abrir_pdf/<folio>")
