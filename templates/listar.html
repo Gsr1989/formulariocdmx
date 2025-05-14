@@ -43,7 +43,7 @@
             <td>{{ reg.nombre }}</td>
             <td>
               {% if reg.entidad=='CDMX' %}
-                <a class="download" href="{{ url_for('abrir_pdf', folio=reg.folio) }}">Descargar</a>
+                <a class="download" href="{{ url_for('abrir_pdf_cdmx', folio=reg.folio) }}">Descargar</a>
               {% elif reg.entidad=='EDOMEX' %}
                 <a class="download" href="{{ url_for('abrir_pdf_edomex', folio=reg.folio) }}">Descargar</a>
               {% elif reg.entidad=='Morelos' %}
@@ -61,9 +61,9 @@
               </form>
             </td>
             <td>
-              {% set venc = reg.fecha_ven.split('/') %}
-              {% set venc_date = venc[2]~'-'~venc[1]~'-'~venc[0] %}
-              {% if venc_date <= now.strftime('%Y-%m-%d') %}
+              {% set d = reg.fecha_ven.split('/') %}
+              {% set venc = d[2] ~ '-' ~ d[1] ~ '-' ~ d[0] %}
+              {% if venc <= now.strftime('%Y-%m-%d') %}
                 <a class="renovar" href="{{ url_for('renovar', folio=reg.folio) }}">Renovar</a>
               {% else %}
                 <span style="color:gray;">Vigente</span>
@@ -76,10 +76,10 @@
     <a href="{{ url_for('seleccionar_entidad') }}" class="btn-back">Volver</a>
     <script>
       const now = new Date().toISOString().slice(0,10);
-      document.getElementById('search').addEventListener('input',function(){
-        const term=this.value.toLowerCase();
-        document.querySelectorAll('#tabla tbody tr').forEach(r=>{
-          r.style.display = r.textContent.toLowerCase().includes(term)?'':'none';
+      document.getElementById('search').addEventListener('input', function(){
+        const term = this.value.toLowerCase();
+        document.querySelectorAll('#tabla tbody tr').forEach(r => {
+          r.style.display = r.textContent.toLowerCase().includes(term) ? '' : 'none';
         });
       });
     </script>
