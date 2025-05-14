@@ -458,5 +458,14 @@ def logout():
     session.clear()
     return redirect(url_for("login"))
 
+@app.route("/eliminar_multiples", methods=["POST"])
+def eliminar_multiples():
+    folios = request.form.getlist("folios")
+    if folios:
+        registros = cargar_registros()
+        nuevos = [r for r in registros if r["folio"] not in folios]
+        guardar_registros(nuevos)
+    return redirect(url_for("listar"))
+
 if __name__ == "__main__":
     app.run(debug=True)
