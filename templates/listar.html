@@ -5,144 +5,83 @@
     <title>Lista de Permisos Generados</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-        body {
-            margin: 0;
-            padding: 20px;
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+        body { margin:0; padding:20px; font-family:Arial,sans-serif; background:#f4f4f4; }
+        h2 { text-align:center; color:#333; }
+        #search { display:block; margin:10px auto; padding:8px; width:90%; max-width:400px; }
+        table { width:100%; max-width:900px; margin:auto; border-collapse:collapse; background:#fff; }
+        th,td { padding:12px; border:1px solid #ddd; text-align:center; }
+        th { background:#8a1538; color:#fff; }
+        a.download, button.delete, a.renovar {
+            display:inline-block; padding:6px 12px; color:#fff; border-radius:4px; text-decoration:none;
+            font-size:14px; border:none; cursor:pointer;
         }
-        h2 {
-            text-align: center;
-            color: #333;
-        }
-        #search {
-            display: block;
-            margin: 10px auto 20px;
-            padding: 8px;
-            width: 90%;
-            max-width: 400px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-        }
-        table {
-            width: 100%;
-            max-width: 800px;
-            margin: auto;
-            border-collapse: collapse;
-            background: white;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        th, td {
-            padding: 12px;
-            border: 1px solid #ddd;
-            text-align: center;
-        }
-        th {
-            background-color: #8a1538;
-            color: white;
-        }
-        a.download, button.delete {
-            display: inline-block;
-            padding: 6px 12px;
-            color: white;
-            border-radius: 4px;
-            text-decoration: none;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        a.download {
-            background-color: #8a1538;
-        }
-        button.delete {
-            background-color: #c0392b;
-        }
-        a.download:hover, button.delete:hover {
-            opacity: 0.9;
-        }
-        .btn-back {
-            display: block;
-            margin: 20px auto 0;
-            padding: 10px 20px;
-            background-color: #555;
-            color: white;
-            text-decoration: none;
-            width: 150px;
-            text-align: center;
-            border-radius: 6px;
-        }
-        .btn-back:hover {
-            opacity: 0.9;
-        }
+        a.download { background:#8a1538; }
+        a.renovar  { background:#b58900; }
+        button.delete{ background:#c0392b; }
+        .btn-back { display:block; margin:20px auto 0; padding:10px 20px; background:#555; color:#fff;
+                    text-align:center; width:150px; border-radius:6px; text-decoration:none; }
     </style>
 </head>
 <body>
     <h2>Lista de Permisos Generados</h2>
-
-    <input
-        id="search"
-        type="text"
-        placeholder="Buscar por folio, nombre o serie..."
-    />
-
+    <input id="search" type="text" placeholder="Buscar folio, entidad o contribuyente..." />
     <table id="tabla">
         <thead>
             <tr>
-                <th>Folio</th>
-                <th>Entidad</th>
-                <th>Serie</th>
-                <th>Fecha</th>
-                <th>Contribuyente</th>
-                <th>PDF</th>
-                <th>Eliminar</th>
+              <th>Folio</th><th>Entidad</th><th>Serie</th><th>Fecha Exp</th>
+              <th>Vencimiento</th><th>Contribuyente</th><th>PDF</th><th>Eliminar</th><th>Renovar</th>
             </tr>
         </thead>
         <tbody>
-            {% for reg in registros %}
-            <tr>
-                <td>{{ reg.folio }}</td>
-                <td>{{ reg.entidad }}</td>
-                <td>{{ reg.serie }}</td>
-                <td>{{ reg.fecha }}</td>
-                <td>{{ reg.nombre }}</td>
-                <td>
-                    {% if reg.entidad == 'CDMX' %}
-                        <a class="download" href="{{ url_for('abrir_pdf', folio=reg.folio) }}">Descargar</a>
-                    {% elif reg.entidad == 'EDOMEX' %}
-                        <a class="download" href="{{ url_for('abrir_pdf_edomex', folio=reg.folio) }}">Descargar</a>
-                    {% elif reg.entidad == 'Morelos' %}
-                        <a class="download" href="{{ url_for('abrir_pdf_morelos', folio=reg.folio) }}">Descargar</a>
-                    {% elif reg.entidad == 'Oaxaca' %}
-                        <a class="download" href="{{ url_for('abrir_pdf_oaxaca', folio=reg.folio) }}">Descargar</a>
-                    {% elif reg.entidad == 'GTO' %}
-                        <a class="download" href="{{ url_for('abrir_pdf_gto', folio=reg.folio) }}">Descargar</a>
-                    {% endif %}
-                </td>
-                <td>
-                    <form action="{{ url_for('eliminar_folio', folio=reg.folio) }}" method="post"
-                          onsubmit="return confirm('¿Eliminar folio {{ reg.folio }}?');">
-                        <button type="submit" class="delete">Eliminar</button>
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
+          {% for reg in registros %}
+          <tr>
+            <td>{{ reg.folio }}</td>
+            <td>{{ reg.entidad }}</td>
+            <td>{{ reg.serie }}</td>
+            <td>{{ reg.fecha_exp }}</td>
+            <td>{{ reg.fecha_ven }}</td>
+            <td>{{ reg.nombre }}</td>
+            <td>
+              {% if reg.entidad=='CDMX' %}
+                <a class="download" href="{{ url_for('abrir_pdf', folio=reg.folio) }}">Descargar</a>
+              {% elif reg.entidad=='EDOMEX' %}
+                <a class="download" href="{{ url_for('abrir_pdf_edomex', folio=reg.folio) }}">Descargar</a>
+              {% elif reg.entidad=='Morelos' %}
+                <a class="download" href="{{ url_for('abrir_pdf_morelos', folio=reg.folio) }}">Descargar</a>
+              {% elif reg.entidad=='Oaxaca' %}
+                <a class="download" href="{{ url_for('abrir_pdf_oaxaca', folio=reg.folio) }}">Descargar</a>
+              {% elif reg.entidad=='GTO' %}
+                <a class="download" href="{{ url_for('abrir_pdf_gto', folio=reg.folio) }}">Descargar</a>
+              {% endif %}
+            </td>
+            <td>
+              <form action="{{ url_for('eliminar_folio', folio=reg.folio) }}" method="post"
+                    onsubmit="return confirm('Eliminar {{ reg.folio }}?');">
+                <button type="submit" class="delete">Eliminar</button>
+              </form>
+            </td>
+            <td>
+              {% set venc = reg.fecha_ven.split('/') %}
+              {% set venc_date = venc[2]~'-'~venc[1]~'-'~venc[0] %}
+              {% if venc_date <= now.strftime('%Y-%m-%d') %}
+                <a class="renovar" href="{{ url_for('renovar', folio=reg.folio) }}">Renovar</a>
+              {% else %}
+                <span style="color:gray;">Vigente</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
         </tbody>
     </table>
-
     <a href="{{ url_for('seleccionar_entidad') }}" class="btn-back">Volver</a>
-
     <script>
-        document.getElementById('search').addEventListener('input', function() {
-            const term = this.value.toLowerCase();
-            document.querySelectorAll('#tabla tbody tr').forEach(row => {
-                const folio  = row.children[0].textContent.toLowerCase();
-                const serie  = row.children[2].textContent.toLowerCase();
-                const nombre = row.children[4].textContent.toLowerCase();
-                row.style.display = (folio.includes(term) || serie.includes(term) || nombre.includes(term))
-                    ? '' : 'none';
-            });
+      const now = new Date().toISOString().slice(0,10);
+      document.getElementById('search').addEventListener('input',function(){
+        const term=this.value.toLowerCase();
+        document.querySelectorAll('#tabla tbody tr').forEach(r=>{
+          r.style.display = r.textContent.toLowerCase().includes(term)?'':'none';
         });
+      });
     </script>
 </body>
 </html>
