@@ -14,10 +14,10 @@ USUARIO = "Gsr89roja"
 CONTRASENA = "serg890105"
 
 meses_es = {
-    "January":"ENERO","February":"FEBRERO","March":"MARZO",
-    "April":"ABRIL","May":"MAYO","June":"JUNIO",
-    "July":"JULIO","August":"AGOSTO","September":"SEPTIEMBRE",
-    "October":"OCTUBRE","November":"NOVIEMBRE","December":"DICIEMBRE"
+    "January": "ENERO", "February": "FEBRERO", "March": "MARZO",
+    "April": "ABRIL", "May": "MAYO", "June": "JUNIO",
+    "July": "JULIO", "August": "AGOSTO", "September": "SEPTIEMBRE",
+    "October": "OCTUBRE", "November": "NOVIEMBRE", "December": "DICIEMBRE"
 }
 
 coords_cdmx = {
@@ -132,14 +132,10 @@ def _guardar(folio, entidad, serie, marca, linea, motor, anio, color, fecha_exp,
         w = csv.writer(f)
         if not existe:
             w.writerow([
-                "folio","entidad","serie",
-                "marca","linea","motor","anio","color",
-                "fecha_exp","fecha_ven","nombre"
+                "folio","entidad","serie","marca","linea","motor","anio","color","fecha_exp","fecha_ven","nombre"
             ])
         w.writerow([
-            folio, entidad, serie,
-            marca, linea, motor, anio, color,
-            fecha_exp, fecha_ven, nombre
+            folio, entidad, serie, marca, linea, motor, anio, color, fecha_exp, fecha_ven, nombre
         ])
 
 def cargar_registros():
@@ -151,17 +147,10 @@ def cargar_registros():
             for row in reader:
                 if len(row) == 11:
                     regs.append({
-                        "folio":     row[0],
-                        "entidad":   row[1],
-                        "serie":     row[2],
-                        "marca":     row[3],
-                        "linea":     row[4],
-                        "motor":     row[5],
-                        "anio":      row[6],
-                        "color":     row[7],
-                        "fecha_exp": row[8],
-                        "fecha_ven": row[9],
-                        "nombre":    row[10]
+                        "folio": row[0], "entidad": row[1], "serie": row[2],
+                        "marca": row[3], "linea": row[4], "motor": row[5],
+                        "anio": row[6], "color": row[7],
+                        "fecha_exp": row[8], "fecha_ven": row[9], "nombre": row[10]
                     })
     return regs
 
@@ -169,15 +158,12 @@ def guardar_registros(regs):
     with open("registros.csv", "w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
         w.writerow([
-            "folio","entidad","serie",
-            "marca","linea","motor","anio","color",
-            "fecha_exp","fecha_ven","nombre"
+            "folio","entidad","serie","marca","linea","motor","anio","color","fecha_exp","fecha_ven","nombre"
         ])
         for r in regs:
             w.writerow([
-                r["folio"],r["entidad"],r["serie"],
-                r["marca"],r["linea"],r["motor"],r["anio"],r["color"],
-                r["fecha_exp"],r["fecha_ven"],r["nombre"]
+                r["folio"],r["entidad"],r["serie"],r["marca"],r["linea"],r["motor"],
+                r["anio"],r["color"],r["fecha_exp"],r["fecha_ven"],r["nombre"]
             ])
 
 @app.route("/", methods=["GET","POST"])
@@ -193,7 +179,7 @@ def seleccionar_entidad():
         return redirect(url_for("login"))
     return render_template("seleccionar_entidad.html")
 
-# CDMX
+# CDMX (no pide campo 'color')
 @app.route("/formulario", methods=["GET","POST"])
 def formulario_cdmx():
     if "user" not in session:
@@ -212,14 +198,14 @@ def formulario_cdmx():
         pg.insert_text(coords_cdmx["fecha"][:2], f_exp,
                        fontsize=coords_cdmx["fecha"][2], color=coords_cdmx["fecha"][3])
         for key in ["marca","serie","linea","motor","anio"]:
-            x,y,s,col = coords_cdmx[key] if key!="color" else coords_edomex["color"]
+            x,y,s,col = coords_cdmx[key]
             pg.insert_text((x,y), d[key], fontsize=s, color=col)
         pg.insert_text(coords_cdmx["vigencia"][:2], f_ven,
                        fontsize=coords_cdmx["vigencia"][2], color=coords_cdmx["vigencia"][3])
         pg.insert_text(coords_cdmx["nombre"][:2], d["nombre"],
                        fontsize=coords_cdmx["nombre"][2], color=coords_cdmx["nombre"][3])
         doc.save(out); doc.close()
-        _guardar(fol, "CDMX", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f_exp, f_ven, d["nombre"])
+        _guardar(fol, "CDMX", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], "", f_exp, f_ven, d["nombre"])
         return render_template("exitoso.html", folio=fol, cdmx=True)
     return render_template("formulario.html")
 
