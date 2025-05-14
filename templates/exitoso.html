@@ -108,7 +108,7 @@
 
   <div class="botones">
     {% if cdmx %}
-      <a class="verde" href="{{ url_for('abrir_pdf', folio=folio) }}">Abrir PDF</a>
+      <a class="verde" href="{{ url_for('abrir_pdf_cdmx', folio=folio) }}">Abrir PDF</a>
     {% elif edomex %}
       <a class="verde" href="{{ url_for('abrir_pdf_edomex', folio=folio) }}">Abrir PDF</a>
     {% elif morelos %}
