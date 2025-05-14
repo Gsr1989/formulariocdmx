@@ -1,87 +1,106 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Lista de Permisos Generados</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <style>
-        body { margin:0; padding:20px; font-family:Arial,sans-serif; background:#f4f4f4; }
-        h2 { text-align:center; color:#333; }
-        #search { display:block; margin:10px auto; padding:8px; width:90%; max-width:400px; }
-        table { width:100%; max-width:900px; margin:auto; border-collapse:collapse; background:#fff; }
-        th,td { padding:12px; border:1px solid #ddd; text-align:center; }
-        th { background:#8a1538; color:#fff; }
-        a.download, button.delete, a.renovar {
-            display:inline-block; padding:6px 12px; color:#fff; border-radius:4px; text-decoration:none;
-            font-size:14px; border:none; cursor:pointer;
-        }
-        a.download { background:#8a1538; }
-        a.renovar  { background:#b58900; }
-        button.delete{ background:#c0392b; }
-        .btn-back { display:block; margin:20px auto 0; padding:10px 20px; background:#555; color:#fff;
-                    text-align:center; width:150px; border-radius:6px; text-decoration:none; }
-    </style>
+  <meta charset="UTF-8">
+  <title>Lista de Permisos Generados</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { margin:0; padding:20px; font-family:Arial,sans-serif; background:#f4f4f4; }
+    h2 { text-align:center; color:#333; }
+    #search { display:block; margin:10px auto; padding:8px; width:90%; max-width:400px; }
+    form { width: 100%; }
+    table { width:100%; max-width:1000px; margin:auto; border-collapse:collapse; background:#fff; }
+    th,td { padding:10px; border:1px solid #ddd; text-align:center; font-size:14px; }
+    th { background:#8a1538; color:#fff; }
+    a.download, button.delete, a.renovar {
+      display:inline-block; padding:6px 10px; color:#fff; border-radius:4px; text-decoration:none;
+      font-size:13px; border:none; cursor:pointer;
+    }
+    a.download { background:#8a1538; }
+    a.renovar  { background:#b58900; }
+    button.delete { background:#c0392b; }
+    .btn-back, .btn-borrar {
+      display:block; margin:20px auto 0; padding:10px 20px; background:#555; color:#fff;
+      text-align:center; width:180px; border-radius:6px; text-decoration:none; font-weight: bold;
+    }
+    .btn-borrar { background: #d9534f; margin-top: 30px; }
+  </style>
 </head>
 <body>
-    <h2>Lista de Permisos Generados</h2>
-    <input id="search" type="text" placeholder="Buscar folio, entidad o contribuyente..." />
+  <h2>Lista de Permisos Generados</h2>
+  <input id="search" type="text" placeholder="Buscar folio, entidad o contribuyente..." />
+
+  <form method="POST" action="{{ url_for('eliminar_multiples') }}">
     <table id="tabla">
-        <thead>
-            <tr>
-              <th>Folio</th><th>Entidad</th><th>Serie</th><th>Fecha Exp</th>
-              <th>Vencimiento</th><th>Contribuyente</th><th>PDF</th><th>Eliminar</th><th>Renovar</th>
-            </tr>
-        </thead>
-        <tbody>
-          {% for reg in registros %}
-          <tr>
-            <td>{{ reg.folio }}</td>
-            <td>{{ reg.entidad }}</td>
-            <td>{{ reg.serie }}</td>
-            <td>{{ reg.fecha_exp }}</td>
-            <td>{{ reg.fecha_ven }}</td>
-            <td>{{ reg.nombre }}</td>
-            <td>
-              {% if reg.entidad=='CDMX' %}
-                <a class="download" href="{{ url_for('abrir_pdf_cdmx', folio=reg.folio) }}">Descargar</a>
-              {% elif reg.entidad=='EDOMEX' %}
-                <a class="download" href="{{ url_for('abrir_pdf_edomex', folio=reg.folio) }}">Descargar</a>
-              {% elif reg.entidad=='Morelos' %}
-                <a class="download" href="{{ url_for('abrir_pdf_morelos', folio=reg.folio) }}">Descargar</a>
-              {% elif reg.entidad=='Oaxaca' %}
-                <a class="download" href="{{ url_for('abrir_pdf_oaxaca', folio=reg.folio) }}">Descargar</a>
-              {% elif reg.entidad=='GTO' %}
-                <a class="download" href="{{ url_for('abrir_pdf_gto', folio=reg.folio) }}">Descargar</a>
-              {% endif %}
-            </td>
-            <td>
-              <form action="{{ url_for('eliminar_folio', folio=reg.folio) }}" method="post"
-                    onsubmit="return confirm('Eliminar {{ reg.folio }}?');">
-                <button type="submit" class="delete">Eliminar</button>
-              </form>
-            </td>
-            <td>
-              {% set d = reg.fecha_ven.split('/') %}
-              {% set venc = d[2] ~ '-' ~ d[1] ~ '-' ~ d[0] %}
-              {% if venc <= now.strftime('%Y-%m-%d') %}
-                <a class="renovar" href="{{ url_for('renovar', folio=reg.folio) }}">Renovar</a>
-              {% else %}
-                <span style="color:gray;">Vigente</span>
-              {% endif %}
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
+      <thead>
+        <tr>
+          <th>Sel</th>
+          <th>Folio</th>
+          <th>Entidad</th>
+          <th>Serie</th>
+          <th>Fecha Exp</th>
+          <th>Vencimiento</th>
+          <th>Contribuyente</th>
+          <th>PDF</th>
+          <th>Eliminar</th>
+          <th>Renovar</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for reg in registros %}
+        <tr>
+          <td><input type="checkbox" name="folios" value="{{ reg.folio }}"></td>
+          <td>{{ reg.folio }}</td>
+          <td>{{ reg.entidad }}</td>
+          <td>{{ reg.serie }}</td>
+          <td>{{ reg.fecha_exp }}</td>
+          <td>{{ reg.fecha_ven }}</td>
+          <td>{{ reg.nombre }}</td>
+          <td>
+            {% if reg.entidad=='CDMX' %}
+              <a class="download" href="{{ url_for('abrir_pdf_cdmx', folio=reg.folio) }}">PDF</a>
+            {% elif reg.entidad=='EDOMEX' %}
+              <a class="download" href="{{ url_for('abrir_pdf_edomex', folio=reg.folio) }}">PDF</a>
+            {% elif reg.entidad=='Morelos' %}
+              <a class="download" href="{{ url_for('abrir_pdf_morelos', folio=reg.folio) }}">PDF</a>
+            {% elif reg.entidad=='Oaxaca' %}
+              <a class="download" href="{{ url_for('abrir_pdf_oaxaca', folio=reg.folio) }}">PDF</a>
+            {% elif reg.entidad=='GTO' %}
+              <a class="download" href="{{ url_for('abrir_pdf_gto', folio=reg.folio) }}">PDF</a>
+            {% endif %}
+          </td>
+          <td>
+            <form action="{{ url_for('eliminar_folio', folio=reg.folio) }}" method="post"
+                  onsubmit="return confirm('¿Eliminar {{ reg.folio }}?');">
+              <button type="submit" class="delete">X</button>
+            </form>
+          </td>
+          <td>
+            {% set d = reg.fecha_ven.split('/') %}
+            {% set venc = d[2] ~ '-' ~ d[1] ~ '-' ~ d[0] %}
+            {% if venc <= now.strftime('%Y-%m-%d') %}
+              <a class="renovar" href="{{ url_for('renovar', folio=reg.folio) }}">Renovar</a>
+            {% else %}
+              <span style="color:gray;">Vigente</span>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
     </table>
-    <a href="{{ url_for('seleccionar_entidad') }}" class="btn-back">Volver</a>
-    <script>
-      const now = new Date().toISOString().slice(0,10);
-      document.getElementById('search').addEventListener('input', function(){
-        const term = this.value.toLowerCase();
-        document.querySelectorAll('#tabla tbody tr').forEach(r => {
-          r.style.display = r.textContent.toLowerCase().includes(term) ? '' : 'none';
-        });
+
+    <button type="submit" class="btn-borrar" onclick="return confirm('¿Eliminar selección?')">Eliminar selección</button>
+  </form>
+
+  <a href="{{ url_for('seleccionar_entidad') }}" class="btn-back">Volver al Menú</a>
+
+  <script>
+    document.getElementById('search').addEventListener('input', function(){
+      const term = this.value.toLowerCase();
+      document.querySelectorAll('#tabla tbody tr').forEach(r => {
+        r.style.display = r.textContent.toLowerCase().includes(term) ? '' : 'none';
       });
-    </script>
+    });
+  </script>
 </body>
 </html>
