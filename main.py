@@ -211,7 +211,7 @@ def formulario_cdmx():
                        fontsize=coords_cdmx["folio"][2], color=coords_cdmx["folio"][3])
         pg.insert_text(coords_cdmx["fecha"][:2], f_exp,
                        fontsize=coords_cdmx["fecha"][2], color=coords_cdmx["fecha"][3])
-        for key in ["marca","serie","linea","motor","anio","color"]:
+        for key in ["marca","serie","linea","motor","anio"]:
             x,y,s,col = coords_cdmx[key] if key!="color" else coords_edomex["color"]
             pg.insert_text((x,y), d[key], fontsize=s, color=col)
         pg.insert_text(coords_cdmx["vigencia"][:2], f_ven,
