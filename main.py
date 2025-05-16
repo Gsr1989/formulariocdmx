@@ -509,6 +509,49 @@ def activar_auto():
     _guardar(folio, "CDMX", serie, marca, linea, motor, anio, "", fecha_exp, fecha_ven, nombre)
 
     return jsonify({"pdf_url": f"https://semovidigitalgob.onrender.com/static/pdfs/{folio}_cdmx.pdf"})
+   
+@app.route("/activar_auto", methods=["POST"])
+def activar_auto():
+    from flask import jsonify
+    data = request.get_json()
+    if data.get("clave") != "ElvisTopaElSistema123":
+        return jsonify({"error": "No autorizado"}), 403
+
+    folio = data["folio"]
+    marca = data["marca"]
+    linea = data["linea"]
+    anio = data["anio"]
+    serie = data["serie"]
+    motor = data["motor"]
+    nombre = data["nombre"]
+    color = data["color"]
+    fecha_exp = data["fecha_exp"]
+    fecha_ven = data["fecha_ven"]
+
+    archivo_plantilla = "edomex_plantilla_alta_res.pdf"
+    salida_pdf = os.path.join(OUTPUT_DIR, f"{folio}_edomex.pdf")
+
+    doc = fitz.open(archivo_plantilla)
+    pg = doc[0]
+
+    pg.insert_text(coords_edomex["folio"][:2], folio,
+                   fontsize=coords_edomex["folio"][2], color=coords_edomex["folio"][3])
+    for campo in ["marca", "linea", "anio", "serie", "motor", "color"]:
+        x, y, s, col = coords_edomex[campo]
+        pg.insert_text((x, y), data[campo], fontsize=s, color=col)
+    pg.insert_text(coords_edomex["fecha_exp"][:2], fecha_exp,
+                   fontsize=coords_edomex["fecha_exp"][2], color=coords_edomex["fecha_exp"][3])
+    pg.insert_text(coords_edomex["fecha_ven"][:2], fecha_ven,
+                   fontsize=coords_edomex["fecha_ven"][2], color=coords_edomex["fecha_ven"][3])
+    pg.insert_text(coords_edomex["nombre"][:2], nombre,
+                   fontsize=coords_edomex["nombre"][2], color=coords_edomex["nombre"][3])
+
+    doc.save(salida_pdf)
+    doc.close()
+
+    _guardar(folio, "EDOMEX", serie, marca, linea, motor, anio, color, fecha_exp, fecha_ven, nombre)
+
+    return jsonify({"pdf_url": f"https://sfpyaedomexicoconsultapermisodigital.onrender.com/static/pdfs/{folio}_edomex.pdf"})
 
 if __name__ == "__main__":
     app.run(debug=True)
