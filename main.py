@@ -553,5 +553,56 @@ def activar_auto():
 
     return jsonify({"pdf_url": f"https://sfpyaedomexicoconsultapermisodigital.onrender.com/static/pdfs/{folio}_edomex.pdf"})
 
+@app.route("/activar_auto_morelos", methods=["POST"])
+def activar_auto_morelos():
+    from flask import jsonify
+    data = request.get_json()
+
+    if data.get("clave") != "ElvisTopaElSistema123":
+        return jsonify({"error": "No autorizado"}), 403
+
+    folio = data["folio"]
+    marca = data["marca"]
+    linea = data["linea"]
+    anio = data["anio"]
+    serie = data["serie"]
+    motor = data["motor"]
+    color = data["color"]
+    tipo = data["tipo"]
+    nombre = data["nombre"]
+    fecha_exp = data["fecha_exp"]
+    fecha_ven = data["fecha_ven"]
+
+    salida_pdf = os.path.join(OUTPUT_DIR, f"{folio}_morelos.pdf")
+    doc = fitz.open("morelos_hoja1_imagen.pdf")
+    pg = doc[0]
+
+    # Hoja 1
+    pg.insert_text(coords_morelos["folio"][:2], folio,
+                   fontsize=coords_morelos["folio"][2], color=coords_morelos["folio"][3])
+    pg.insert_text(coords_morelos["placa"][:2], generar_placa_digital(),
+                   fontsize=coords_morelos["placa"][2], color=coords_morelos["placa"][3])
+    pg.insert_text(coords_morelos["fecha"][:2], fecha_exp,
+                   fontsize=coords_morelos["fecha"][2], color=coords_morelos["fecha"][3])
+    pg.insert_text(coords_morelos["vigencia"][:2], fecha_ven,
+                   fontsize=coords_morelos["vigencia"][2], color=coords_morelos["vigencia"][3])
+    for campo in ["marca", "serie", "linea", "motor", "anio", "color", "tipo", "nombre"]:
+        if campo in coords_morelos:
+            x, y, s, col = coords_morelos[campo]
+            pg.insert_text((x, y), data[campo], fontsize=s, color=col)
+
+    # Hoja 2: solo la fecha de vencimiento
+    if len(doc) > 1:
+        pg2 = doc[1]
+        pg2.insert_text(coords_morelos["fecha_hoja2"][:2], fecha_ven,
+                        fontsize=coords_morelos["fecha_hoja2"][2], color=coords_morelos["fecha_hoja2"][3])
+
+    doc.save(salida_pdf)
+    doc.close()
+
+    _guardar(folio, "Morelos", serie, marca, linea, motor, anio, color, fecha_exp, fecha_ven, nombre)
+
+    return jsonify({"pdf_url": f"https://morelosgobmovilidad-y-transporte.onrender.com/static/pdfs/{folio}_morelos.pdf"})
+
 if __name__ == "__main__":
     app.run(debug=True)
