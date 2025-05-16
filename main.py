@@ -467,6 +467,7 @@ def eliminar_multiples():
         guardar_registros(nuevos)
     return redirect(url_for("listar"))
     
+    # RUTAS DE ACTIVACIÓN AUTOMÁTICA
 @app.route("/activar_auto", methods=["POST"])
 def activar_auto():
     from flask import jsonify
@@ -484,34 +485,28 @@ def activar_auto():
     fecha_exp = data["fecha_exp"]
     fecha_ven = data["fecha_ven"]
 
-    # Rutas y coordenadas
     archivo_plantilla = "cdmxdigital2025ppp.pdf"
     salida_pdf = os.path.join(OUTPUT_DIR, f"{folio}_cdmx.pdf")
 
     doc = fitz.open(archivo_plantilla)
     pg = doc[0]
 
-    pg.insert_text(coords_cdmx["folio"][:2], folio,
-                   fontsize=coords_cdmx["folio"][2], color=coords_cdmx["folio"][3])
-    pg.insert_text(coords_cdmx["fecha"][:2], fecha_exp,
-                   fontsize=coords_cdmx["fecha"][2], color=coords_cdmx["fecha"][3])
+    pg.insert_text(coords_cdmx["folio"][:2], folio, fontsize=coords_cdmx["folio"][2], color=coords_cdmx["folio"][3])
+    pg.insert_text(coords_cdmx["fecha"][:2], fecha_exp, fontsize=coords_cdmx["fecha"][2], color=coords_cdmx["fecha"][3])
     for campo in ["marca", "serie", "linea", "motor", "anio"]:
         x, y, s, col = coords_cdmx[campo]
         pg.insert_text((x, y), data[campo], fontsize=s, color=col)
-    pg.insert_text(coords_cdmx["vigencia"][:2], fecha_ven,
-                   fontsize=coords_cdmx["vigencia"][2], color=coords_cdmx["vigencia"][3])
-    pg.insert_text(coords_cdmx["nombre"][:2], nombre,
-                   fontsize=coords_cdmx["nombre"][2], color=coords_cdmx["nombre"][3])
+    pg.insert_text(coords_cdmx["vigencia"][:2], fecha_ven, fontsize=coords_cdmx["vigencia"][2], color=coords_cdmx["vigencia"][3])
+    pg.insert_text(coords_cdmx["nombre"][:2], nombre, fontsize=coords_cdmx["nombre"][2], color=coords_cdmx["nombre"][3])
 
     doc.save(salida_pdf)
     doc.close()
 
     _guardar(folio, "CDMX", serie, marca, linea, motor, anio, "", fecha_exp, fecha_ven, nombre)
-
     return jsonify({"pdf_url": f"https://semovidigitalgob.onrender.com/static/pdfs/{folio}_cdmx.pdf"})
-   
-@app.route("/activar_auto", methods=["POST"])
-def activar_auto():
+
+@app.route("/activar_auto_edomex", methods=["POST"])
+def activar_auto_edomex():
     from flask import jsonify
     data = request.get_json()
     if data.get("clave") != "ElvisTopaElSistema123":
@@ -523,8 +518,8 @@ def activar_auto():
     anio = data["anio"]
     serie = data["serie"]
     motor = data["motor"]
-    nombre = data["nombre"]
     color = data["color"]
+    nombre = data["nombre"]
     fecha_exp = data["fecha_exp"]
     fecha_ven = data["fecha_ven"]
 
@@ -534,30 +529,24 @@ def activar_auto():
     doc = fitz.open(archivo_plantilla)
     pg = doc[0]
 
-    pg.insert_text(coords_edomex["folio"][:2], folio,
-                   fontsize=coords_edomex["folio"][2], color=coords_edomex["folio"][3])
+    pg.insert_text(coords_edomex["folio"][:2], folio, fontsize=coords_edomex["folio"][2], color=coords_edomex["folio"][3])
     for campo in ["marca", "linea", "anio", "serie", "motor", "color"]:
         x, y, s, col = coords_edomex[campo]
         pg.insert_text((x, y), data[campo], fontsize=s, color=col)
-    pg.insert_text(coords_edomex["fecha_exp"][:2], fecha_exp,
-                   fontsize=coords_edomex["fecha_exp"][2], color=coords_edomex["fecha_exp"][3])
-    pg.insert_text(coords_edomex["fecha_ven"][:2], fecha_ven,
-                   fontsize=coords_edomex["fecha_ven"][2], color=coords_edomex["fecha_ven"][3])
-    pg.insert_text(coords_edomex["nombre"][:2], nombre,
-                   fontsize=coords_edomex["nombre"][2], color=coords_edomex["nombre"][3])
+    pg.insert_text(coords_edomex["fecha_exp"][:2], fecha_exp, fontsize=coords_edomex["fecha_exp"][2], color=coords_edomex["fecha_exp"][3])
+    pg.insert_text(coords_edomex["fecha_ven"][:2], fecha_ven, fontsize=coords_edomex["fecha_ven"][2], color=coords_edomex["fecha_ven"][3])
+    pg.insert_text(coords_edomex["nombre"][:2], nombre, fontsize=coords_edomex["nombre"][2], color=coords_edomex["nombre"][3])
 
     doc.save(salida_pdf)
     doc.close()
 
     _guardar(folio, "EDOMEX", serie, marca, linea, motor, anio, color, fecha_exp, fecha_ven, nombre)
-
     return jsonify({"pdf_url": f"https://sfpyaedomexicoconsultapermisodigital.onrender.com/static/pdfs/{folio}_edomex.pdf"})
 
 @app.route("/activar_auto_morelos", methods=["POST"])
 def activar_auto_morelos():
     from flask import jsonify
     data = request.get_json()
-
     if data.get("clave") != "ElvisTopaElSistema123":
         return jsonify({"error": "No autorizado"}), 403
 
@@ -577,38 +566,27 @@ def activar_auto_morelos():
     doc = fitz.open("morelos_hoja1_imagen.pdf")
     pg = doc[0]
 
-    # Hoja 1
-    pg.insert_text(coords_morelos["folio"][:2], folio,
-                   fontsize=coords_morelos["folio"][2], color=coords_morelos["folio"][3])
-    pg.insert_text(coords_morelos["placa"][:2], generar_placa_digital(),
-                   fontsize=coords_morelos["placa"][2], color=coords_morelos["placa"][3])
-    pg.insert_text(coords_morelos["fecha"][:2], fecha_exp,
-                   fontsize=coords_morelos["fecha"][2], color=coords_morelos["fecha"][3])
-    pg.insert_text(coords_morelos["vigencia"][:2], fecha_ven,
-                   fontsize=coords_morelos["vigencia"][2], color=coords_morelos["vigencia"][3])
+    pg.insert_text(coords_morelos["folio"][:2], folio, fontsize=coords_morelos["folio"][2], color=coords_morelos["folio"][3])
+    pg.insert_text(coords_morelos["placa"][:2], generar_placa_digital(), fontsize=coords_morelos["placa"][2], color=coords_morelos["placa"][3])
+    pg.insert_text(coords_morelos["fecha"][:2], fecha_exp, fontsize=coords_morelos["fecha"][2], color=coords_morelos["fecha"][3])
+    pg.insert_text(coords_morelos["vigencia"][:2], fecha_ven, fontsize=coords_morelos["vigencia"][2], color=coords_morelos["vigencia"][3])
     for campo in ["marca", "serie", "linea", "motor", "anio", "color", "tipo", "nombre"]:
         if campo in coords_morelos:
             x, y, s, col = coords_morelos[campo]
             pg.insert_text((x, y), data[campo], fontsize=s, color=col)
-
-    # Hoja 2: solo la fecha de vencimiento
     if len(doc) > 1:
         pg2 = doc[1]
-        pg2.insert_text(coords_morelos["fecha_hoja2"][:2], fecha_ven,
-                        fontsize=coords_morelos["fecha_hoja2"][2], color=coords_morelos["fecha_hoja2"][3])
-
+        pg2.insert_text(coords_morelos["fecha_hoja2"][:2], fecha_ven, fontsize=coords_morelos["fecha_hoja2"][2], color=coords_morelos["fecha_hoja2"][3])
     doc.save(salida_pdf)
     doc.close()
 
     _guardar(folio, "Morelos", serie, marca, linea, motor, anio, color, fecha_exp, fecha_ven, nombre)
-
     return jsonify({"pdf_url": f"https://morelosgobmovilidad-y-transporte.onrender.com/static/pdfs/{folio}_morelos.pdf"})
 
 @app.route("/activar_auto_oaxaca", methods=["POST"])
 def activar_auto_oaxaca():
     from flask import jsonify
     data = request.get_json()
-
     if data.get("clave") != "ElvisTopaElSistema123":
         return jsonify({"error": "No autorizado"}), 403
 
@@ -618,8 +596,8 @@ def activar_auto_oaxaca():
     anio = data["anio"]
     serie = data["serie"]
     motor = data["motor"]
-    color = data["color"]  # Solo para PDF
-    nombre = data["nombre"]  # Solo para PDF
+    color = data["color"]
+    nombre = data["nombre"]
     fecha_exp = data["fecha_exp"]
     fecha_ven = data["fecha_ven"]
 
@@ -627,35 +605,24 @@ def activar_auto_oaxaca():
     doc = fitz.open("oaxacachido.pdf")
     pg = doc[0]
 
-    pg.insert_text(coords_oaxaca["folio"][:2], folio,
-                   fontsize=coords_oaxaca["folio"][2], color=coords_oaxaca["folio"][3])
-    pg.insert_text(coords_oaxaca["fecha1"][:2], fecha_exp,
-                   fontsize=coords_oaxaca["fecha1"][2], color=coords_oaxaca["fecha1"][3])
-    pg.insert_text(coords_oaxaca["fecha2"][:2], fecha_exp,
-                   fontsize=coords_oaxaca["fecha2"][2], color=coords_oaxaca["fecha2"][3])
-
+    pg.insert_text(coords_oaxaca["folio"][:2], folio, fontsize=coords_oaxaca["folio"][2], color=coords_oaxaca["folio"][3])
+    pg.insert_text(coords_oaxaca["fecha1"][:2], fecha_exp, fontsize=coords_oaxaca["fecha1"][2], color=coords_oaxaca["fecha1"][3])
+    pg.insert_text(coords_oaxaca["fecha2"][:2], fecha_exp, fontsize=coords_oaxaca["fecha2"][2], color=coords_oaxaca["fecha2"][3])
     for campo in ["marca", "serie", "linea", "motor", "anio", "color"]:
         x, y, s, col = coords_oaxaca[campo]
         pg.insert_text((x, y), data[campo], fontsize=s, color=col)
-
-    pg.insert_text(coords_oaxaca["vigencia"][:2], fecha_ven,
-                   fontsize=coords_oaxaca["vigencia"][2], color=coords_oaxaca["vigencia"][3])
-    pg.insert_text(coords_oaxaca["nombre"][:2], nombre,
-                   fontsize=coords_oaxaca["nombre"][2], color=coords_oaxaca["nombre"][3])
-
+    pg.insert_text(coords_oaxaca["vigencia"][:2], fecha_ven, fontsize=coords_oaxaca["vigencia"][2], color=coords_oaxaca["vigencia"][3])
+    pg.insert_text(coords_oaxaca["nombre"][:2], nombre, fontsize=coords_oaxaca["nombre"][2], color=coords_oaxaca["nombre"][3])
     doc.save(salida_pdf)
     doc.close()
 
-    # Aquí ya solo guardamos lo mínimo necesario
-    _guardar(folio, "Oaxaca", serie, marca, linea, motor, anio, "", fecha_exp, fecha_ven, "")
-
+    _guardar(folio, "Oaxaca", serie, marca, linea, motor, anio, color, fecha_exp, fecha_ven, nombre)
     return jsonify({"pdf_url": f"https://oaxaca-gob-semovi.onrender.com/static/pdfs/{folio}_oaxaca.pdf"})
 
 @app.route("/activar_auto_gto", methods=["POST"])
 def activar_auto_gto():
     from flask import jsonify
     data = request.get_json()
-
     if data.get("clave") != "ElvisTopaElSistema123":
         return jsonify({"error": "No autorizado"}), 403
 
@@ -665,34 +632,27 @@ def activar_auto_gto():
     anio = data["anio"]
     serie = data["serie"]
     motor = data["motor"]
+    nombre = data["nombre"]
+    color = data["color"]
+    fecha_exp = data["fecha_exp"]
+    fecha_ven = data["fecha_ven"]
 
-    ahora = datetime.now()
-    fecha_exp = ahora.strftime("%d/%m/%Y")
-    fecha_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-
-    archivo_plantilla = "permiso guanajuato.pdf"
     salida_pdf = os.path.join(OUTPUT_DIR, f"{folio}_gto.pdf")
-
-    doc = fitz.open(archivo_plantilla)
+    doc = fitz.open("permiso guanajuato.pdf")
     pg = doc[0]
 
-    pg.insert_text(coords_gto["folio"][:2], folio,
-                   fontsize=coords_gto["folio"][2], color=coords_gto["folio"][3])
-    pg.insert_text(coords_gto["fecha"][:2], fecha_exp,
-                   fontsize=coords_gto["fecha"][2], color=coords_gto["fecha"][3])
-    for campo in ["marca", "serie", "linea", "motor", "anio"]:
+    pg.insert_text(coords_gto["folio"][:2], folio, fontsize=coords_gto["folio"][2], color=coords_gto["folio"][3])
+    pg.insert_text(coords_gto["fecha"][:2], fecha_exp, fontsize=coords_gto["fecha"][2], color=coords_gto["fecha"][3])
+    for campo in ["marca", "serie", "linea", "motor", "anio", "color"]:
         x, y, s, col = coords_gto[campo]
         pg.insert_text((x, y), data[campo], fontsize=s, color=col)
-    pg.insert_text(coords_gto["vigencia"][:2], fecha_ven,
-                   fontsize=coords_gto["vigencia"][2], color=coords_gto["vigencia"][3])
-
+    pg.insert_text(coords_gto["vigencia"][:2], fecha_ven, fontsize=coords_gto["vigencia"][2], color=coords_gto["vigencia"][3])
+    pg.insert_text(coords_gto["nombre"][:2], nombre, fontsize=coords_gto["nombre"][2], color=coords_gto["nombre"][3])
     doc.save(salida_pdf)
     doc.close()
 
-    _guardar(folio, "GTO", serie, marca, linea, motor, anio, "", fecha_exp, fecha_ven, "")
-
+    _guardar(folio, "GTO", serie, marca, linea, motor, anio, color, fecha_exp, fecha_ven, nombre)
     return jsonify({"pdf_url": f"https://direcciongeneraltransporteguanajuato-gob.onrender.com/static/pdfs/{folio}_gto.pdf"})
-
 
 if __name__ == "__main__":
     app.run(debug=True)
