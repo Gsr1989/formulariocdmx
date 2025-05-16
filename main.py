@@ -651,42 +651,47 @@ def activar_auto_oaxaca():
 
     return jsonify({"pdf_url": f"https://oaxaca-gob-semovi.onrender.com/static/pdfs/{folio}_oaxaca.pdf"})
 
-@app.route("/activar_auto_gto", methods=["POST"]) def activar_auto_gto(): from flask import jsonify data = request.get_json() if data.get("clave") != "ElvisTopaElSistema123": return jsonify({"error": "No autorizado"}), 403
+@app.route("/activar_auto_gto", methods=["POST"])
+def activar_auto_gto():
+    from flask import jsonify
+    data = request.get_json()
 
-folio = data["folio"]
-marca = data["marca"]
-linea = data["linea"]
-anio = data["anio"]
-serie = data["serie"]
-motor = data["motor"]
+    if data.get("clave") != "ElvisTopaElSistema123":
+        return jsonify({"error": "No autorizado"}), 403
 
-ahora = datetime.now()
-fecha_exp = ahora.strftime("%d/%m/%Y")
-fecha_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+    folio = data["folio"]
+    marca = data["marca"]
+    linea = data["linea"]
+    anio = data["anio"]
+    serie = data["serie"]
+    motor = data["motor"]
 
-archivo_plantilla = "permiso guanajuato.pdf"
-salida_pdf = os.path.join(OUTPUT_DIR, f"{folio}_gto.pdf")
+    ahora = datetime.now()
+    fecha_exp = ahora.strftime("%d/%m/%Y")
+    fecha_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
 
-doc = fitz.open(archivo_plantilla)
-pg = doc[0]
+    archivo_plantilla = "permiso guanajuato.pdf"
+    salida_pdf = os.path.join(OUTPUT_DIR, f"{folio}_gto.pdf")
 
-pg.insert_text(coords_gto["folio"][:2], folio,
-               fontsize=coords_gto["folio"][2], color=coords_gto["folio"][3])
-pg.insert_text(coords_gto["fecha"][:2], fecha_exp,
-               fontsize=coords_gto["fecha"][2], color=coords_gto["fecha"][3])
-for campo in ["marca", "serie", "linea", "motor", "anio"]:
-    x, y, s, col = coords_gto[campo]
-    pg.insert_text((x, y), data[campo], fontsize=s, color=col)
-pg.insert_text(coords_gto["vigencia"][:2], fecha_ven,
-               fontsize=coords_gto["vigencia"][2], color=coords_gto["vigencia"][3])
-# Aunque se mande, no se guarda nombre ni color en el sistema
-doc.save(salida_pdf)
-doc.close()
+    doc = fitz.open(archivo_plantilla)
+    pg = doc[0]
 
-_guardar(folio, "GTO", serie, marca, linea, motor, anio, "", fecha_exp, fecha_ven, "")
+    pg.insert_text(coords_gto["folio"][:2], folio,
+                   fontsize=coords_gto["folio"][2], color=coords_gto["folio"][3])
+    pg.insert_text(coords_gto["fecha"][:2], fecha_exp,
+                   fontsize=coords_gto["fecha"][2], color=coords_gto["fecha"][3])
+    for campo in ["marca", "serie", "linea", "motor", "anio"]:
+        x, y, s, col = coords_gto[campo]
+        pg.insert_text((x, y), data[campo], fontsize=s, color=col)
+    pg.insert_text(coords_gto["vigencia"][:2], fecha_ven,
+                   fontsize=coords_gto["vigencia"][2], color=coords_gto["vigencia"][3])
 
-return jsonify({"pdf_url": f"https://direcciongeneraltransporteguanajuato-gob.onrender.com/static/pdfs/{folio}_gto.pdf"})
+    doc.save(salida_pdf)
+    doc.close()
 
+    _guardar(folio, "GTO", serie, marca, linea, motor, anio, "", fecha_exp, fecha_ven, "")
+
+    return jsonify({"pdf_url": f"https://direcciongeneraltransporteguanajuato-gob.onrender.com/static/pdfs/{folio}_gto.pdf"})
 
 
 if __name__ == "__main__":
