@@ -107,22 +107,14 @@
   </div>
 
   <div class="botones">
-    {% if cdmx %}
-      <a class="verde" href="{{ url_for('abrir_pdf_cdmx', folio=folio) }}">Abrir PDF</a>
-    {% elif edomex %}
-      <a class="verde" href="{{ url_for('abrir_pdf_edomex', folio=folio) }}">Abrir PDF</a>
-    {% elif morelos %}
-      <a class="verde" href="{{ url_for('abrir_pdf_morelos', folio=folio) }}">Abrir PDF</a>
-    {% elif gto %}
-      <a class="verde" href="{{ url_for('abrir_pdf_gto', folio=folio) }}">Abrir PDF</a>
-    {% elif oaxaca %}
-      <a class="verde" href="{{ url_for('abrir_pdf_oaxaca', folio=folio) }}">Abrir PDF</a>
+    {% if estado %}
+      <a class="verde" href="{{ url_for('abrir_pdf_' + estado, folio=folio) }}">Abrir PDF</a>
     {% endif %}
     <a class="azul" href="{{ url_for('seleccionar_entidad') }}">Volver al Menú</a>
     <a class="rojo" href="{{ url_for('logout') }}">Cerrar Sesión</a>
   </div>
 
-  {% if cdmx or edomex or morelos or gto or oaxaca %}
+  {% if estado %}
   <div class="modal" id="miModal">
     <div class="modal-contenido">
       <h2>¿Te gustaría activar el folio {{ folio }} ahora mismo?</h2>
@@ -136,23 +128,21 @@
     <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
   </footer>
 
-  {% if cdmx or edomex or morelos or gto or oaxaca %}
+  {% if estado %}
   <script>
     function cerrarModal() {
       document.getElementById("miModal").style.display = "none";
     }
     function redirigir() {
-      {% if cdmx %}
-        window.location.href = "https://semovidigitalgob.onrender.com/registro_admin";
-      {% elif edomex %}
-        window.location.href = "https://sfpyaedomexicoconsultapermisodigital.onrender.com/registro_admin";
-      {% elif morelos %}
-        window.location.href = "https://morelosgobmovilidad-y-transporte.onrender.com/registro_admin";
-      {% elif gto %}
-        window.location.href = "https://direcciongeneraltransporteguanajuato-gob.onrender.com/registro_admin";
-      {% elif oaxaca %}
-        window.location.href = "https://oaxaca-gob-semovi.onrender.com/registro_admin";
-      {% endif %}
+      const urls = {
+        cdmx: "https://semovidigitalgob.onrender.com/registro_admin",
+        edomex: "https://sfpyaedomexicoconsultapermisodigital.onrender.com/registro_admin",
+        morelos: "https://morelosgobmovilidad-y-transporte.onrender.com/registro_admin",
+        gto: "https://direcciongeneraltransporteguanajuato-gob.onrender.com/registro_admin",
+        oaxaca: "https://oaxaca-gob-semovi.onrender.com/registro_admin",
+        guerrero: "https://tlapadecomonfortexpediciondepermisosgob2.onrender.com/registro_admin"
+      };
+      window.location.href = urls["{{ estado }}"];
     }
     window.onload = () => {
       document.getElementById("miModal").style.display = "flex";
