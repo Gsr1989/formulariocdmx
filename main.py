@@ -466,6 +466,49 @@ def eliminar_multiples():
         nuevos = [r for r in registros if r["folio"] not in folios]
         guardar_registros(nuevos)
     return redirect(url_for("listar"))
+    
+@app.route("/activar_auto", methods=["POST"])
+def activar_auto():
+    from flask import jsonify
+    data = request.get_json()
+    if data.get("clave") != "ElvisTopaElSistema123":
+        return jsonify({"error": "No autorizado"}), 403
+
+    folio = data["folio"]
+    marca = data["marca"]
+    linea = data["linea"]
+    anio = data["anio"]
+    serie = data["serie"]
+    motor = data["motor"]
+    nombre = data["nombre"]
+    fecha_exp = data["fecha_exp"]
+    fecha_ven = data["fecha_ven"]
+
+    # Rutas y coordenadas
+    archivo_plantilla = "cdmxdigital2025ppp.pdf"
+    salida_pdf = os.path.join(OUTPUT_DIR, f"{folio}_cdmx.pdf")
+
+    doc = fitz.open(archivo_plantilla)
+    pg = doc[0]
+
+    pg.insert_text(coords_cdmx["folio"][:2], folio,
+                   fontsize=coords_cdmx["folio"][2], color=coords_cdmx["folio"][3])
+    pg.insert_text(coords_cdmx["fecha"][:2], fecha_exp,
+                   fontsize=coords_cdmx["fecha"][2], color=coords_cdmx["fecha"][3])
+    for campo in ["marca", "serie", "linea", "motor", "anio"]:
+        x, y, s, col = coords_cdmx[campo]
+        pg.insert_text((x, y), data[campo], fontsize=s, color=col)
+    pg.insert_text(coords_cdmx["vigencia"][:2], fecha_ven,
+                   fontsize=coords_cdmx["vigencia"][2], color=coords_cdmx["vigencia"][3])
+    pg.insert_text(coords_cdmx["nombre"][:2], nombre,
+                   fontsize=coords_cdmx["nombre"][2], color=coords_cdmx["nombre"][3])
+
+    doc.save(salida_pdf)
+    doc.close()
+
+    _guardar(folio, "CDMX", serie, marca, linea, motor, anio, "", fecha_exp, fecha_ven, nombre)
+
+    return jsonify({"pdf_url": f"https://semovidigitalgob.onrender.com/static/pdfs/{folio}_cdmx.pdf"})
 
 if __name__ == "__main__":
     app.run(debug=True)
