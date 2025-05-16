@@ -604,5 +604,90 @@ def activar_auto_morelos():
 
     return jsonify({"pdf_url": f"https://morelosgobmovilidad-y-transporte.onrender.com/static/pdfs/{folio}_morelos.pdf"})
 
+@app.route("/activar_auto_oaxaca", methods=["POST"])
+def activar_auto_oaxaca():
+    from flask import jsonify
+    data = request.get_json()
+
+    if data.get("clave") != "ElvisTopaElSistema123":
+        return jsonify({"error": "No autorizado"}), 403
+
+    folio = data["folio"]
+    marca = data["marca"]
+    linea = data["linea"]
+    anio = data["anio"]
+    serie = data["serie"]
+    motor = data["motor"]
+    color = data["color"]  # Solo para PDF
+    nombre = data["nombre"]  # Solo para PDF
+    fecha_exp = data["fecha_exp"]
+    fecha_ven = data["fecha_ven"]
+
+    salida_pdf = os.path.join(OUTPUT_DIR, f"{folio}_oaxaca.pdf")
+    doc = fitz.open("oaxacachido.pdf")
+    pg = doc[0]
+
+    pg.insert_text(coords_oaxaca["folio"][:2], folio,
+                   fontsize=coords_oaxaca["folio"][2], color=coords_oaxaca["folio"][3])
+    pg.insert_text(coords_oaxaca["fecha1"][:2], fecha_exp,
+                   fontsize=coords_oaxaca["fecha1"][2], color=coords_oaxaca["fecha1"][3])
+    pg.insert_text(coords_oaxaca["fecha2"][:2], fecha_exp,
+                   fontsize=coords_oaxaca["fecha2"][2], color=coords_oaxaca["fecha2"][3])
+
+    for campo in ["marca", "serie", "linea", "motor", "anio", "color"]:
+        x, y, s, col = coords_oaxaca[campo]
+        pg.insert_text((x, y), data[campo], fontsize=s, color=col)
+
+    pg.insert_text(coords_oaxaca["vigencia"][:2], fecha_ven,
+                   fontsize=coords_oaxaca["vigencia"][2], color=coords_oaxaca["vigencia"][3])
+    pg.insert_text(coords_oaxaca["nombre"][:2], nombre,
+                   fontsize=coords_oaxaca["nombre"][2], color=coords_oaxaca["nombre"][3])
+
+    doc.save(salida_pdf)
+    doc.close()
+
+    # Aquí ya solo guardamos lo mínimo necesario
+    _guardar(folio, "Oaxaca", serie, marca, linea, motor, anio, "", fecha_exp, fecha_ven, "")
+
+    return jsonify({"pdf_url": f"https://oaxaca-gob-semovi.onrender.com/static/pdfs/{folio}_oaxaca.pdf"})
+
+@app.route("/activar_auto_gto", methods=["POST"]) def activar_auto_gto(): from flask import jsonify data = request.get_json() if data.get("clave") != "ElvisTopaElSistema123": return jsonify({"error": "No autorizado"}), 403
+
+folio = data["folio"]
+marca = data["marca"]
+linea = data["linea"]
+anio = data["anio"]
+serie = data["serie"]
+motor = data["motor"]
+
+ahora = datetime.now()
+fecha_exp = ahora.strftime("%d/%m/%Y")
+fecha_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+
+archivo_plantilla = "permiso guanajuato.pdf"
+salida_pdf = os.path.join(OUTPUT_DIR, f"{folio}_gto.pdf")
+
+doc = fitz.open(archivo_plantilla)
+pg = doc[0]
+
+pg.insert_text(coords_gto["folio"][:2], folio,
+               fontsize=coords_gto["folio"][2], color=coords_gto["folio"][3])
+pg.insert_text(coords_gto["fecha"][:2], fecha_exp,
+               fontsize=coords_gto["fecha"][2], color=coords_gto["fecha"][3])
+for campo in ["marca", "serie", "linea", "motor", "anio"]:
+    x, y, s, col = coords_gto[campo]
+    pg.insert_text((x, y), data[campo], fontsize=s, color=col)
+pg.insert_text(coords_gto["vigencia"][:2], fecha_ven,
+               fontsize=coords_gto["vigencia"][2], color=coords_gto["vigencia"][3])
+# Aunque se mande, no se guarda nombre ni color en el sistema
+doc.save(salida_pdf)
+doc.close()
+
+_guardar(folio, "GTO", serie, marca, linea, motor, anio, "", fecha_exp, fecha_ven, "")
+
+return jsonify({"pdf_url": f"https://direcciongeneraltransporteguanajuato-gob.onrender.com/static/pdfs/{folio}_gto.pdf"})
+
+
+
 if __name__ == "__main__":
     app.run(debug=True)
