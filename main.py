@@ -20,72 +20,80 @@ meses_es = {
     "October": "OCTUBRE", "November": "NOVIEMBRE", "December": "DICIEMBRE"
 }
 
-coords_cdmx = {
-    "folio":    (87,130,14,(1,0,0)),
-    "fecha":    (130,145,12,(0,0,0)),
-    "marca":    (87,290,11,(0,0,0)),
-    "serie":    (375,290,11,(0,0,0)),
-    "linea":    (87,307,11,(0,0,0)),
-    "motor":    (375,307,11,(0,0,0)),
-    "anio":     (87,323,11,(0,0,0)),
-    "vigencia": (375,323,11,(0,0,0)),
-    "nombre":   (375,340,11,(0,0,0)),
-}
-
-coords_edomex = {
-    "folio":     (535,135,14,(1,0,0)),
-    "marca":     (109,190,10,(0,0,0)),
-    "serie":     (230,233,10,(0,0,0)),
-    "linea":     (238,190,10,(0,0,0)),
-    "motor":     (104,233,10,(0,0,0)),
-    "anio":      (410,190,10,(0,0,0)),
-    "color":     (400,233,10,(0,0,0)),
-    "fecha_exp": (190,280,10,(0,0,0)),
-    "fecha_ven": (380,280,10,(0,0,0)),
-    "nombre":    (394,320,10,(0,0,0)),
-}
-
-coords_morelos = {
-    "folio":       (665,282,18,(1,0,0)),
-    "placa":       (200,200,60,(0,0,0)),
-    "fecha":       (200,340,14,(0,0,0)),
-    "vigencia":    (600,340,14,(0,0,0)),
-    "marca":       (110,425,14,(0,0,0)),
-    "serie":       (460,420,14,(0,0,0)),
-    "linea":       (110,455,14,(0,0,0)),
-    "motor":       (460,445,14,(0,0,0)),
-    "anio":        (110,485,14,(0,0,0)),
-    "color":       (460,395,14,(0,0,0)),
-    "tipo":        (510,470,14,(0,0,0)),
-    "nombre":      (150,370,14,(0,0,0)),
-    "fecha_hoja2": (100,100,14,(0,0,0)),
-}
-
-coords_oaxaca = {
-    "folio":    (553,96,16,(1,0,0)),
-    "fecha1":   (168,130,12,(0,0,0)),
-    "fecha2":   (140,540,10,(0,0,0)),
-    "marca":    (50,215,12,(0,0,0)),
-    "serie":    (200,258,12,(0,0,0)),
-    "linea":    (200,215,12,(0,0,0)),
-    "motor":    (360,258,12,(0,0,0)),
-    "anio":     (360,215,12,(0,0,0)),
-    "color":    (50,258,12,(0,0,0)),
-    "vigencia": (410,130,12,(0,0,0)),
-    "nombre":   (133,149,10,(0,0,0)),
-}
-
-coords_gto = {
-    "folio":    (1800,455,60,(1,0,0)),
-    "fecha":    (2200,580,35,(0,0,0)),
-    "marca":    (385,715,35,(0,0,0)),
-    "serie":    (350,800,35,(0,0,0)),
-    "linea":    (800,715,35,(0,0,0)),
-    "motor":    (1290,800,35,(0,0,0)),
-    "anio":     (1500,715,35,(0,0,0)),
-    "color":    (1960,715,35,(0,0,0)),
-    "nombre":   (950,1100,50,(0,0,0)),
-    "vigencia": (2200,645,35,(0,0,0)),
+coords = {
+    "cdmx": {
+        "folio":    (87,130,14,(1,0,0)),
+        "fecha":    (130,145,12,(0,0,0)),
+        "marca":    (87,290,11,(0,0,0)),
+        "serie":    (375,290,11,(0,0,0)),
+        "linea":    (87,307,11,(0,0,0)),
+        "motor":    (375,307,11,(0,0,0)),
+        "anio":     (87,323,11,(0,0,0)),
+        "vigencia": (375,323,11,(0,0,0)),
+        "nombre":   (375,340,11,(0,0,0)),
+        "template": "cdmxdigital2025ppp.pdf",
+        "download_route": "abrir_pdf_cdmx"
+    },
+    "edomex": {
+        "folio":     (535,135,14,(1,0,0)),
+        "marca":     (109,190,10,(0,0,0)),
+        "serie":     (230,233,10,(0,0,0)),
+        "linea":     (238,190,10,(0,0,0)),
+        "motor":     (104,233,10,(0,0,0)),
+        "anio":      (410,190,10,(0,0,0)),
+        "color":     (400,233,10,(0,0,0)),
+        "fecha_exp": (190,280,10,(0,0,0)),
+        "fecha_ven": (380,280,10,(0,0,0)),
+        "nombre":    (394,320,10,(0,0,0)),
+        "template": "edomex_plantilla_alta_res.pdf",
+        "download_route": "abrir_pdf_edomex"
+    },
+    "morelos": {
+        "folio":       (665,282,18,(1,0,0)),
+        "placa":       (200,200,60,(0,0,0)),
+        "fecha":       (200,340,14,(0,0,0)),
+        "vigencia":    (600,340,14,(0,0,0)),
+        "marca":       (110,425,14,(0,0,0)),
+        "serie":       (460,420,14,(0,0,0)),
+        "linea":       (110,455,14,(0,0,0)),
+        "motor":       (460,445,14,(0,0,0)),
+        "anio":        (110,485,14,(0,0,0)),
+        "color":       (460,395,14,(0,0,0)),
+        "tipo":        (510,470,14,(0,0,0)),
+        "nombre":      (150,370,14,(0,0,0)),
+        "fecha_hoja2": (100,100,14,(0,0,0)),
+        "template":    "morelos_hoja1_imagen.pdf",
+        "download_route": "abrir_pdf_morelos"
+    },
+    "oaxaca": {
+        "folio":    (553,96,16,(1,0,0)),
+        "fecha1":   (168,130,12,(0,0,0)),
+        "fecha2":   (140,540,10,(0,0,0)),
+        "marca":    (50,215,12,(0,0,0)),
+        "serie":    (200,258,12,(0,0,0)),
+        "linea":    (200,215,12,(0,0,0)),
+        "motor":    (360,258,12,(0,0,0)),
+        "anio":     (360,215,12,(0,0,0)),
+        "color":    (50,258,12,(0,0,0)),
+        "vigencia": (410,130,12,(0,0,0)),
+        "nombre":   (133,149,10,(0,0,0)),
+        "template": "oaxacachido.pdf",
+        "download_route": "abrir_pdf_oaxaca"
+    },
+    "gto": {
+        "folio":    (1800,455,60,(1,0,0)),
+        "fecha":    (2200,580,35,(0,0,0)),
+        "marca":    (385,715,35,(0,0,0)),
+        "serie":    (350,800,35,(0,0,0)),
+        "linea":    (800,715,35,(0,0,0)),
+        "motor":    (1290,800,35,(0,0,0)),
+        "anio":     (1500,715,35,(0,0,0)),
+        "color":    (1960,715,35,(0,0,0)),
+        "nombre":   (950,1100,50,(0,0,0)),
+        "vigencia": (2200,645,35,(0,0,0)),
+        "template": "permiso guanajuato.pdf",
+        "download_route": "abrir_pdf_gto"
+    },
 }
 
 def generar_folio_automatico(ruta="folios_globales.txt"):
@@ -157,6 +165,41 @@ def guardar_registros(regs):
         for r in regs:
             w.writerow([r["folio"],r["entidad"],r["serie"],r["marca"],r["linea"],r["motor"],r["anio"],r["color"],r["fecha_exp"],r["fecha_ven"],r["nombre"]])
 
+def crear_pdf(entidad, datos, folio, f_exp, f_ven, placa=None):
+    cfg = coords[entidad]
+    plantilla = cfg["template"]
+    out = os.path.join(OUTPUT_DIR, f"{folio}_{entidad}.pdf")
+    doc = fitz.open(plantilla)
+    pg = doc[0]
+    # folio + fechas
+    pg.insert_text(cfg["folio"][:2], folio, fontsize=cfg["folio"][2], color=cfg["folio"][3])
+    if "fecha" in cfg:
+        pg.insert_text(cfg["fecha"][:2], f_exp, fontsize=cfg["fecha"][2], color=cfg["fecha"][3])
+    if "fecha_exp" in cfg:
+        pg.insert_text(cfg["fecha_exp"][:2], f_exp, fontsize=cfg["fecha_exp"][2], color=cfg["fecha_exp"][3])
+    pg.insert_text(cfg.get("vigencia", cfg.get("fecha2", cfg.get("fecha")) )[:2],
+                   f_ven,
+                   fontsize=cfg.get("vigencia", cfg.get("fecha2", cfg.get("fecha")))[2],
+                   color=cfg.get("vigencia", cfg.get("fecha2", cfg.get("fecha")))[3])
+    # placa (Morelos)
+    if placa:
+        pg.insert_text(cfg["placa"][:2], placa, fontsize=cfg["placa"][2], color=cfg["placa"][3])
+    # resto de campos
+    for campo in ["marca","serie","linea","motor","anio","color","tipo","nombre"]:
+        if campo in cfg and campo in datos:
+            x,y,s,col = cfg[campo]
+            pg.insert_text((x,y), datos[campo], fontsize=s, color=col)
+    # segunda hoja Morelos
+    if entidad == "morelos" and len(doc) > 1:
+        pg2 = doc[1]
+        pg2.insert_text(cfg["fecha_hoja2"][:2], f_ven, fontsize=cfg["fecha_hoja2"][2], color=cfg["fecha_hoja2"][3])
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    doc.save(out)
+    doc.close()
+    _guardar(folio, entidad.upper(), datos.get("serie",""), datos.get("marca",""), datos.get("linea",""),
+             datos.get("motor",""), datos.get("anio",""), datos.get("color",""), f_exp, f_ven, datos.get("nombre",""))
+    return out
+
 @app.route("/", methods=["GET","POST"])
 def login():
     if request.method == "POST" and request.form["user"] == USUARIO and request.form["pass"] == CONTRASENA:
@@ -170,128 +213,58 @@ def seleccionar_entidad():
         return redirect(url_for("login"))
     return render_template("seleccionar_entidad.html")
 
-def procesar_pdf(entidad, datos, plantilla, coords):
-    fol = datos["folio"]
-    fecha_exp = datos["fecha_exp"]
-    fecha_ven = datos["fecha_ven"]
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-    out = os.path.join(OUTPUT_DIR, f"{fol}_{entidad.lower()}.pdf")
-    doc = fitz.open(plantilla)
-    pg = doc[0]
-    pg.insert_text(coords["folio"][:2], fol, fontsize=coords["folio"][2], color=coords["folio"][3])
-    pg.insert_text(coords.get("fecha", coords.get("fecha_exp"))[:2], fecha_exp,
-                   fontsize=coords.get("fecha", coords.get("fecha_exp"))[2],
-                   color=coords.get("fecha", coords.get("fecha_exp"))[3])
-    pg.insert_text(coords.get("vigencia", coords.get("fecha_ven"))[:2], fecha_ven,
-                   fontsize=coords.get("vigencia", coords.get("fecha_ven"))[2],
-                   color=coords.get("vigencia", coords.get("fecha_ven"))[3])
-    for campo in ["marca","serie","linea","motor","anio","color","tipo","nombre"]:
-        if campo in coords and campo in datos:
-            x,y,s,col = coords[campo]
-            pg.insert_text((x,y), datos[campo], fontsize=s, color=col)
-    # hoja2 Morelos
-    if entidad == "Morelos" and len(doc) > 1:
-        pg2 = doc[1]
-        pg2.insert_text(coords["fecha_hoja2"][:2], fecha_ven,
-                        fontsize=coords["fecha_hoja2"][2], color=coords["fecha_hoja2"][3])
-    doc.save(out); doc.close()
-    _guardar(fol, entidad, datos.get("serie",""), datos.get("marca",""),
-             datos.get("linea",""), datos.get("motor",""), datos.get("anio",""),
-             datos.get("color",""), fecha_exp, fecha_ven, datos.get("nombre",""))
-    return fol
+def procesar_formulario(entidad):
+    d = request.form.to_dict()
+    fol = generar_folio_automatico()
+    ahora = datetime.now()
+    # fechas
+    if entidad == "cdmx" or entidad == "morelos":
+        f_exp = ahora.strftime(f"%d DE {meses_es[ahora.strftime('%B')]} DEL %Y").upper()
+    else:
+        f_exp = ahora.strftime("%d/%m/%Y")
+    f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+    # placa para Morelos
+    placa = generar_placa_digital() if entidad == "morelos" else None
+    crear_pdf(entidad, d, fol, f_exp, f_ven, placa)
+    return render_template("exitoso.html", entidad=entidad, folio=fol)
 
+# Formularios por entidad
 @app.route("/formulario", methods=["GET","POST"])
 def formulario_cdmx():
-    if "user" not in session:
-        return redirect(url_for("login"))
-    if request.method == "POST":
-        d = request.form.to_dict()
-        d["folio"] = generar_folio_automatico()
-        ahora = datetime.now()
-        d["fecha_exp"] = ahora.strftime(f"%d DE {meses_es[ahora.strftime('%B')]} DEL %Y")
-        d["fecha_ven"] = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-        fol = procesar_pdf("CDMX", d, "cdmxdigital2025ppp.pdf", coords_cdmx)
-        return render_template("exitoso.html", folio=fol, entidad="CDMX", datos=d, mostrar_modal=True)
+    if "user" not in session: return redirect(url_for("login"))
+    if request.method == "POST": return procesar_formulario("cdmx")
     return render_template("formulario.html")
 
 @app.route("/formulario_edomex", methods=["GET","POST"])
 def formulario_edomex():
-    if "user" not in session:
-        return redirect(url_for("login"))
-    if request.method == "POST":
-        d = request.form.to_dict()
-        d["folio"] = generar_folio_automatico()
-        ahora = datetime.now()
-        d["fecha_exp"] = ahora.strftime("%d/%m/%Y")
-        d["fecha_ven"] = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-        fol = procesar_pdf("EDOMEX", d, "edomex_plantilla_alta_res.pdf", coords_edomex)
-        return render_template("exitoso.html", folio=fol, entidad="EDOMEX", datos=d, mostrar_modal=True)
+    if "user" not in session: return redirect(url_for("login"))
+    if request.method == "POST": return procesar_formulario("edomex")
     return render_template("formulario_edomex.html")
 
 @app.route("/formulario_morelos", methods=["GET","POST"])
 def formulario_morelos():
-    if "user" not in session:
-        return redirect(url_for("login"))
-    if request.method == "POST":
-        d = request.form.to_dict()
-        d["folio"] = generar_folio_automatico()
-        d["placa"] = generar_placa_digital()
-        ahora = datetime.now()
-        d["fecha_exp"] = ahora.strftime(f"%d DE {meses_es[ahora.strftime('%B')]} DEL %Y")
-        d["fecha_ven"] = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-        fol = procesar_pdf("Morelos", d, "morelos_hoja1_imagen.pdf", coords_morelos)
-        return render_template("exitoso.html", folio=fol, entidad="Morelos", datos=d, mostrar_modal=True)
+    if "user" not in session: return redirect(url_for("login"))
+    if request.method == "POST": return procesar_formulario("morelos")
     return render_template("formulario_morelos.html")
 
 @app.route("/formulario_oaxaca", methods=["GET","POST"])
 def formulario_oaxaca():
-    if "user" not in session:
-        return redirect(url_for("login"))
-    if request.method == "POST":
-        d = request.form.to_dict()
-        d["folio"] = generar_folio_automatico()
-        ahora = datetime.now()
-        d["fecha_exp"] = ahora.strftime("%d/%m/%Y")
-        d["fecha_ven"] = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-        fol = procesar_pdf("Oaxaca", d, "oaxacachido.pdf", coords_oaxaca)
-        return render_template("exitoso.html", folio=fol, entidad="Oaxaca", datos=d, mostrar_modal=True)
+    if "user" not in session: return redirect(url_for("login"))
+    if request.method == "POST": return procesar_formulario("oaxaca")
     return render_template("formulario_oaxaca.html")
 
 @app.route("/formulario_gto", methods=["GET","POST"])
 def formulario_gto():
-    if "user" not in session:
-        return redirect(url_for("login"))
-    if request.method == "POST":
-        d = request.form.to_dict()
-        d["folio"] = generar_folio_automatico()
-        ahora = datetime.now()
-        d["fecha_exp"] = ahora.strftime("%d/%m/%Y")
-        d["fecha_ven"] = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-        fol = procesar_pdf("GTO", d, "permiso guanajuato.pdf", coords_gto)
-        return render_template("exitoso.html", folio=fol, entidad="GTO", datos=d, mostrar_modal=True)
+    if "user" not in session: return redirect(url_for("login"))
+    if request.method == "POST": return procesar_formulario("gto")
     return render_template("formulario_gto.html")
 
-@app.route("/activar_auto", methods=["POST"])
-def activar_auto():
-    data = request.get_json()
-    if data.get("clave") != "ElvisTopaElSistema123":
-        return jsonify({"error": "No autorizado"}), 403
-    entidad = data["entidad"]
-    plantillas = {
-        "CDMX":"cdmxdigital2025ppp.pdf","EDOMEX":"edomex_plantilla_alta_res.pdf",
-        "Morelos":"morelos_hoja1_imagen.pdf","Oaxaca":"oaxacachido.pdf","GTO":"permiso guanajuato.pdf"
-    }
-    coords_map = {"CDMX":coords_cdmx,"EDOMEX":coords_edomex,"Morelos":coords_morelos,"Oaxaca":coords_oaxaca,"GTO":coords_gto}
-    fol = procesar_pdf(entidad, data, plantillas[entidad], coords_map[entidad])
-    url = url_for(f"abrir_pdf_{entidad.lower()}", folio=fol, _external=True)
-    return jsonify({"pdf_url": url})
-
+# Listar, eliminar y renovar
 @app.route("/listar")
 def listar():
-    if "user" not in session:
-        return redirect(url_for("login"))
-    registros = cargar_registros()
-    return render_template("listar.html", registros=registros, now=datetime.now())
+    if "user" not in session: return redirect(url_for("login"))
+    regs = cargar_registros()
+    return render_template("listar.html", registros=regs, now=datetime.now())
 
 @app.route("/eliminar/<folio>", methods=["POST"])
 def eliminar_folio(folio):
@@ -303,26 +276,21 @@ def eliminar_folio(folio):
 def eliminar_multiples():
     folios = request.form.getlist("folios")
     if folios:
-        registros = cargar_registros()
-        nuevos = [r for r in registros if r["folio"] not in folios]
-        guardar_registros(nuevos)
+        regs = [r for r in cargar_registros() if r["folio"] not in folios]
+        guardar_registros(regs)
     return redirect(url_for("listar"))
 
 @app.route("/renovar/<folio>")
 def renovar(folio):
     regs = cargar_registros()
     viejo = next((r for r in regs if r["folio"] == folio), None)
-    if not viejo:
-        return redirect(url_for("listar"))
+    if not viejo: return redirect(url_for("listar"))
     venc = datetime.strptime(viejo["fecha_ven"], "%d/%m/%Y")
-    if datetime.now() < venc:
-        return redirect(url_for("listar"))
-    datos = viejo.copy()
-    datos["folio"] = generar_folio_automatico()
-    datos["fecha_exp"] = datetime.now().strftime("%d/%m/%Y")
-    datos["fecha_ven"] = (datetime.now()+timedelta(days=30)).strftime("%d/%m/%Y")
-    return redirect(url_for(f"activar_auto", _external=False), code=307)
+    if datetime.now() < venc: return redirect(url_for("listar"))
+    # reutilizar datos viejos
+    return procesar_formulario(viejo["entidad"].lower())
 
+# Rutas de descarga
 @app.route("/abrir_pdf_cdmx/<folio>")
 def abrir_pdf_cdmx(folio):
     p = os.path.join(OUTPUT_DIR, f"{folio}_cdmx.pdf")
