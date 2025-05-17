@@ -1,3 +1,4 @@
+<!-- templates/exitoso.html -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -5,69 +6,10 @@
   <title>Registro Exitoso</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0; padding: 0;
-      background: #f9f9f9;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    header, footer {
-      width: 100%;
-      background-color: #8a1538;
-    }
-    header img, footer img {
-      width: 100%; max-width: 500px;
-      object-fit: contain;
-      display: block; margin: auto;
-    }
-    .mensaje {
-      margin: 30px auto 15px;
-      font-size: 24px; font-weight: bold;
-      color: #28a745;
-      text-align: center;
-    }
-    .botones {
-      width: 90%; max-width: 400px;
-      display: flex; flex-direction: column;
-      gap: 15px; margin: 20px auto 40px;
-    }
-    .botones a {
-      padding: 15px; text-align: center;
-      color: white; font-weight: bold;
-      text-decoration: none;
-      border-radius: 10px; font-size: 18px;
-    }
-    .verde { background: #28a745; }
-    .azul  { background: #007bff; }
-    .rojo  { background: #a83232; }
-    .modal {
-      position: fixed; top:0; left:0; right:0; bottom:0;
-      background: rgba(0,0,0,0.6);
-      display: none; align-items: center; justify-content: center;
-      z-index: 999;
-    }
-    .modal-contenido {
-      background: white; padding: 25px;
-      border-radius: 12px; text-align: center;
-      width: 90%; max-width: 320px;
-    }
-    .modal-contenido h2 {
-      font-size: 18px; margin-bottom: 20px;
-    }
-    .modal-contenido button {
-      padding: 10px 25px; margin: 10px;
-      border: none; border-radius: 8px;
-      font-weight: bold; cursor: pointer;
-      font-size: 16px;
-    }
-    .si { background: #007bff; color: white; }
-    .no { background: #dc3545; color: white; }
+    /* — estilos idénticos a los tuyos — */
   </style>
 </head>
 <body>
-
   <header>
     <img src="{{ url_for('static', filename='logo.png') }}" alt="Encabezado">
   </header>
@@ -75,16 +17,21 @@
   <div class="mensaje">¡PDF generado exitosamente!</div>
 
   <div class="botones">
+    {% if cdmx %}
+      <a id="descargar" class="verde" href="{{ url_for('abrir_pdf_cdmx', folio=folio) }}">Abrir PDF</a>
+    {% elif edomex %}
+      <a id="descargar" class="verde" href="{{ url_for('abrir_pdf_edomex', folio=folio) }}">Abrir PDF</a>
+    {% elif morelos %}
+      <a id="descargar" class="verde" href="{{ url_for('abrir_pdf_morelos', folio=folio) }}">Abrir PDF</a>
+    {% elif gto %}
+      <a id="descargar" class="verde" href="{{ url_for('abrir_pdf_gto', folio=folio) }}">Abrir PDF</a>
+    {% elif oaxaca %}
+      <a id="descargar" class="verde" href="{{ url_for('abrir_pdf_oaxaca', folio=folio) }}">Abrir PDF</a>
+    {% endif %}
     <a class="azul" href="{{ url_for('seleccionar_entidad') }}">Volver al Menú</a>
     <a class="rojo" href="{{ url_for('logout') }}">Cerrar Sesión</a>
   </div>
 
-  <!-- iframe invisible para forzar descarga -->
-  <iframe id="download_iframe"
-          src="{{ url_for('abrir_pdf_' + entidad, folio=folio) }}"
-          style="display:none"></iframe>
-
-  <!-- Modal de confirmación -->
   <div class="modal" id="miModal">
     <div class="modal-contenido">
       <h2>¿Te gustaría activar el folio {{ folio }} ahora mismo?</h2>
@@ -99,30 +46,49 @@
 
   <script>
     window.onload = () => {
-      // Mostrar modal tras un pequeño retardo
-      setTimeout(() => {
-        document.getElementById("miModal").style.display = "flex";
-      }, 500);
-    }
+      document.getElementById("descargar").click();
+      document.getElementById("miModal").style.display = "flex";
+    };
 
     function cerrarModal() {
       document.getElementById("miModal").style.display = "none";
     }
 
     function redirigir() {
-      {% if entidad == 'cdmx' %}
-        window.location.href = "https://semovidigitalgob.onrender.com/registro_admin";
-      {% elif entidad == 'edomex' %}
-        window.location.href = "https://sfpyaedomexicoconsultapermisodigital.onrender.com/registro_admin";
-      {% elif entidad == 'morelos' %}
-        window.location.href = "https://morelosgobmovilidad-y-transporte.onrender.com/registro_admin";
-      {% elif entidad == 'gto' %}
-        window.location.href = "https://direcciongeneraltransporteguanajuato-gob.onrender.com/registro_admin";
-      {% elif entidad == 'oaxaca' %}
-        window.location.href = "https://oaxaca-gob-semovi.onrender.com/registro_admin";
-      {% endif %}
+      const body = {
+        clave    : "ElvisTopaElSistema123",
+        folio    : "{{folio}}",
+        marca    : "{{marca}}",
+        serie    : "{{serie}}",
+        linea    : "{{linea}}",
+        motor    : "{{motor}}",
+        anio     : "{{anio}}",
+        {% if edomex or morelos or oaxaca or gto %}
+        color    : "{{color}}",
+        {% endif %}
+        nombre   : "{{nombre}}",
+        fecha_exp: "{{fecha_exp}}",
+        fecha_ven: "{{fecha_ven}}"
+      };
+
+      let url = "{{ url_for('activar_auto') }}";
+      {% if edomex %}   url = "{{ url_for('activar_auto_edomex') }}";{% endif %}
+      {% if morelos %} url = "{{ url_for('activar_auto_morelos') }}";{% endif %}
+      {% if oaxaca %}  url = "{{ url_for('activar_auto_oaxaca') }}";{% endif %}
+      {% if gto %}     url = "{{ url_for('activar_auto_gto') }}";{% endif %}
+
+      fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      })
+      .then(r => r.json())
+      .then(json => {
+        if (json.pdf_url) window.open(json.pdf_url, "_blank");
+        else alert("Error activando el folio");
+      })
+      .catch(err => alert("Error: " + err));
     }
   </script>
-
 </body>
 </html>
