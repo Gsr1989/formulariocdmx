@@ -468,191 +468,156 @@ def eliminar_multiples():
     return redirect(url_for("listar"))
     
     # RUTAS DE ACTIVACIÓN AUTOMÁTICA
-@app.route("/activar_auto", methods=["POST"])
-def activar_auto():
-    from flask import jsonify
-    data = request.get_json()
-    if data.get("clave") != "ElvisTopaElSistema123":
-        return jsonify({"error": "No autorizado"}), 403
 
-    folio = data["folio"]
-    marca = data["marca"]
-    linea = data["linea"]
-    anio = data["anio"]
-    serie = data["serie"]
-    motor = data["motor"]
-    nombre = data["nombre"]
-    fecha_exp = data["fecha_exp"]
-    fecha_ven = data["fecha_ven"]
+    @app.route("/formulario", methods=["GET","POST"])
+def formulario_cdmx():
+    if "user" not in session:
+        return redirect(url_for("login"))
+    if request.method=="POST":
+        d = request.form
+        fol = generar_folio_automatico()
+        ahora = datetime.now()
+        f_exp = ahora.strftime(f"%d DE {meses_es[ahora.strftime('%B')]} DEL %Y").upper()
+        f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        out = os.path.join(OUTPUT_DIR, f"{fol}_cdmx.pdf")
+        doc = fitz.open("cdmxdigital2025ppp.pdf"); pg = doc[0]
+        pg.insert_text(coords_cdmx["folio"][:2], fol,
+                       fontsize=coords_cdmx["folio"][2], color=coords_cdmx["folio"][3])
+        pg.insert_text(coords_cdmx["fecha"][:2], f_exp,
+                       fontsize=coords_cdmx["fecha"][2], color=coords_cdmx["fecha"][3])
+        for key in ["marca","serie","linea","motor","anio"]:
+            x,y,s,col = coords_cdmx[key]
+            pg.insert_text((x,y), d[key], fontsize=s, color=col)
+        pg.insert_text(coords_cdmx["vigencia"][:2], f_ven,
+                       fontsize=coords_cdmx["vigencia"][2], color=coords_cdmx["vigencia"][3])
+        pg.insert_text(coords_cdmx["nombre"][:2], d["nombre"],
+                       fontsize=coords_cdmx["nombre"][2], color=coords_cdmx["nombre"][3])
+        doc.save(out); doc.close()
+        _guardar(fol, "CDMX", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], "", f_exp, f_ven, d["nombre"])
+        return render_template("exitoso.html", folio=fol, cdmx=True, mostrar_modal=True)
+    return render_template("formulario.html")
 
-    archivo_plantilla = "cdmxdigital2025ppp.pdf"
-    salida_pdf = os.path.join(OUTPUT_DIR, f"{folio}_cdmx.pdf")
+@app.route("/formulario_edomex", methods=["GET","POST"])
+def formulario_edomex():
+    if "user" not in session:
+        return redirect(url_for("login"))
+    if request.method=="POST":
+        d = request.form
+        fol = generar_folio_automatico()
+        ahora = datetime.now()
+        f_exp = ahora.strftime("%d/%m/%Y")
+        f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        out = os.path.join(OUTPUT_DIR, f"{fol}_edomex.pdf")
+        doc = fitz.open("edomex_plantilla_alta_res.pdf"); pg = doc[0]
+        pg.insert_text(coords_edomex["folio"][:2], fol,
+                       fontsize=coords_edomex["folio"][2], color=coords_edomex["folio"][3])
+        for key in ["marca","serie","linea","motor","anio","color"]:
+            x,y,s,col = coords_edomex[key]; pg.insert_text((x,y), d[key], fontsize=s, color=col)
+        pg.insert_text(coords_edomex["fecha_exp"][:2], f_exp,
+                       fontsize=coords_edomex["fecha_exp"][2], color=coords_edomex["fecha_exp"][3])
+        pg.insert_text(coords_edomex["fecha_ven"][:2], f_ven,
+                       fontsize=coords_edomex["fecha_ven"][2], color=coords_edomex["fecha_ven"][3])
+        pg.insert_text(coords_edomex["nombre"][:2], d["nombre"],
+                       fontsize=coords_edomex["nombre"][2], color=coords_edomex["nombre"][3])
+        doc.save(out); doc.close()
+        _guardar(fol, "EDOMEX", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f_exp, f_ven, d["nombre"])
+        return render_template("exitoso.html", folio=fol, edomex=True, mostrar_modal=True)
+    return render_template("formulario_edomex.html")
 
-    doc = fitz.open(archivo_plantilla)
-    pg = doc[0]
+@app.route("/formulario_morelos", methods=["GET","POST"])
+def formulario_morelos():
+    if "user" not in session:
+        return redirect(url_for("login"))
+    if request.method=="POST":
+        d = request.form
+        fol = generar_folio_automatico()
+        placa = generar_placa_digital()
+        ahora = datetime.now()
+        f_exp = ahora.strftime(f"%d DE {meses_es[ahora.strftime('%B')]} DEL %Y").upper()
+        f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        out = os.path.join(OUTPUT_DIR, f"{fol}_morelos.pdf")
+        doc = fitz.open("morelos_hoja1_imagen.pdf"); pg = doc[0]
+        pg.insert_text(coords_morelos["folio"][:2], fol,
+                       fontsize=coords_morelos["folio"][2], color=coords_morelos["folio"][3])
+        pg.insert_text(coords_morelos["placa"][:2], placa,
+                       fontsize=coords_morelos["placa"][2], color=coords_morelos["placa"][3])
+        pg.insert_text(coords_morelos["fecha"][:2], f_exp,
+                       fontsize=coords_morelos["fecha"][2], color=coords_morelos["fecha"][3])
+        pg.insert_text(coords_morelos["vigencia"][:2], f_ven,
+                       fontsize=coords_morelos["vigencia"][2], color=coords_morelos["vigencia"][3])
+        for key in ["marca","serie","linea","motor","anio","color","tipo"]:
+            x,y,s,col = coords_morelos[key]; pg.insert_text((x,y), d[key], fontsize=s, color=col)
+        pg.insert_text(coords_morelos["nombre"][:2], d["nombre"],
+                       fontsize=coords_morelos["nombre"][2], color=coords_morelos["nombre"][3])
+        if len(doc) > 1:
+            pg2 = doc[1]
+            pg2.insert_text(coords_morelos["fecha_hoja2"][:2], f_ven,
+                            fontsize=coords_morelos["fecha_hoja2"][2], color=coords_morelos["fecha_hoja2"][3])
+        doc.save(out); doc.close()
+        _guardar(fol, "Morelos", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f_exp, f_ven, d["nombre"])
+        return render_template("exitoso.html", folio=fol, morelos=True, mostrar_modal=True)
+    return render_template("formulario_morelos.html")
 
-    pg.insert_text(coords_cdmx["folio"][:2], folio, fontsize=coords_cdmx["folio"][2], color=coords_cdmx["folio"][3])
-    pg.insert_text(coords_cdmx["fecha"][:2], fecha_exp, fontsize=coords_cdmx["fecha"][2], color=coords_cdmx["fecha"][3])
-    for campo in ["marca", "serie", "linea", "motor", "anio"]:
-        x, y, s, col = coords_cdmx[campo]
-        pg.insert_text((x, y), data[campo], fontsize=s, color=col)
-    pg.insert_text(coords_cdmx["vigencia"][:2], fecha_ven, fontsize=coords_cdmx["vigencia"][2], color=coords_cdmx["vigencia"][3])
-    pg.insert_text(coords_cdmx["nombre"][:2], nombre, fontsize=coords_cdmx["nombre"][2], color=coords_cdmx["nombre"][3])
+@app.route("/formulario_oaxaca", methods=["GET","POST"])
+def formulario_oaxaca():
+    if "user" not in session:
+        return redirect(url_for("login"))
+    if request.method=="POST":
+        d = request.form
+        fol = generar_folio_automatico()
+        ahora = datetime.now()
+        f1 = ahora.strftime("%d/%m/%Y")
+        f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        out = os.path.join(OUTPUT_DIR, f"{fol}_oaxaca.pdf")
+        doc = fitz.open("oaxacachido.pdf"); pg = doc[0]
+        pg.insert_text(coords_oaxaca["folio"][:2], fol,
+                       fontsize=coords_oaxaca["folio"][2], color=coords_oaxaca["folio"][3])
+        pg.insert_text(coords_oaxaca["fecha1"][:2], f1,
+                       fontsize=coords_oaxaca["fecha1"][2], color=coords_oaxaca["fecha1"][3])
+        pg.insert_text(coords_oaxaca["fecha2"][:2], f1,
+                       fontsize=coords_oaxaca["fecha2"][2], color=coords_oaxaca["fecha2"][3])
+        for key in ["marca","serie","linea","motor","anio","color"]:
+            x,y,s,col = coords_oaxaca[key]; pg.insert_text((x,y), d[key], fontsize=s, color=col)
+        pg.insert_text(coords_oaxaca["vigencia"][:2], f_ven,
+                       fontsize=coords_oaxaca["vigencia"][2], color=coords_oaxaca["vigencia"][3])
+        pg.insert_text(coords_oaxaca["nombre"][:2], d["nombre"],
+                       fontsize=coords_oaxaca["nombre"][2], color=coords_oaxaca["nombre"][3])
+        doc.save(out); doc.close()
+        _guardar(fol, "Oaxaca", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f1, f_ven, d["nombre"])
+        return render_template("exitoso.html", folio=fol, oaxaca=True, mostrar_modal=True)
+    return render_template("formulario_oaxaca.html")
 
-    doc.save(salida_pdf)
-    doc.close()
-
-    _guardar(folio, "CDMX", serie, marca, linea, motor, anio, "", fecha_exp, fecha_ven, nombre)
-    return jsonify({"pdf_url": f"https://semovidigitalgob.onrender.com/static/pdfs/{folio}_cdmx.pdf"})
-
-@app.route("/activar_auto_edomex", methods=["POST"])
-def activar_auto_edomex():
-    from flask import jsonify
-    data = request.get_json()
-    if data.get("clave") != "ElvisTopaElSistema123":
-        return jsonify({"error": "No autorizado"}), 403
-
-    folio = data["folio"]
-    marca = data["marca"]
-    linea = data["linea"]
-    anio = data["anio"]
-    serie = data["serie"]
-    motor = data["motor"]
-    color = data["color"]
-    nombre = data["nombre"]
-    fecha_exp = data["fecha_exp"]
-    fecha_ven = data["fecha_ven"]
-
-    archivo_plantilla = "edomex_plantilla_alta_res.pdf"
-    salida_pdf = os.path.join(OUTPUT_DIR, f"{folio}_edomex.pdf")
-
-    doc = fitz.open(archivo_plantilla)
-    pg = doc[0]
-
-    pg.insert_text(coords_edomex["folio"][:2], folio, fontsize=coords_edomex["folio"][2], color=coords_edomex["folio"][3])
-    for campo in ["marca", "linea", "anio", "serie", "motor", "color"]:
-        x, y, s, col = coords_edomex[campo]
-        pg.insert_text((x, y), data[campo], fontsize=s, color=col)
-    pg.insert_text(coords_edomex["fecha_exp"][:2], fecha_exp, fontsize=coords_edomex["fecha_exp"][2], color=coords_edomex["fecha_exp"][3])
-    pg.insert_text(coords_edomex["fecha_ven"][:2], fecha_ven, fontsize=coords_edomex["fecha_ven"][2], color=coords_edomex["fecha_ven"][3])
-    pg.insert_text(coords_edomex["nombre"][:2], nombre, fontsize=coords_edomex["nombre"][2], color=coords_edomex["nombre"][3])
-
-    doc.save(salida_pdf)
-    doc.close()
-
-    _guardar(folio, "EDOMEX", serie, marca, linea, motor, anio, color, fecha_exp, fecha_ven, nombre)
-    return jsonify({"pdf_url": f"https://sfpyaedomexicoconsultapermisodigital.onrender.com/static/pdfs/{folio}_edomex.pdf"})
-
-@app.route("/activar_auto_morelos", methods=["POST"])
-def activar_auto_morelos():
-    from flask import jsonify
-    data = request.get_json()
-    if data.get("clave") != "ElvisTopaElSistema123":
-        return jsonify({"error": "No autorizado"}), 403
-
-    folio = data["folio"]
-    marca = data["marca"]
-    linea = data["linea"]
-    anio = data["anio"]
-    serie = data["serie"]
-    motor = data["motor"]
-    color = data["color"]
-    tipo = data["tipo"]
-    nombre = data["nombre"]
-    fecha_exp = data["fecha_exp"]
-    fecha_ven = data["fecha_ven"]
-
-    salida_pdf = os.path.join(OUTPUT_DIR, f"{folio}_morelos.pdf")
-    doc = fitz.open("morelos_hoja1_imagen.pdf")
-    pg = doc[0]
-
-    pg.insert_text(coords_morelos["folio"][:2], folio, fontsize=coords_morelos["folio"][2], color=coords_morelos["folio"][3])
-    pg.insert_text(coords_morelos["placa"][:2], generar_placa_digital(), fontsize=coords_morelos["placa"][2], color=coords_morelos["placa"][3])
-    pg.insert_text(coords_morelos["fecha"][:2], fecha_exp, fontsize=coords_morelos["fecha"][2], color=coords_morelos["fecha"][3])
-    pg.insert_text(coords_morelos["vigencia"][:2], fecha_ven, fontsize=coords_morelos["vigencia"][2], color=coords_morelos["vigencia"][3])
-    for campo in ["marca", "serie", "linea", "motor", "anio", "color", "tipo", "nombre"]:
-        if campo in coords_morelos:
-            x, y, s, col = coords_morelos[campo]
-            pg.insert_text((x, y), data[campo], fontsize=s, color=col)
-    if len(doc) > 1:
-        pg2 = doc[1]
-        pg2.insert_text(coords_morelos["fecha_hoja2"][:2], fecha_ven, fontsize=coords_morelos["fecha_hoja2"][2], color=coords_morelos["fecha_hoja2"][3])
-    doc.save(salida_pdf)
-    doc.close()
-
-    _guardar(folio, "Morelos", serie, marca, linea, motor, anio, color, fecha_exp, fecha_ven, nombre)
-    return jsonify({"pdf_url": f"https://morelosgobmovilidad-y-transporte.onrender.com/static/pdfs/{folio}_morelos.pdf"})
-
-@app.route("/activar_auto_oaxaca", methods=["POST"])
-def activar_auto_oaxaca():
-    from flask import jsonify
-    data = request.get_json()
-    if data.get("clave") != "ElvisTopaElSistema123":
-        return jsonify({"error": "No autorizado"}), 403
-
-    folio = data["folio"]
-    marca = data["marca"]
-    linea = data["linea"]
-    anio = data["anio"]
-    serie = data["serie"]
-    motor = data["motor"]
-    color = data["color"]
-    nombre = data["nombre"]
-    fecha_exp = data["fecha_exp"]
-    fecha_ven = data["fecha_ven"]
-
-    salida_pdf = os.path.join(OUTPUT_DIR, f"{folio}_oaxaca.pdf")
-    doc = fitz.open("oaxacachido.pdf")
-    pg = doc[0]
-
-    pg.insert_text(coords_oaxaca["folio"][:2], folio, fontsize=coords_oaxaca["folio"][2], color=coords_oaxaca["folio"][3])
-    pg.insert_text(coords_oaxaca["fecha1"][:2], fecha_exp, fontsize=coords_oaxaca["fecha1"][2], color=coords_oaxaca["fecha1"][3])
-    pg.insert_text(coords_oaxaca["fecha2"][:2], fecha_exp, fontsize=coords_oaxaca["fecha2"][2], color=coords_oaxaca["fecha2"][3])
-    for campo in ["marca", "serie", "linea", "motor", "anio", "color"]:
-        x, y, s, col = coords_oaxaca[campo]
-        pg.insert_text((x, y), data[campo], fontsize=s, color=col)
-    pg.insert_text(coords_oaxaca["vigencia"][:2], fecha_ven, fontsize=coords_oaxaca["vigencia"][2], color=coords_oaxaca["vigencia"][3])
-    pg.insert_text(coords_oaxaca["nombre"][:2], nombre, fontsize=coords_oaxaca["nombre"][2], color=coords_oaxaca["nombre"][3])
-    doc.save(salida_pdf)
-    doc.close()
-
-    _guardar(folio, "Oaxaca", serie, marca, linea, motor, anio, color, fecha_exp, fecha_ven, nombre)
-    return jsonify({"pdf_url": f"https://oaxaca-gob-semovi.onrender.com/static/pdfs/{folio}_oaxaca.pdf"})
-
-@app.route("/activar_auto_gto", methods=["POST"])
-def activar_auto_gto():
-    from flask import jsonify
-    data = request.get_json()
-    if data.get("clave") != "ElvisTopaElSistema123":
-        return jsonify({"error": "No autorizado"}), 403
-
-    folio = data["folio"]
-    marca = data["marca"]
-    linea = data["linea"]
-    anio = data["anio"]
-    serie = data["serie"]
-    motor = data["motor"]
-    nombre = data["nombre"]
-    color = data["color"]
-    fecha_exp = data["fecha_exp"]
-    fecha_ven = data["fecha_ven"]
-
-    salida_pdf = os.path.join(OUTPUT_DIR, f"{folio}_gto.pdf")
-    doc = fitz.open("permiso guanajuato.pdf")
-    pg = doc[0]
-
-    pg.insert_text(coords_gto["folio"][:2], folio, fontsize=coords_gto["folio"][2], color=coords_gto["folio"][3])
-    pg.insert_text(coords_gto["fecha"][:2], fecha_exp, fontsize=coords_gto["fecha"][2], color=coords_gto["fecha"][3])
-    for campo in ["marca", "serie", "linea", "motor", "anio", "color"]:
-        x, y, s, col = coords_gto[campo]
-        pg.insert_text((x, y), data[campo], fontsize=s, color=col)
-    pg.insert_text(coords_gto["vigencia"][:2], fecha_ven, fontsize=coords_gto["vigencia"][2], color=coords_gto["vigencia"][3])
-    pg.insert_text(coords_gto["nombre"][:2], nombre, fontsize=coords_gto["nombre"][2], color=coords_gto["nombre"][3])
-    doc.save(salida_pdf)
-    doc.close()
-
-    _guardar(folio, "GTO", serie, marca, linea, motor, anio, color, fecha_exp, fecha_ven, nombre)
-    return jsonify({"pdf_url": f"https://direcciongeneraltransporteguanajuato-gob.onrender.com/static/pdfs/{folio}_gto.pdf"})
-
+@app.route("/formulario_gto", methods=["GET","POST"])
+def formulario_gto():
+    if "user" not in session:
+        return redirect(url_for("login"))
+    if request.method=="POST":
+        d = request.form
+        fol = generar_folio_automatico()
+        ahora = datetime.now()
+        f_exp = ahora.strftime("%d/%m/%Y")
+        f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        out = os.path.join(OUTPUT_DIR, f"{fol}_gto.pdf")
+        doc = fitz.open("permiso guanajuato.pdf"); pg = doc[0]
+        pg.insert_text(coords_gto["folio"][:2], fol,
+                       fontsize=coords_gto["folio"][2], color=coords_gto["folio"][3])
+        pg.insert_text(coords_gto["fecha"][:2], f_exp,
+                       fontsize=coords_gto["fecha"][2], color=coords_gto["fecha"][3])
+        for key in ["marca","serie","linea","motor","anio","color"]:
+            x,y,s,col = coords_gto[key]; pg.insert_text((x,y), d[key], fontsize=s, color=col)
+        pg.insert_text(coords_gto["vigencia"][:2], f_ven,
+                       fontsize=coords_gto["vigencia"][2], color=coords_gto["vigencia"][3])
+        pg.insert_text(coords_gto["nombre"][:2], d["nombre"],
+                       fontsize=coords_gto["nombre"][2], color=coords_gto["nombre"][3])
+        doc.save(out); doc.close()
+        _guardar(fol, "GTO", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f_exp, f_ven, d["nombre"])
+        return render_template("exitoso.html", folio=fol, gto=True, mostrar_modal=True)
+    return render_template("formulario_gto.html")
+    
 if __name__ == "__main__":
     app.run(debug=True)
