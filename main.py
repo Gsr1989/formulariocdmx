@@ -427,7 +427,6 @@ def renovar(folio):
 
     return redirect(url_for(f"abrir_pdf_{viejo['entidad'].lower()}", folio=nuevo))
 
-# RUTAS DE DESCARGA
 @app.route("/abrir_pdf_cdmx/<folio>")
 def abrir_pdf_cdmx(folio):
     p = os.path.join(OUTPUT_DIR, f"{folio}_cdmx.pdf")
@@ -498,7 +497,7 @@ def formulario_cdmx():
         return render_template("exitoso.html", folio=fol, cdmx=True, mostrar_modal=True)
     return render_template("formulario.html")
 
-@app.route("/formulario_edomex", methods=["GET","POST"])
+ @app.route("/formulario_edomex", methods=["GET","POST"])
 def formulario_edomex():
     if "user" not in session:
         return redirect(url_for("login"))
@@ -526,7 +525,7 @@ def formulario_edomex():
         return render_template("exitoso.html", folio=fol, edomex=True, mostrar_modal=True)
     return render_template("formulario_edomex.html")
 
-@app.route("/formulario_morelos", methods=["GET","POST"])
+ @app.route("/formulario_morelos", methods=["GET","POST"])
 def formulario_morelos():
     if "user" not in session:
         return redirect(url_for("login"))
@@ -561,7 +560,7 @@ def formulario_morelos():
         return render_template("exitoso.html", folio=fol, morelos=True, mostrar_modal=True)
     return render_template("formulario_morelos.html")
 
-@app.route("/formulario_oaxaca", methods=["GET","POST"])
+ @app.route("/formulario_oaxaca", methods=["GET","POST"])
 def formulario_oaxaca():
     if "user" not in session:
         return redirect(url_for("login"))
@@ -591,7 +590,7 @@ def formulario_oaxaca():
         return render_template("exitoso.html", folio=fol, oaxaca=True, mostrar_modal=True)
     return render_template("formulario_oaxaca.html")
 
-@app.route("/formulario_gto", methods=["GET","POST"])
+ @app.route("/formulario_gto", methods=["GET","POST"])
 def formulario_gto():
     if "user" not in session:
         return redirect(url_for("login"))
