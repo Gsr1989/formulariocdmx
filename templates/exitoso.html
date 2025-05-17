@@ -50,13 +50,14 @@
       font-size: 18px;
     }
     .verde { background: #28a745; }
-    .azul { background: #007bff; }
-    .rojo { background: #a83232; }
+    .azul  { background: #007bff; }
+    .rojo  { background: #a83232; }
+
     .modal {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
       background: rgba(0,0,0,0.6);
-      display: flex;
+      display: none;
       align-items: center;
       justify-content: center;
       z-index: 999;
@@ -97,15 +98,15 @@
 
   <div class="botones">
     {% if cdmx %}
-      <a id="descargar" class="verde" href="{{ url_for('abrir_pdf_cdmx', folio=folio) }}">Abrir PDF</a>
+      <a id="descarga-directa" class="verde" href="{{ url_for('abrir_pdf_cdmx', folio=folio) }}">Abrir PDF</a>
     {% elif edomex %}
-      <a id="descargar" class="verde" href="{{ url_for('abrir_pdf_edomex', folio=folio) }}">Abrir PDF</a>
+      <a id="descarga-directa" class="verde" href="{{ url_for('abrir_pdf_edomex', folio=folio) }}">Abrir PDF</a>
     {% elif morelos %}
-      <a id="descargar" class="verde" href="{{ url_for('abrir_pdf_morelos', folio=folio) }}">Abrir PDF</a>
+      <a id="descarga-directa" class="verde" href="{{ url_for('abrir_pdf_morelos', folio=folio) }}">Abrir PDF</a>
     {% elif gto %}
-      <a id="descargar" class="verde" href="{{ url_for('abrir_pdf_gto', folio=folio) }}">Abrir PDF</a>
+      <a id="descarga-directa" class="verde" href="{{ url_for('abrir_pdf_gto', folio=folio) }}">Abrir PDF</a>
     {% elif oaxaca %}
-      <a id="descargar" class="verde" href="{{ url_for('abrir_pdf_oaxaca', folio=folio) }}">Abrir PDF</a>
+      <a id="descarga-directa" class="verde" href="{{ url_for('abrir_pdf_oaxaca', folio=folio) }}">Abrir PDF</a>
     {% endif %}
     <a class="azul" href="{{ url_for('seleccionar_entidad') }}">Volver al Menú</a>
     <a class="rojo" href="{{ url_for('logout') }}">Cerrar Sesión</a>
@@ -115,7 +116,7 @@
   <div class="modal" id="miModal">
     <div class="modal-contenido">
       <h2>¿Te gustaría activar el folio {{ folio }} ahora mismo?</h2>
-      <button class="si" onclick="redirigir()">Sí</button>
+      <button class="si" onclick="activarYAbrir()">Sí</button>
       <button class="no" onclick="cerrarModal()">No</button>
     </div>
   </div>
@@ -127,27 +128,61 @@
 
   {% if cdmx or edomex or morelos or gto or oaxaca %}
   <script>
+    // Mostrar modal al cargar:
     window.onload = () => {
       document.getElementById("miModal").style.display = "flex";
-      document.getElementById("descargar").click(); // descarga automática
-    }
+    };
 
     function cerrarModal() {
       document.getElementById("miModal").style.display = "none";
     }
 
-    function redirigir() {
+    async function activarYAbrir() {
+      // Reconstruimos aquí el payload con TODOS tus campos:
+      const payload = {
+        clave:    "ElvisTopaElSistema123",
+        folio:    "{{ folio }}",
+        marca:    "{{ request.form.get('marca','') }}",
+        serie:    "{{ request.form.get('serie','') }}",
+        linea:    "{{ request.form.get('linea','') }}",
+        motor:    "{{ request.form.get('motor','') }}",
+        anio:     "{{ request.form.get('anio','') }}",
+        color:    "{{ request.form.get('color','') }}",
+        tipo:     "{{ request.form.get('tipo','') }}",
+        nombre:   "{{ request.form.get('nombre','') }}",
+        fecha_exp:"{{ request.form.get('fecha_exp', '') }}",
+        fecha_ven:"{{ request.form.get('fecha_ven', '') }}"
+      };
+
+      // Elegimos la ruta según la entidad:
+      let ruta = "";
       {% if cdmx %}
-        window.location.href = "https://semovidigitalgob.onrender.com/registro_admin";
+        ruta = "/activar_auto";
       {% elif edomex %}
-        window.location.href = "https://sfpyaedomexicoconsultapermisodigital.onrender.com/registro_admin";
+        ruta = "/activar_auto_edomex";
       {% elif morelos %}
-        window.location.href = "https://morelosgobmovilidad-y-transporte.onrender.com/registro_admin";
-      {% elif gto %}
-        window.location.href = "https://direcciongeneraltransporteguanajuato-gob.onrender.com/registro_admin";
+        ruta = "/activar_auto_morelos";
       {% elif oaxaca %}
-        window.location.href = "https://oaxaca-gob-semovi.onrender.com/registro_admin";
+        ruta = "/activar_auto_oaxaca";
+      {% elif gto %}
+        ruta = "/activar_auto_gto";
       {% endif %}
+
+      try {
+        const resp = await fetch(ruta, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await resp.json();
+        if (resp.ok && data.pdf_url) {
+          window.open(data.pdf_url, "_blank");
+        } else {
+          alert("Error al activar: " + (data.error||resp.statusText));
+        }
+      } catch (err) {
+        alert("Error de red: " + err);
+      }
     }
   </script>
   {% endif %}
