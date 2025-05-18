@@ -19,7 +19,6 @@ meses_es = {
     "October": "OCTUBRE", "November": "NOVIEMBRE", "December": "DICIEMBRE"
 }
 
-# Coordenadas para cada plantilla
 coords_cdmx = {
     "folio": (87, 130, 14, (1,0,0)),
     "fecha": (130,145,12,(0,0,0)),
@@ -152,7 +151,6 @@ def guardar_registros(regs):
         for r in regs:
             w.writerow([r["folio"],r["entidad"],r["serie"],r["marca"],r["linea"],r["motor"],r["anio"],r["color"],r["fecha_exp"],r["fecha_ven"],r["nombre"]])
 
-# --- RUTAS DE AUTENTICACIÓN ---
 @app.route("/", methods=["GET","POST"])
 def login():
     if request.method=="POST" and request.form.get("user")==USUARIO and request.form.get("pass")==CONTRASENA:
@@ -165,15 +163,13 @@ def logout():
     session.clear()
     return redirect(url_for("login"))
 
-# --- MENÚ PRINCIPAL ---
 @app.route("/seleccionar_entidad")
 def seleccionar_entidad():
     if "user" not in session:
         return redirect(url_for("login"))
     return render_template("seleccionar_entidad.html")
 
-# --- FORMULARIOS POR ENTIDAD ---
-# CDMX
+# --- Formularios por entidad ---
 @app.route("/formulario", methods=["GET","POST"])
 def formulario_cdmx():
     if "user" not in session:
@@ -199,7 +195,6 @@ def formulario_cdmx():
         return render_template("exitoso.html", folio=fol, cdmx=True)
     return render_template("formulario.html")
 
-# EDOMEX
 @app.route("/formulario_edomex", methods=["GET","POST"])
 def formulario_edomex():
     if "user" not in session:
@@ -225,7 +220,6 @@ def formulario_edomex():
         return render_template("exitoso.html", folio=fol, edomex=True)
     return render_template("formulario_edomex.html")
 
-# MORELOS
 @app.route("/formulario_morelos", methods=["GET","POST"])
 def formulario_morelos():
     if "user" not in session:
@@ -256,7 +250,6 @@ def formulario_morelos():
         return render_template("exitoso.html", folio=fol, morelos=True)
     return render_template("formulario_morelos.html")
 
-# OAXACA
 @app.route("/formulario_oaxaca", methods=["GET","POST"])
 def formulario_oaxaca():
     if "user" not in session:
@@ -283,7 +276,6 @@ def formulario_oaxaca():
         return render_template("exitoso.html", folio=fol, oaxaca=True)
     return render_template("formulario_oaxaca.html")
 
-# GTO
 @app.route("/formulario_gto", methods=["GET","POST"])
 def formulario_gto():
     if "user" not in session:
@@ -309,7 +301,7 @@ def formulario_gto():
         return render_template("exitoso.html", folio=fol, gto=True)
     return render_template("formulario_gto.html")
 
-# LISTAR, ELIMINAR, RENOVAR
+# --- LISTAR, ELIMINAR, RENOVAR ---
 @app.route("/listar")
 def listar():
     if "user" not in session:
@@ -341,27 +333,27 @@ def renovar(folio):
     venc = datetime.strptime(viejo["fecha_ven"], "%d/%m/%Y")
     if datetime.now() < venc:
         return redirect(url_for("listar"))
-    # mismo flujo que creación
     nuevo = generar_folio_automatico()
     ahora = datetime.now()
     exp_f = ahora.strftime("%d/%m/%Y")
     ven_f = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-    plantillas = {
+    entidad = viejo["entidad"]
+    plantilla = {
         "CDMX":"cdmxdigital2025ppp.pdf",
         "EDOMEX":"edomex_plantilla_alta_res.pdf",
         "Morelos":"morelos_hoja1_imagen.pdf",
         "Oaxaca":"oaxacachido.pdf",
         "GTO":"permiso guanajuato.pdf"
-    }[viejo["entidad"]]
+    }[entidad]
     coords_map = {
         "CDMX":coords_cdmx,"EDOMEX":coords_edomex,
         "Morelos":coords_morelos,"Oaxaca":coords_oaxaca,"GTO":coords_gto
-    }[viejo["entidad"]]
+    }[entidad]
     clave_exp = "fecha_exp" if "fecha_exp" in coords_map else ("fecha" if "fecha" in coords_map else "fecha1")
     clave_ven = "fecha_ven" if "fecha_ven" in coords_map else ("vigencia" if "vigencia" in coords_map else "fecha2")
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    out = os.path.join(OUTPUT_DIR, f"{nuevo}_{viejo['entidad'].lower()}.pdf")
-    doc = fitz.open(plantillas); pg = doc[0]
+    out = os.path.join(OUTPUT_DIR, f"{nuevo}_{entidad.lower()}.pdf")
+    doc = fitz.open(plantilla); pg = doc[0]
     pg.insert_text(coords_map["folio"][:2], nuevo, fontsize=coords_map["folio"][2], color=coords_map["folio"][3])
     pg.insert_text(coords_map[clave_exp][:2], exp_f, fontsize=coords_map[clave_exp][2], color=coords_map[clave_exp][3])
     pg.insert_text(coords_map[clave_ven][:2], ven_f, fontsize=coords_map[clave_ven][2], color=coords_map[clave_ven][3])
@@ -369,11 +361,20 @@ def renovar(folio):
         if campo in coords_map:
             x,y,s,col = coords_map[campo]
             pg.insert_text((x,y), viejo[campo], fontsize=s, color=col)
+    # SOLO MORELOS: nueva placa digital en renovación
+    if entidad == "Morelos":
+        placa = generar_placa_digital()
+        x, y, s, col = coords_morelos["placa"]
+        pg.insert_text((x, y), placa, fontsize=s, color=col)
+        if len(doc)>1:
+            pg2 = doc[1]
+            x2, y2, s2, col2 = coords_morelos["fecha_hoja2"]
+            pg2.insert_text((x2, y2), ven_f, fontsize=s2, color=col2)
     doc.save(out); doc.close()
-    _guardar(nuevo, viejo["entidad"], viejo["serie"], viejo["marca"], viejo["linea"], viejo["motor"], viejo["anio"], viejo["color"], exp_f, ven_f, viejo["nombre"])
-    return redirect(url_for(f"abrir_pdf_{viejo['entidad'].lower()}", folio=nuevo))
+    _guardar(nuevo, entidad, viejo["serie"], viejo["marca"], viejo["linea"], viejo["motor"], viejo["anio"], viejo["color"], exp_f, ven_f, viejo["nombre"])
+    return redirect(url_for(f"abrir_pdf_{entidad.lower()}", folio=nuevo))
 
-# RUTAS DE DESCARGA
+# --- DESCARGA PDFs ---
 @app.route("/abrir_pdf_cdmx/<folio>")
 def abrir_pdf_cdmx(folio):
     p = os.path.join(OUTPUT_DIR, f"{folio}_cdmx.pdf")
