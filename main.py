@@ -335,6 +335,29 @@ def listar():
     folio_actual = registros[0]["folio"] if registros else "NINGUNO"
     return render_template("listar.html", registros=registros, now=datetime.now(), folio_actual=folio_actual)
 
+@app.route("/editar_folio", methods=["GET", "POST"])
+def editar_folio():
+    ruta = "folios_globales.txt"
+    if request.method == "POST":
+        nuevo = request.form.get("nuevo_folio")
+        if nuevo and nuevo.isdigit():
+            mes = datetime.now().strftime("%m")
+            nuevo_folio = f"{mes}{int(nuevo):03d}"
+            with open(ruta, "r") as f:
+                lineas = [l for l in f if not l.startswith(mes)]
+            lineas.append(nuevo_folio + "\n")
+            with open(ruta, "w") as f:
+                f.writelines(lineas)
+            return redirect(url_for("listar"))
+    # Mostrar folio actual
+    actual = "000"
+    if os.path.exists(ruta):
+        with open(ruta) as f:
+            lineas = [l.strip() for l in f if l.startswith(datetime.now().strftime("%m"))]
+            if lineas:
+                actual = lineas[-1][2:]  # solo el consecutivo
+    return render_template("editar_folio.html", actual=actual)
+
 @app.route("/eliminar/<folio>", methods=["POST"])
 def eliminar_folio(folio):
     regs = [r for r in cargar_registros() if r["folio"]!=folio]
