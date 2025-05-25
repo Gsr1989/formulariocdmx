@@ -154,19 +154,8 @@ def _guardar(folio, entidad, serie, marca, linea, motor, anio, color, fecha_exp,
         w.writerow([folio,entidad,serie,marca,linea,motor,anio,color,fecha_exp,fecha_ven,nombre])
 
 def cargar_registros():
-    regs=[]
-    if os.path.exists("registros.csv"):
-        with open("registros.csv",encoding="utf-8") as f:
-            reader=csv.reader(f); next(reader,None)
-            for row in reader:
-                if len(row)==11:
-                    regs.append({
-                        "folio":row[0],"entidad":row[1],"serie":row[2],
-                        "marca":row[3],"linea":row[4],"motor":row[5],
-                        "anio":row[6],"color":row[7],
-                        "fecha_exp":row[8],"fecha_ven":row[9],"nombre":row[10]
-                    })
-    return regs
+    response = supabase.table("folios_registrados").select("*").order("id", desc=True).execute()
+    return response.data
 
 def guardar_registros(regs):
     with open("registros.csv","w",newline="",encoding="utf-8") as f:
