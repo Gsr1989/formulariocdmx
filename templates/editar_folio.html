@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Folio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
+    h2 { color: #8a1538; text-align: center; }
+    form { max-width: 400px; margin: auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px #ccc; }
+    input[type="number"] { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; }
+    button { background: #8a1538; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-size: 16px; cursor: pointer; }
+    a { display: block; text-align: center; margin-top: 20px; color: #8a1538; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <h2>Editar Consecutivo del Folio</h2>
+  <form method="POST">
+    <label>Consecutivo actual del mes: <strong>{{ actual }}</strong></label>
+    <input type="number" name="nuevo_folio" placeholder="Nuevo consecutivo (ej. 201)" required>
+    <button type="submit">Actualizar</button>
+  </form>
+  <a href="{{ url_for('listar') }}">Volver a la lista</a>
+</body>
+</html>
