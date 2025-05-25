@@ -460,24 +460,6 @@ def folio_actual():
         return "No hay folios generados aún."
     return f"Folio actual: {lineas[-1]}"
 
-@app.route("/editar_folio", methods=["GET", "POST"])
-def editar_folio():
-    ruta = "folios_globales.txt"
-    if request.method == "POST":
-        nuevo = request.form.get("nuevo_folio")
-        if nuevo and len(nuevo) >= 3:
-            mes = datetime.now().strftime("%m")
-            nuevo_folio = f"{mes}{nuevo.zfill(3)}"
-            with open(ruta, "a") as f:
-                f.write(nuevo_folio + "\n")
-            return redirect(url_for("folio_actual"))
-    return '''
-        <form method="post" style="margin:30px;">
-            <label>Nuevo número (solo la parte numérica):</label>
-            <input type="text" name="nuevo_folio" required>
-            <input type="submit" value="Actualizar">
-        </form>
-        '''
 
 if __name__ == "__main__":
     app.run(debug=True)
