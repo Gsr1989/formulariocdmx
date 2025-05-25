@@ -1,16 +1,16 @@
-from flask import Flask, render_template, request, send_file, redirect, url_for, session
-from datetime import datetime, timedelta
-import fitz  # PyMuPDF
-import os
-import string
-import csv
+from flask import Flask, render_template, request, send_file, redirect, url_for, session from datetime import datetime, timedelta import fitz  # PyMuPDF import os import string import csv from supabase import create_client, Client
 
-app = Flask(__name__)
-app.secret_key = "secreto_perro"
+app = Flask(name) app.secret_key = "secreto_perro"
 
-OUTPUT_DIR = "static/pdfs"
-USUARIO = "Gsr89roja"
-CONTRASENA = "serg890105"
+OUTPUT_DIR = "static/pdfs" USUARIO = "Gsr89roja" CONTRASENA = "serg890105" SUPABASE_URL = "https://xsagwqepoljfsogusubw.supabase.co" SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9" supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+
+--- funciones para guardar registro en Supabase ---
+
+def guardar_supabase(data): supabase.table("folios_registrados").insert(data).execute()
+
+Reemplaza la funcion _guardar para que mande a Supabase en lugar de CSV
+
+def _guardar(folio, entidad, serie, marca, linea, motor, anio, color, fecha_exp, fecha_ven, nombre): guardar_supabase({ "folio": folio, "entidad": entidad, "numero_serie": serie, "marca": marca, "linea": linea, "numero_motor": motor, "anio": anio, "color": color, "fecha_expedicion": fecha_exp, "fecha_vencimiento": fecha_ven, "contribuyente": nombre })
 
 meses_es = {
     "January": "ENERO", "February": "FEBRERO", "March": "MARZO",
