@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import fitz  # PyMuPDF
 import os
 import string
+import csv
 from supabase import create_client, Client
 
 # Config
