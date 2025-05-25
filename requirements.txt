@@ -1,4 +1,4 @@
 flask
 PyMuPDF
 gunicorn
-supabase-py==1.0.3
+supabase-py==0.7.5
