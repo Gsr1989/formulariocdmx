@@ -27,6 +27,13 @@
       text-align:center; font-weight: bold;
     }
     .btn-borrar { background: #d9534f; margin-top: 18px; font-size:13px;}
+    .folio-actual {
+      text-align: center;
+      color: #8a1538;
+      font-weight: bold;
+      margin: 6px 0 14px 0;
+      font-size: 16px;
+    }
     @media (max-width: 600px) {
       th, td { font-size:10px; padding:2px 1px; }
       #search { font-size:12px; }
@@ -37,15 +44,14 @@
 </head>
 <body>
   <h2>Permisos Generados</h2>
+  <p class="folio-actual">Folio actual: {{ folio_actual }}</p>
   <input id="search" type="text" placeholder="Buscar folio, entidad o nombre..." />
 
   <form method="POST" action="{{ url_for('eliminar_multiples') }}">
     <table id="tabla">
       <thead>
         <tr>
-          <th>
-            <input type="checkbox" id="selectAll" onclick="seleccionarTodos(this)">
-          </th>
+          <th><input type="checkbox" id="selectAll" onclick="seleccionarTodos(this)"></th>
           <th>Folio</th>
           <th>Entidad</th>
           <th>Serie</th>
@@ -81,8 +87,7 @@
             {% endif %}
           </td>
           <td>
-            <form action="{{ url_for('eliminar_folio', folio=reg.folio) }}" method="post"
-                  onsubmit="return confirm('¿Eliminar {{ reg.folio }}?');">
+            <form action="{{ url_for('eliminar_folio', folio=reg.folio) }}" method="post" onsubmit="return confirm('¿Eliminar {{ reg.folio }}?');">
               <button type="submit" class="delete">X</button>
             </form>
           </td>
