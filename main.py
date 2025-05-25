@@ -1,8 +1,18 @@
+from flask import Flask, render_template, request, send_file, redirect, url_for, session
+from datetime import datetime, timedelta
+import fitz  # PyMuPDF
+import os
+import string
 from supabase import create_client, Client
 
+# Config
+app = Flask(__name__)
+app.secret_key = "secreto_perro"
+OUTPUT_DIR = "static/pdfs"
+USUARIO = "Gsr89roja"
+CONTRASENA = "serg890105"
 SUPABASE_URL = "https://xsagwqepoljfsogusubw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzYWd3cWVwb2xqZnNvZ3VzdWJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5NjM3NTUsImV4cCI6MjA1OTUzOTc1NX0.NUixULn0m2o49At8j6X58UqbXre2O2_JStqzls_8Gws"
-
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # --- funciones para guardar registro en Supabase ---
