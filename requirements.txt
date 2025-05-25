@@ -1,4 +1,4 @@
 flask
 PyMuPDF
 gunicorn
-supabase-py==0.7.5
+git+https://github.com/supabase-community/supabase-py
