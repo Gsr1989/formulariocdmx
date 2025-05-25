@@ -331,7 +331,9 @@ def listar():
     if "user" not in session:
         return redirect(url_for("login"))
     registros = cargar_registros()
-    return render_template("listar.html", registros=registros, now=datetime.now())
+    registros.sort(key=lambda x: x["folio"], reverse=True)
+    folio_actual = registros[0]["folio"] if registros else "NINGUNO"
+    return render_template("listar.html", registros=registros, now=datetime.now(), folio_actual=folio_actual)
 
 @app.route("/eliminar/<folio>", methods=["POST"])
 def eliminar_folio(folio):
