@@ -155,7 +155,23 @@ def _guardar(folio, entidad, serie, marca, linea, motor, anio, color, fecha_exp,
 
 def cargar_registros():
     response = supabase.table("folios_registrados").select("*").order("id", desc=True).execute()
-    return response.data
+    datos = response.data
+    registros = []
+    for item in datos:
+        registros.append({
+            "folio": item.get("folio"),
+            "entidad": item.get("entidad"),
+            "serie": item.get("numero_serie"),
+            "marca": item.get("marca"),
+            "linea": item.get("linea"),
+            "motor": item.get("numero_motor"),
+            "anio": item.get("anio"),
+            "color": item.get("color"),
+            "fecha_exp": item.get("fecha_expedicion"),
+            "fecha_ven": item.get("fecha_vencimiento"),
+            "nombre": item.get("contribuyente"),
+        })
+    return registros
 
 def guardar_registros(regs):
     with open("registros.csv","w",newline="",encoding="utf-8") as f:
