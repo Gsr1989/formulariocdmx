@@ -16,11 +16,20 @@ SUPABASE_URL = "https://xsagwqepoljfsogusubw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzYWd3cWVwb2xqZnNvZ3VzdWJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5NjM3NTUsImV4cCI6MjA1OTUzOTc1NX0.NUixULn0m2o49At8j6X58UqbXre2O2_JStqzls_8Gws"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# --- funciones para guardar registro en Supabase ---
+# Guardar registro en Supabase con formato de fechas válido
 def guardar_supabase(data):
+    for campo in ["fecha_expedicion", "fecha_vencimiento"]:
+        if campo in data and isinstance(data[campo], str):
+            try:
+                if "DE" in data[campo] or "DEL" in data[campo]:
+                    data[campo] = datetime.now().isoformat()
+                else:
+                    data[campo] = datetime.strptime(data[campo], "%d/%m/%Y").isoformat()
+            except:
+                data[campo] = datetime.now().isoformat()
     supabase.table("borradores_registros").insert(data).execute()
 
-# Reemplazo de _guardar tradicional por Supabase
+# Función _guardar
 def _guardar(folio, entidad, serie, marca, linea, motor, anio, color, fecha_exp, fecha_ven, nombre):
     guardar_supabase({
         "folio": folio,
