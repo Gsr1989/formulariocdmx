@@ -146,12 +146,19 @@ def generar_placa_digital():
     return nuevo
 
 def _guardar(folio, entidad, serie, marca, linea, motor, anio, color, fecha_exp, fecha_ven, nombre):
-    existe = os.path.exists("registros.csv")
-    with open("registros.csv","a",newline="",encoding="utf-8") as f:
-        w = csv.writer(f)
-        if not existe:
-            w.writerow(["folio","entidad","serie","marca","linea","motor","anio","color","fecha_exp","fecha_ven","nombre"])
-        w.writerow([folio,entidad,serie,marca,linea,motor,anio,color,fecha_exp,fecha_ven,nombre])
+    guardar_supabase({
+        "folio": folio,
+        "entidad": entidad,
+        "numero_serie": serie,
+        "marca": marca,
+        "linea": linea,
+        "numero_motor": motor,
+        "anio": anio,
+        "color": color,
+        "fecha_expedicion": fecha_exp,
+        "fecha_vencimiento": fecha_ven,
+        "contribuyente": nombre
+    })
 
 def cargar_registros():
     response = supabase.table("borradores_registros").select("*").order("id", desc=True).execute()
