@@ -133,7 +133,7 @@ def generar_placa_digital():
     abc = string.ascii_uppercase
     if not os.path.exists(archivo):
         with open(archivo, "w") as f:
-            f.write("LRU0000\n")
+            f.write("LRX0790\n")
     ultimo = open(archivo).read().strip().split("\n")[-1]
     pref, num = ultimo[:3], int(ultimo[3:])
     if num < 9999:
