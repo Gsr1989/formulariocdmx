@@ -118,15 +118,35 @@ coords_gto = {
 
 def generar_folio_automatico(ruta="folios_globales.txt"):
     mes = datetime.now().strftime("%m")
+
+    # Leer todos los folios del archivo
     if not os.path.exists(ruta):
         open(ruta, "w").close()
     with open(ruta) as f:
-        lineas = [l.strip() for l in f]
-    este_mes = [x for x in lineas if x.startswith(mes)]
-    fol = f"{mes}{len(este_mes)+1:03d}"
+        archivo_folios = [l.strip() for l in f if l.strip().startswith(mes)]
+
+    # Leer todos los folios de Supabase
+    response = supabase.table("borradores_registros").select("fol").execute()
+    supa_folios = [r["fol"] for r in response.data if r["fol"].startswith(mes)]
+
+    # Combinar y encontrar el más alto
+    todos = archivo_folios + supa_folios
+    maximo = 0
+    for fol in todos:
+        try:
+            num = int(fol[2:])
+            if num > maximo:
+                maximo = num
+        except:
+            continue
+
+    nuevo_folio = f"{mes}{maximo+1:03d}"
+
+    # Guardar en archivo
     with open(ruta, "a") as f:
-        f.write(fol + "\n")
-    return fol
+        f.write(nuevo_folio + "\n")
+
+    return nuevo_folio
 
 def generar_placa_digital():
     archivo = "placas_digitales.txt"
