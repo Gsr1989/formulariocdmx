@@ -116,37 +116,20 @@ coords_gto = {
     "vigencia": (2200,645,35,(0,0,0)),
 }
 
-def generar_folio_automatico(ruta="folios_globales.txt"):
-    mes = datetime.now().strftime("%m")
+def generar_folio_automatico():
+    registros = supabase.table("borradores_registros").select("folio").execute().data
+    existentes = [r["folio"] for r in registros if r["folio"]]
 
-    # Leer todos los folios del archivo
-    if not os.path.exists(ruta):
-        open(ruta, "w").close()
-    with open(ruta) as f:
-        archivo_folios = [l.strip() for l in f if l.strip().startswith(mes)]
+    def siguiente_folio():
+        prefijo = datetime.now().strftime("%m")  # mes actual
+        nums = [int(f[2:]) for f in existentes if f.startswith(prefijo) and f[2:].isdigit()]
+        next_num = max(nums)+1 if nums else 1
+        return f"{prefijo}{next_num:03d}"
 
-    # Leer todos los folios de Supabase
-    response = supabase.table("borradores_registros").select("fol").execute()
-    supa_folios = [r["fol"] for r in response.data if r["fol"].startswith(mes)]
-
-    # Combinar y encontrar el más alto
-    todos = archivo_folios + supa_folios
-    maximo = 0
-    for fol in todos:
-        try:
-            num = int(fol[2:])
-            if num > maximo:
-                maximo = num
-        except:
-            continue
-
-    nuevo_folio = f"{mes}{maximo+1:03d}"
-
-    # Guardar en archivo
-    with open(ruta, "a") as f:
-        f.write(nuevo_folio + "\n")
-
-    return nuevo_folio
+    nuevo = siguiente_folio()
+    while nuevo in existentes:
+        nuevo = siguiente_folio()
+    return nuevo
 
 def generar_placa_digital():
     archivo = "placas_digitales.txt"
