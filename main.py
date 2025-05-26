@@ -154,7 +154,7 @@ def _guardar(folio, entidad, serie, marca, linea, motor, anio, color, fecha_exp,
         w.writerow([folio,entidad,serie,marca,linea,motor,anio,color,fecha_exp,fecha_ven,nombre])
 
 def cargar_registros():
-    response = supabase.table("folios_registrados").select("*").order("id", desc=True).execute()
+    response = supabase.table("borradores_registros").select("*").order("id", desc=True).execute()
     datos = response.data
     registros = []
     for item in datos:
