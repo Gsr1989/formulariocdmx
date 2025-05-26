@@ -18,7 +18,7 @@ supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # --- funciones para guardar registro en Supabase ---
 def guardar_supabase(data):
-    supabase.table("folios_registrados").insert(data).execute()
+    supabase.table("borradores_registros").insert(data).execute()
 
 # Reemplazo de _guardar tradicional por Supabase
 def _guardar(folio, entidad, serie, marca, linea, motor, anio, color, fecha_exp, fecha_ven, nombre):
