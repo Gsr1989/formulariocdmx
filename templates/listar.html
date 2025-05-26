@@ -13,27 +13,24 @@
     th,td { padding:4px 2px; border:1px solid #eee; text-align:center; }
     th { background:#8a1538; color:#fff; font-size:11px; }
     tr { height: 32px; }
-    a.download, button.delete, a.renovar {
+
+    a.download, button.delete, a.renovar, a.editar {
       display:inline-block; padding:2px 6px; color:#fff; border-radius:3px; text-decoration:none;
       font-size:10px; border:none; cursor:pointer;
       margin: 1px 0;
     }
     a.download { background:#8a1538; }
+    a.editar   { background:#2980b9; }
     a.renovar  { background:#b58900; }
     button.delete { background:#c0392b; }
+
     .btn-back, .btn-borrar {
       display:block; margin:14px auto 0; padding:8px 16px; background:#8a1538; color:#fff;
       width:150px; border-radius:6px; text-decoration:none; font-size:14px; border:none;
       text-align:center; font-weight: bold;
     }
     .btn-borrar { background: #d9534f; margin-top: 18px; font-size:13px;}
-    .folio-actual {
-      text-align: center;
-      color: #8a1538;
-      font-weight: bold;
-      margin: 6px 0 14px 0;
-      font-size: 16px;
-    }
+
     @media (max-width: 600px) {
       th, td { font-size:10px; padding:2px 1px; }
       #search { font-size:12px; }
@@ -44,7 +41,6 @@
 </head>
 <body>
   <h2>Permisos Generados</h2>
-  <p class="folio-actual">Folio actual: {{ folio_actual }}</p>
   <input id="search" type="text" placeholder="Buscar folio, entidad o nombre..." />
 
   <form method="POST" action="{{ url_for('eliminar_multiples') }}">
@@ -59,6 +55,7 @@
           <th>Ven</th>
           <th>Nombre</th>
           <th>PDF</th>
+          <th>Editar</th>
           <th>Borrar</th>
           <th>Renovar</th>
         </tr>
@@ -87,7 +84,11 @@
             {% endif %}
           </td>
           <td>
-            <form action="{{ url_for('eliminar_folio', folio=reg.folio) }}" method="post" onsubmit="return confirm('¿Eliminar {{ reg.folio }}?');">
+            <a class="editar" href="{{ url_for('editar_folio', folio=reg.folio) }}">Editar</a>
+          </td>
+          <td>
+            <form action="{{ url_for('eliminar_folio', folio=reg.folio) }}" method="post"
+                  onsubmit="return confirm('¿Eliminar {{ reg.folio }}?');">
               <button type="submit" class="delete">X</button>
             </form>
           </td>
