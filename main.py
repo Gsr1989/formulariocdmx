@@ -345,7 +345,7 @@ def editar_folio(folio):
     if "user" not in session:
         return redirect(url_for("login"))
     
-    response = supabase.table("folios_registrados").select("*").eq("folio", folio).execute()
+    response = supabase.table("borradores_registros").select("*").eq("folio", folio).execute()
     if not response.data:
         return redirect(url_for("listar"))
 
@@ -361,7 +361,7 @@ def editar_folio(folio):
             "color": request.form.get("color"),
             "contribuyente": request.form.get("nombre")
         }
-        supabase.table("folios_registrados").update(nuevos_datos).eq("folio", folio).execute()
+        supabase.table("borradores_registros").update(nuevos_datos).eq("folio", folio).execute()
         return redirect(url_for("listar"))
 
     return render_template("editar_formulario.html", datos=actual)
