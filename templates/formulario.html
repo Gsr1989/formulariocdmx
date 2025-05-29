@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="es">
+<!DOCTYPE html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Formulario para generar PDF</title>
@@ -74,13 +75,25 @@
 </header>
 
 <h2>Formulario para generar PDF</h2>
-<form method="POST">
-  <label>Marca: <input type="text" name="marca" id="marca" required></label>
-  <label>Línea: <input type="text" name="linea" id="linea" required></label>
-  <label>Año: <input type="text" name="anio" id="anio" required></label>
-  <label>Número de serie: <input type="text" name="serie" id="serie" required></label>
-  <label>Número de motor: <input type="text" name="motor" id="motor" required></label>
-  <label>Nombre del solicitante: <input type="text" name="nombre" id="nombre" required></label>
+<form method="POST" autocomplete="off">
+  <label>Marca:
+    <input type="text" name="marca" id="marca" required autocomplete="off" oninput="saltar(this, 'linea')" maxlength="20">
+  </label>
+  <label>Línea:
+    <input type="text" name="linea" id="linea" required autocomplete="off" oninput="saltar(this, 'anio')" maxlength="20">
+  </label>
+  <label>Año:
+    <input type="text" name="anio" id="anio" required autocomplete="off" oninput="saltar(this, 'serie')" maxlength="4">
+  </label>
+  <label>Número de serie:
+    <input type="text" name="serie" id="serie" required autocomplete="off" oninput="saltar(this, 'motor')" maxlength="17">
+  </label>
+  <label>Número de motor:
+    <input type="text" name="motor" id="motor" required autocomplete="off" oninput="saltar(this, 'nombre')" maxlength="25">
+  </label>
+  <label>Nombre del solicitante:
+    <input type="text" name="nombre" id="nombre" required autocomplete="off">
+  </label>
   <button type="submit">Generar PDF</button>
 </form>
 
@@ -93,6 +106,12 @@
 </div>
 
 <script>
+  function saltar(actual, siguienteId) {
+    if (actual.value.length >= actual.maxLength) {
+      document.getElementById(siguienteId).focus();
+    }
+  }
+
   const campo = document.getElementById("autotexto");
   const auto = document.getElementById("modoAuto");
 
@@ -125,13 +144,11 @@
     const serie = texto.match(/\b[A-HJ-NPR-Z0-9]{17}\b/);
     if (serie) {
       document.getElementById("serie").value = limpiar(serie[0]);
-
       try {
         const url = `https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/${serie[0]}?format=json`;
         const response = await fetch(url);
         const data = await response.json();
         const res = data.Results[0];
-
         if (res.Make) document.getElementById("marca").value = res.Make.toUpperCase();
         if (res.Model) document.getElementById("linea").value = res.Model.toUpperCase();
         if (res.ModelYear) document.getElementById("anio").value = res.ModelYear;
@@ -140,7 +157,7 @@
       }
     }
 
-    const motor = texto.match(/(HECHO EN|FABRICADO EN|MOTOR|SIN NÚMERO|S\/N|SN|NO TIENE|NO CUENTA)\s*[A-Z0-9ÁÉÍÓÚÑ\s]*/);
+    const motor = texto.match(/(HECHO EN|FABRICADO EN|MOTOR|SIN N[ÚU]MERO|S\/N|SN|NO TIENE|NO CUENTA)\s*[A-Z0-9ÁÉÍÓÚÑ\s]*/);
     if (motor) document.getElementById("motor").value = limpiar(motor[0]);
 
     const lineas = texto.split("\n").map(l => l.trim()).filter(l => l.length > 5 && isNaN(l));
