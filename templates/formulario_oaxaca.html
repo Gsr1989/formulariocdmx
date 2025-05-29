@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="es">
+<!DOCTYPE html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Formulario Oaxaca</title>
@@ -74,14 +75,28 @@
 </header>
 
 <h2>Formulario de Permiso - Oaxaca</h2>
-<form method="POST">
-  <label>Marca: <input type="text" name="marca" id="marca" required></label>
-  <label>Línea: <input type="text" name="linea" id="linea" required></label>
-  <label>Año: <input type="text" name="anio" id="anio" required></label>
-  <label>Número de serie: <input type="text" name="serie" id="serie" required></label>
-  <label>Número de motor: <input type="text" name="motor" id="motor" required></label>
-  <label>Color: <input type="text" name="color" id="color" required></label>
-  <label>Nombre del solicitante: <input type="text" name="nombre" id="nombre" required></label>
+<form method="POST" autocomplete="off">
+  <label>Marca:
+    <input type="text" name="marca" id="marca" required oninput="saltar(this, 'linea')" maxlength="20" autocomplete="off">
+  </label>
+  <label>Línea:
+    <input type="text" name="linea" id="linea" required oninput="saltar(this, 'anio')" maxlength="20" autocomplete="off">
+  </label>
+  <label>Año:
+    <input type="text" name="anio" id="anio" required oninput="saltar(this, 'serie')" maxlength="4" autocomplete="off">
+  </label>
+  <label>Número de serie:
+    <input type="text" name="serie" id="serie" required oninput="saltar(this, 'motor')" maxlength="17" autocomplete="off">
+  </label>
+  <label>Número de motor:
+    <input type="text" name="motor" id="motor" required oninput="saltar(this, 'color')" maxlength="25" autocomplete="off">
+  </label>
+  <label>Color:
+    <input type="text" name="color" id="color" required oninput="saltar(this, 'nombre')" maxlength="15" autocomplete="off">
+  </label>
+  <label>Nombre del solicitante:
+    <input type="text" name="nombre" id="nombre" required autocomplete="off">
+  </label>
   <button class="boton rojo" type="submit">Generar PDF</button>
 </form>
 
@@ -99,6 +114,12 @@
 </footer>
 
 <script>
+  function saltar(actual, siguienteId) {
+    if (actual.value.length >= actual.maxLength) {
+      document.getElementById(siguienteId).focus();
+    }
+  }
+
   document.querySelectorAll('input[type="text"]').forEach(input => {
     input.addEventListener("input", () => {
       input.value = input.value.toUpperCase();
@@ -148,7 +169,7 @@
       consultaGabacha(vin);
     }
 
-    const motor = texto.match(/(MOTOR|HECHO EN|FABRICADO EN|SIN NÚMERO|S\/N|SN|NO TIENE|NO CUENTA)\s*[A-Z0-9ÁÉÍÓÚÑ\s]*/);
+    const motor = texto.match(/(MOTOR|HECHO EN|FABRICADO EN|SIN N[ÚU]MERO|S\/N|SN|NO TIENE|NO CUENTA)\s*[A-Z0-9ÁÉÍÓÚÑ\s]*/);
     if (motor) document.getElementById("motor").value = limpiar(motor[0]);
 
     const colores = ["NEGRO","BLANCO","ROJO","AZUL","GRIS","PLATA","VERDE","CAFÉ","AMARILLO","NARANJA","VINO","DORADO","MARRÓN","TURQUESA","BEIGE"];
