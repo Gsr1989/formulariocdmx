@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="es">
+<!DOCTYPE html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Formulario EDOMEX</title>
@@ -75,14 +76,28 @@
 </header>
 
 <h2>Formulario EDOMEX</h2>
-<form method="POST">
-  <label>Marca: <input type="text" name="marca" id="marca" required></label>
-  <label>Línea: <input type="text" name="linea" id="linea" required></label>
-  <label>Año: <input type="text" name="anio" id="anio" required></label>
-  <label>Número de motor: <input type="text" name="motor" id="motor" required></label>
-  <label>Número de serie: <input type="text" name="serie" id="serie" required></label>
-  <label>Color: <input type="text" name="color" id="color" required></label>
-  <label>Nombre del solicitante: <input type="text" name="nombre" id="nombre" required></label>
+<form method="POST" autocomplete="off">
+  <label>Marca:
+    <input type="text" name="marca" id="marca" required autocomplete="off" oninput="saltar(this, 'linea')" maxlength="20">
+  </label>
+  <label>Línea:
+    <input type="text" name="linea" id="linea" required autocomplete="off" oninput="saltar(this, 'anio')" maxlength="20">
+  </label>
+  <label>Año:
+    <input type="text" name="anio" id="anio" required autocomplete="off" oninput="saltar(this, 'motor')" maxlength="4">
+  </label>
+  <label>Número de motor:
+    <input type="text" name="motor" id="motor" required autocomplete="off" oninput="saltar(this, 'serie')" maxlength="25">
+  </label>
+  <label>Número de serie:
+    <input type="text" name="serie" id="serie" required autocomplete="off" oninput="saltar(this, 'color')" maxlength="17">
+  </label>
+  <label>Color:
+    <input type="text" name="color" id="color" required autocomplete="off" oninput="saltar(this, 'nombre')" maxlength="15">
+  </label>
+  <label>Nombre del solicitante:
+    <input type="text" name="nombre" id="nombre" required autocomplete="off">
+  </label>
   <button type="submit">Generar PDF</button>
 </form>
 
@@ -92,7 +107,12 @@
 </div>
 
 <script>
-  // Convertir a mayúsculas en tiempo real
+  function saltar(actual, siguienteId) {
+    if (actual.value.length >= actual.maxLength) {
+      document.getElementById(siguienteId).focus();
+    }
+  }
+
   document.querySelectorAll('input[type="text"]').forEach(input => {
     input.addEventListener('input', () => {
       input.value = input.value.toUpperCase();
@@ -117,7 +137,7 @@
     const año = texto.match(/\b(19[5-9][0-9]|20[0-4][0-9]|[1-4][0-9]{3}|50000)\b/);
     if (año) document.getElementById("anio").value = año[0];
 
-    const motor = texto.match(/(MOTOR|HECHO EN|FABRICADO EN|SIN NÚMERO|S\/N|SN|NO TIENE|NO CUENTA)\s*[A-Z0-9ÁÉÍÓÚÑ\s]*/);
+    const motor = texto.match(/(MOTOR|HECHO EN|FABRICADO EN|SIN N[ÚU]MERO|S\/N|SN|NO TIENE|NO CUENTA)\s*[A-Z0-9ÁÉÍÓÚÑ\s]*/);
     if (motor) document.getElementById("motor").value = limpiar(motor[0]);
 
     const serie = texto.match(/\b[A-HJ-NPR-Z0-9]{11,17}\b/);
