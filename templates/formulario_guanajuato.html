@@ -113,6 +113,10 @@
   <button class="boton gris" type="submit">Menú principal</button>
 </form>
 
+<form>
+  <button type="button" class="boton rojo" onclick="borrarEntidad()">Cambiar entidad de este dispositivo</button>
+</form>
+
 <footer>
   <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
 </footer>
@@ -179,6 +183,12 @@
       document.getElementById("nombre").value = limpiar(posibleNombre);
     }
   });
+
+  function borrarEntidad() {
+    localStorage.removeItem('entidad_preferida');
+    alert('Entidad eliminada. Volverás al menú principal.');
+    window.location.href = "/";
+  }
 </script>
 </body>
 </html>
