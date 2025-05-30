@@ -67,6 +67,20 @@
       width: 90%;
       text-align: left;
     }
+    .cambiar-entidad {
+      margin: 30px auto;
+      max-width: 400px;
+    }
+    .cambiar-entidad button {
+      background-color: #ff4444;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
@@ -104,6 +118,15 @@
   </label>
   <textarea id="autotexto" rows="6" placeholder="Pega aquí la descripción completa..."></textarea>
 </div>
+
+<!-- BOTÓN CAMBIAR ENTIDAD -->
+<div class="cambiar-entidad">
+  <button onclick="borrarEntidad()">Cambiar entidad de este dispositivo</button>
+</div>
+
+<footer>
+  <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
+</footer>
 
 <script>
   function saltar(actual, siguienteId) {
@@ -166,10 +189,12 @@
       document.getElementById("nombre").value = limpiar(posibleNombre);
     }
   });
-</script>
 
-<footer>
-  <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
-</footer>
+  function borrarEntidad() {
+    localStorage.removeItem('entidad_preferida');
+    alert('Entidad eliminada. Volverás al menú principal.');
+    window.location.href = "/";
+  }
+</script>
 </body>
 </html>
