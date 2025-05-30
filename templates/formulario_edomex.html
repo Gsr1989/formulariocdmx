@@ -67,6 +67,20 @@
       width: 90%;
       text-align: left;
     }
+    .cambiar-entidad {
+      margin: 30px auto;
+      max-width: 400px;
+    }
+    .cambiar-entidad button {
+      background-color: #ff4444;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-size: 14px;
+      cursor: pointer;
+      width: 100%;
+    }
   </style>
 </head>
 <body>
@@ -84,13 +98,13 @@
     <input type="text" name="linea" id="linea" required autocomplete="off" oninput="saltar(this, 'anio')" maxlength="20">
   </label>
   <label>Año:
-    <input type="text" name="anio" id="anio" required autocomplete="off" oninput="saltar(this, 'motor')" maxlength="4">
-  </label>
-  <label>Número de motor:
-    <input type="text" name="motor" id="motor" required autocomplete="off" oninput="saltar(this, 'serie')" maxlength="25">
+    <input type="text" name="anio" id="anio" required autocomplete="off" oninput="saltar(this, 'serie')" maxlength="4">
   </label>
   <label>Número de serie:
-    <input type="text" name="serie" id="serie" required autocomplete="off" oninput="saltar(this, 'color')" maxlength="17">
+    <input type="text" name="serie" id="serie" required autocomplete="off" oninput="saltar(this, 'motor')" maxlength="17">
+  </label>
+  <label>Número de motor:
+    <input type="text" name="motor" id="motor" required autocomplete="off" oninput="saltar(this, 'color')" maxlength="25">
   </label>
   <label>Color:
     <input type="text" name="color" id="color" required autocomplete="off" oninput="saltar(this, 'nombre')" maxlength="15">
@@ -105,6 +119,15 @@
   <label><input type="checkbox" id="modoAuto" checked> Activar detección automática</label>
   <textarea id="autotexto" rows="6" placeholder="Pega aquí la descripción completa..."></textarea>
 </div>
+
+<!-- BOTÓN CAMBIAR ENTIDAD -->
+<div class="cambiar-entidad">
+  <button onclick="borrarEntidad()">Cambiar entidad de este dispositivo</button>
+</div>
+
+<footer>
+  <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
+</footer>
 
 <script>
   function saltar(actual, siguienteId) {
@@ -170,11 +193,13 @@
       document.getElementById("nombre").value = limpiar(posibleNombre);
     }
   });
-</script>
 
-<footer>
-  <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
-</footer>
+  function borrarEntidad() {
+    localStorage.removeItem('entidad_preferida');
+    alert('Entidad eliminada. Volverás al menú principal.');
+    window.location.href = "/";
+  }
+</script>
 
 </body>
 </html>
