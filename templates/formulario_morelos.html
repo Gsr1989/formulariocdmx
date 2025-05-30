@@ -71,6 +71,9 @@
     .gris {
       background-color: #555;
     }
+    .rojo {
+      background-color: #d32f2f;
+    }
     .boton:hover {
       opacity: 0.9;
     }
@@ -111,6 +114,10 @@
 
   <form action="/seleccionar_entidad">
     <button class="boton gris" type="submit">Menú principal</button>
+  </form>
+
+  <form>
+    <button type="button" class="boton rojo" onclick="borrarEntidad()">Cambiar entidad de este dispositivo</button>
   </form>
 
   <div class="espaciado"></div>
@@ -190,6 +197,12 @@
       document.getElementById("nombre").value = limpiar(posibleNombre);
     }
   });
+
+  function borrarEntidad() {
+    localStorage.removeItem('entidad_preferida');
+    alert('Entidad eliminada. Volverás al menú principal.');
+    window.location.href = "/";
+  }
 </script>
 
 <footer>
