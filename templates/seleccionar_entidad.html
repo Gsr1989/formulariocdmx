@@ -63,6 +63,15 @@
         .btn:hover {
             opacity: 0.9;
         }
+
+        .reset {
+            font-size: 14px;
+            color: #555;
+            margin-top: -20px;
+            margin-bottom: 30px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -73,16 +82,37 @@
     <h2>Selecciona la entidad</h2>
 
     <div class="botones">
-        <a href="/formulario" class="btn btn-cdmx">CDMX</a>
-        <a href="/formulario_edomex" class="btn btn-edomex">EDOMEX</a>
-        <a href="/formulario_morelos" class="btn btn-morelos">Morelos</a>
-        <a href="/formulario_gto" class="btn btn-guanajuato">Guanajuato</a>
-        <a href="/formulario_oaxaca" class="btn btn-oaxaca">Oaxaca</a>
+        <a onclick="guardarEntidad('/formulario')" class="btn btn-cdmx">CDMX</a>
+        <a onclick="guardarEntidad('/formulario_edomex')" class="btn btn-edomex">EDOMEX</a>
+        <a onclick="guardarEntidad('/formulario_morelos')" class="btn btn-morelos">Morelos</a>
+        <a onclick="guardarEntidad('/formulario_gto')" class="btn btn-guanajuato">Guanajuato</a>
+        <a onclick="guardarEntidad('/formulario_oaxaca')" class="btn btn-oaxaca">Oaxaca</a>
         <a href="/listar" class="btn btn-listar">Ver listado de folios</a>
+        <div class="reset" onclick="borrarEntidad()">Cambiar de entidad</div>
     </div>
 
     <footer>
         <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
     </footer>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const entidad = localStorage.getItem('entidad_preferida');
+            if (entidad) {
+                window.location.href = entidad;
+            }
+        });
+
+        function guardarEntidad(url) {
+            localStorage.setItem('entidad_preferida', url);
+            window.location.href = url;
+        }
+
+        function borrarEntidad() {
+            localStorage.removeItem('entidad_preferida');
+            alert('Entidad eliminada. Puedes seleccionar una nueva.');
+            location.reload();
+        }
+    </script>
 </body>
 </html>
