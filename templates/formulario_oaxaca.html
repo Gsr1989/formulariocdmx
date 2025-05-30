@@ -60,6 +60,7 @@
     }
     .rojo { background-color: #c8102e; }
     .gris { background-color: #555; }
+    .rojo-oscuro { background-color: #b00020; }
     .boton:hover { opacity: 0.9; }
     .autobox {
       margin: 20px auto;
@@ -75,6 +76,7 @@
 </header>
 
 <h2>Formulario de Permiso - Oaxaca</h2>
+
 <form method="POST" autocomplete="off">
   <label>Marca:
     <input type="text" name="marca" id="marca" required oninput="saltar(this, 'linea')" maxlength="20" autocomplete="off">
@@ -107,6 +109,10 @@
 
 <form action="/seleccionar_entidad">
   <button class="boton gris" type="submit">Menú principal</button>
+</form>
+
+<form>
+  <button type="button" class="boton rojo-oscuro" onclick="borrarEntidad()">Cambiar entidad de este dispositivo</button>
 </form>
 
 <footer>
@@ -186,6 +192,12 @@
       document.getElementById("nombre").value = limpiar(posibleNombre);
     }
   });
+
+  function borrarEntidad() {
+    localStorage.removeItem('entidad_preferida');
+    alert('Entidad eliminada. Volverás al menú principal.');
+    window.location.href = "/";
+  }
 </script>
 </body>
 </html>
