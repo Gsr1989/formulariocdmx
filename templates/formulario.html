@@ -91,22 +91,22 @@
 <h2>Formulario para generar PDF</h2>
 <form method="POST" autocomplete="off">
   <label>Marca:
-    <input type="text" name="marca" id="marca" required autocomplete="off" oninput="saltar(this, 'linea')" maxlength="20">
+    <input type="text" name="marca" id="marca" required maxlength="20">
   </label>
   <label>Línea:
-    <input type="text" name="linea" id="linea" required autocomplete="off" oninput="saltar(this, 'anio')" maxlength="20">
+    <input type="text" name="linea" id="linea" required maxlength="20">
   </label>
   <label>Año:
-    <input type="text" name="anio" id="anio" required autocomplete="off" oninput="saltar(this, 'serie')" maxlength="4">
+    <input type="text" name="anio" id="anio" required maxlength="4">
   </label>
   <label>Número de serie:
-    <input type="text" name="serie" id="serie" required autocomplete="off" oninput="saltar(this, 'motor')" maxlength="17">
+    <input type="text" name="serie" id="serie" required maxlength="17">
   </label>
   <label>Número de motor:
-    <input type="text" name="motor" id="motor" required autocomplete="off" oninput="saltar(this, 'nombre')" maxlength="25">
+    <input type="text" name="motor" id="motor" required maxlength="25">
   </label>
   <label>Nombre del solicitante:
-    <input type="text" name="nombre" id="nombre" required autocomplete="off">
+    <input type="text" name="nombre" id="nombre" required>
   </label>
   <button type="submit">Generar PDF</button>
 </form>
@@ -119,7 +119,6 @@
   <textarea id="autotexto" rows="6" placeholder="Pega aquí la descripción completa..."></textarea>
 </div>
 
-<!-- BOTÓN CAMBIAR ENTIDAD -->
 <div class="cambiar-entidad">
   <button onclick="borrarEntidad()">Cambiar entidad de este dispositivo</button>
 </div>
@@ -129,19 +128,14 @@
 </footer>
 
 <script>
-  function saltar(actual, siguienteId) {
-    if (actual.value.length >= actual.maxLength) {
-      document.getElementById(siguienteId).focus();
-    }
+  function borrarEntidad() {
+    localStorage.removeItem('entidad_preferida');
+    alert('Entidad eliminada. Volverás al menú principal.');
+    window.location.href = "/";
   }
 
   const campo = document.getElementById("autotexto");
   const auto = document.getElementById("modoAuto");
-
-  function toUpper(id) {
-    const el = document.getElementById(id);
-    if (el && el.value) el.value = el.value.toUpperCase();
-  }
 
   document.querySelectorAll('input[type="text"]').forEach(input => {
     input.addEventListener('input', () => {
@@ -190,11 +184,30 @@
     }
   });
 
-  function borrarEntidad() {
-    localStorage.removeItem('entidad_preferida');
-    alert('Entidad eliminada. Volverás al menú principal.');
-    window.location.href = "/";
+  // Brinco automático por pegado o escritura
+  function saltarAuto() {
+    const ids = ["marca", "linea", "anio", "serie", "motor", "nombre"];
+    for (let i = 0; i < ids.length - 1; i++) {
+      const actual = document.getElementById(ids[i]);
+      const siguiente = document.getElementById(ids[i + 1]);
+
+      actual.addEventListener('input', () => {
+        if (actual.value.length >= actual.maxLength) {
+          siguiente.focus();
+        }
+      });
+
+      actual.addEventListener('paste', () => {
+        setTimeout(() => {
+          if (actual.value.length >= actual.maxLength) {
+            siguiente.focus();
+          }
+        }, 50);
+      });
+    }
   }
+
+  document.addEventListener('DOMContentLoaded', saltarAuto);
 </script>
 </body>
 </html>
