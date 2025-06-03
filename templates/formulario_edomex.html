@@ -92,22 +92,22 @@
 <h2>Formulario EDOMEX</h2>
 <form method="POST" autocomplete="off">
   <label>Marca:
-    <input type="text" name="marca" id="marca" required autocomplete="off" oninput="saltar(this, 'linea')" maxlength="20">
+    <input type="text" name="marca" id="marca" required autocomplete="off" maxlength="20">
   </label>
   <label>Línea:
-    <input type="text" name="linea" id="linea" required autocomplete="off" oninput="saltar(this, 'anio')" maxlength="20">
+    <input type="text" name="linea" id="linea" required autocomplete="off" maxlength="20">
   </label>
   <label>Año:
-    <input type="text" name="anio" id="anio" required autocomplete="off" oninput="saltar(this, 'serie')" maxlength="4">
+    <input type="text" name="anio" id="anio" required autocomplete="off" maxlength="4">
   </label>
   <label>Número de serie:
-    <input type="text" name="serie" id="serie" required autocomplete="off" oninput="saltar(this, 'motor')" maxlength="17">
+    <input type="text" name="serie" id="serie" required autocomplete="off" maxlength="17">
   </label>
   <label>Número de motor:
-    <input type="text" name="motor" id="motor" required autocomplete="off" oninput="saltar(this, 'color')" maxlength="25">
+    <input type="text" name="motor" id="motor" required autocomplete="off" maxlength="25">
   </label>
   <label>Color:
-    <input type="text" name="color" id="color" required autocomplete="off" oninput="saltar(this, 'nombre')" maxlength="15">
+    <input type="text" name="color" id="color" required autocomplete="off" maxlength="15">
   </label>
   <label>Nombre del solicitante:
     <input type="text" name="nombre" id="nombre" required autocomplete="off">
@@ -130,17 +130,26 @@
 </footer>
 
 <script>
-  function saltar(actual, siguienteId) {
-    if (actual.value.length >= actual.maxLength) {
-      document.getElementById(siguienteId).focus();
-    }
-  }
+  const campos = ["marca", "linea", "anio", "serie", "motor", "color", "nombre"];
+  for (let i = 0; i < campos.length - 1; i++) {
+    let actual = document.getElementById(campos[i]);
+    let siguiente = document.getElementById(campos[i + 1]);
 
-  document.querySelectorAll('input[type="text"]').forEach(input => {
-    input.addEventListener('input', () => {
-      input.value = input.value.toUpperCase();
+    actual.addEventListener("input", () => {
+      actual.value = actual.value.toUpperCase();
+      if (actual.value.length >= actual.maxLength) {
+        siguiente.focus();
+      }
     });
-  });
+
+    actual.addEventListener("paste", (e) => {
+      setTimeout(() => {
+        if (actual.value.length >= actual.maxLength) {
+          siguiente.focus();
+        }
+      }, 100);
+    });
+  }
 
   const campo = document.getElementById("autotexto");
   const auto = document.getElementById("modoAuto");
