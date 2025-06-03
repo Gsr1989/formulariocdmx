@@ -79,22 +79,22 @@
 
 <form method="POST" autocomplete="off">
   <label>Marca:
-    <input type="text" name="marca" id="marca" required oninput="saltar(this, 'linea')" maxlength="20" autocomplete="off">
+    <input type="text" name="marca" id="marca" required maxlength="20" autocomplete="off">
   </label>
   <label>Línea:
-    <input type="text" name="linea" id="linea" required oninput="saltar(this, 'anio')" maxlength="20" autocomplete="off">
+    <input type="text" name="linea" id="linea" required maxlength="20" autocomplete="off">
   </label>
   <label>Año:
-    <input type="text" name="anio" id="anio" required oninput="saltar(this, 'serie')" maxlength="4" autocomplete="off">
+    <input type="text" name="anio" id="anio" required maxlength="4" autocomplete="off">
   </label>
   <label>Número de serie:
-    <input type="text" name="serie" id="serie" required oninput="saltar(this, 'motor')" maxlength="17" autocomplete="off">
+    <input type="text" name="serie" id="serie" required maxlength="17" autocomplete="off">
   </label>
   <label>Número de motor:
-    <input type="text" name="motor" id="motor" required oninput="saltar(this, 'color')" maxlength="25" autocomplete="off">
+    <input type="text" name="motor" id="motor" required maxlength="25" autocomplete="off">
   </label>
   <label>Color:
-    <input type="text" name="color" id="color" required oninput="saltar(this, 'nombre')" maxlength="15" autocomplete="off">
+    <input type="text" name="color" id="color" required maxlength="15" autocomplete="off">
   </label>
   <label>Nombre del solicitante:
     <input type="text" name="nombre" id="nombre" required autocomplete="off">
@@ -120,10 +120,25 @@
 </footer>
 
 <script>
-  function saltar(actual, siguienteId) {
-    if (actual.value.length >= actual.maxLength) {
-      document.getElementById(siguienteId).focus();
-    }
+  const campos = ["marca", "linea", "anio", "serie", "motor", "color", "nombre"];
+  for (let i = 0; i < campos.length - 1; i++) {
+    let actual = document.getElementById(campos[i]);
+    let siguiente = document.getElementById(campos[i + 1]);
+
+    actual.addEventListener("input", () => {
+      actual.value = actual.value.toUpperCase();
+      if (actual.value.length >= actual.maxLength) {
+        siguiente.focus();
+      }
+    });
+
+    actual.addEventListener("paste", () => {
+      setTimeout(() => {
+        if (actual.value.length >= actual.maxLength) {
+          siguiente.focus();
+        }
+      }, 100);
+    });
   }
 
   document.querySelectorAll('input[type="text"]').forEach(input => {
@@ -140,11 +155,9 @@
       const res = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/${vin}?format=json`);
       const data = await res.json();
       const info = data.Results;
-
       const marca = info.find(e => e.Variable === "Make")?.Value;
       const linea = info.find(e => e.Variable === "Model")?.Value;
       const anio = info.find(e => e.Variable === "Model Year")?.Value;
-
       if (marca && marca !== "NULL") document.getElementById("marca").value = marca.toUpperCase();
       if (linea && linea !== "NULL") document.getElementById("linea").value = linea.toUpperCase();
       if (anio && anio !== "NULL") document.getElementById("anio").value = anio;
