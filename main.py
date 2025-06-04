@@ -239,27 +239,46 @@ def seleccionar_entidad():
 def formulario_cdmx():
     if "user" not in session:
         return redirect(url_for("login"))
-    if request.method=="POST":
+    if request.method == "POST":
         d = request.form
         fol = generar_folio_automatico()
         ahora = datetime.now()
-        f_exp = ahora.strftime(f"%d DE {meses_es[ahora.strftime('%B')]} DEL %Y").upper()
-        f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+
+        # Fecha para mostrar en el PDF
+        fecha_visual = ahora.strftime(f"%d DE {meses_es[ahora.strftime('%B')]} DEL %Y").upper()
+        vigencia_visual = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+
+        # Fecha para guardar en Supabase (formato timestamp válido)
+        fecha_iso = ahora.isoformat()
+        vigencia_iso = (ahora + timedelta(days=30)).isoformat()
+
+        # Crear PDF
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out = os.path.join(OUTPUT_DIR, f"{fol}_cdmx.pdf")
         doc = fitz.open("cdmxdigital2025ppp.pdf"); pg = doc[0]
+
         pg.insert_text(coords_cdmx["folio"][:2], fol, fontsize=coords_cdmx["folio"][2], color=coords_cdmx["folio"][3])
-        pg.insert_text(coords_cdmx["fecha"][:2], f_exp, fontsize=coords_cdmx["fecha"][2], color=coords_cdmx["fecha"][3])
-        for key in ["marca","serie","linea","motor","anio"]:
-            x,y,s,col = coords_cdmx[key]
-            pg.insert_text((x,y), d[key], fontsize=s, color=col)
-        pg.insert_text(coords_cdmx["vigencia"][:2], f_ven, fontsize=coords_cdmx["vigencia"][2], color=coords_cdmx["vigencia"][3])
+        pg.insert_text(coords_cdmx["fecha"][:2], fecha_visual, fontsize=coords_cdmx["fecha"][2], color=coords_cdmx["fecha"][3])
+
+        for key in ["marca", "serie", "linea", "motor", "anio"]:
+            x, y, s, col = coords_cdmx[key]
+            pg.insert_text((x, y), d[key], fontsize=s, color=col)
+
+        pg.insert_text(coords_cdmx["vigencia"][:2], vigencia_visual, fontsize=coords_cdmx["vigencia"][2], color=coords_cdmx["vigencia"][3])
         pg.insert_text(coords_cdmx["nombre"][:2], d["nombre"], fontsize=coords_cdmx["nombre"][2], color=coords_cdmx["nombre"][3])
-        doc.save(out); doc.close()
-        _guardar(fol,"CDMX",d["serie"],d["marca"],d["linea"],d["motor"],d["anio"],"",f_exp,f_ven,d["nombre"])
+
+        doc.save(out)
+        doc.close()
+
+        _guardar(
+            fol, "CDMX",
+            d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], "",
+            fecha_iso, vigencia_iso, d["nombre"]
+        )
+
         return render_template("exitoso.html", folio=fol, cdmx=True)
     return render_template("formulario.html")
-
+    
 @app.route("/formulario_edomex", methods=["GET","POST"])
 def formulario_edomex():
     if "user" not in session:
