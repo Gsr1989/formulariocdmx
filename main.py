@@ -6,7 +6,7 @@ import string
 import csv
 from supabase import create_client, Client
 
-# Config
+# Configuración básica
 app = Flask(__name__)
 app.secret_key = "secreto_perro"
 OUTPUT_DIR = "static/pdfs"
@@ -16,17 +16,22 @@ SUPABASE_URL = "https://xsagwqepoljfsogusubw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzYWd3cWVwb2xqZnNvZ3VzdWJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5NjM3NTUsImV4cCI6MjA1OTUzOTc1NX0.NUixULn0m2o49At8j6X58UqbXre2O2_JStqzls_8Gws"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
-# Guardar registro en Supabase con formato de fechas válido
+BUCKET = "pdfs"
+
+def subir_pdf_supabase(path_local, nombre_pdf):
+    with open(path_local, "rb") as f:
+        data = f.read()
+    # Elimina si ya existe
+    try:
+        supabase.storage.from_(BUCKET).remove([nombre_pdf])
+    except Exception:
+        pass
+    res = supabase.storage.from_(BUCKET).upload(nombre_pdf, data, {"content-type": "application/pdf"})
+    url_publica = f"{SUPABASE_URL}/storage/v1/object/public/{BUCKET}/{nombre_pdf}"
+    return url_publica
+
+# Guardar registro en Supabase incluyendo url_pdf
 def guardar_supabase(data):
-    for campo in ["fecha_expedicion", "fecha_vencimiento"]:
-        if campo in data and isinstance(data[campo], str):
-            try:
-                if "DE" in data[campo] or "DEL" in data[campo]:
-                    data[campo] = datetime.now().isoformat()
-                else:
-                    data[campo] = datetime.strptime(data[campo], "%d/%m/%Y").isoformat()
-            except:
-                data[campo] = datetime.now().isoformat()
     supabase.table("borradores_registros").insert(data).execute()
 
 # Función _guardar
