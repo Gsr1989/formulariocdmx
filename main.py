@@ -34,8 +34,19 @@ def subir_pdf_supabase(path_local, nombre_pdf):
 def guardar_supabase(data):
     supabase.table("borradores_registros").insert(data).execute()
 
-# Función _guardar
-def _guardar(folio, entidad, serie, marca, linea, motor, anio, color, fecha_exp, fecha_ven, nombre):
+def _guardar(folio, entidad, serie, marca, linea, motor, anio, color, fecha_impresa, fecha_vencimiento, nombre):
+    # Genera la ruta del archivo local
+    nombre_pdf = f"{folio}_{entidad.lower()}.pdf"
+    ruta_local = os.path.join(OUTPUT_DIR, nombre_pdf)
+
+    # Convierte la fecha impresa (ej. "04 DE JUNIO DEL 2025") a ISO para Supabase
+    fecha_expedicion_iso = datetime.now().isoformat()
+    fecha_vencimiento_iso = (datetime.now() + timedelta(days=30)).isoformat()
+
+    # Sube el PDF al bucket de Supabase
+    url_pdf = subir_pdf_supabase(ruta_local, nombre_pdf)
+
+    # Guarda todo en la tabla
     guardar_supabase({
         "folio": folio,
         "entidad": entidad,
@@ -45,9 +56,10 @@ def _guardar(folio, entidad, serie, marca, linea, motor, anio, color, fecha_exp,
         "numero_motor": motor,
         "anio": anio,
         "color": color,
-        "fecha_expedicion": fecha_exp,
-        "fecha_vencimiento": fecha_ven,
-        "contribuyente": nombre
+        "fecha_expedicion": fecha_expedicion_iso,
+        "fecha_vencimiento": fecha_vencimiento_iso,
+        "contribuyente": nombre,
+        "url_pdf": url_pdf  # <-- IMPORTANTE: esta es la nueva columna que debes tener
     })
 
 meses_es = {
