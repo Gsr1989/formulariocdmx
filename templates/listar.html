@@ -66,7 +66,9 @@
           <td>{{ reg.fecha_ven }}</td>
           <td>{{ reg.nombre }}</td>
           <td>
-            {% if reg.entidad=='CDMX' %}
+            {% if reg.pdf_url %}
+              <a class="download" href="{{ reg.pdf_url }}" target="_blank">PDF</a>
+            {% elif reg.entidad=='CDMX' %}
               <a class="download" href="{{ url_for('abrir_pdf_cdmx', folio=reg.folio) }}">PDF</a>
             {% elif reg.entidad=='EDOMEX' %}
               <a class="download" href="{{ url_for('abrir_pdf_edomex', folio=reg.folio) }}">PDF</a>
