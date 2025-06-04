@@ -307,24 +307,21 @@ def formulario_edomex():
 @app.route("/formulario_morelos", methods=["GET","POST"])
 def formulario_morelos():
     if "user" not in session:
-      @app.route("/formulario_morelos", methods=["GET","POST"])
-def formulario_morelos():
-    if "user" not in session:
         return redirect(url_for("login"))
+    
     if request.method == "POST":
         d = request.form
         fol = generar_folio_automatico()
         placa = generar_placa_digital()
         ahora = datetime.now()
 
-        # Formato visual para el PDF
+        # Formatos de fechas
         f_exp = ahora.strftime(f"%d DE {meses_es[ahora.strftime('%B')]} DEL %Y").upper()
         f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-
-        # Fechas ISO para Supabase
         fecha_iso = ahora.isoformat()
         fecha_ven_iso = (ahora + timedelta(days=30)).isoformat()
 
+        # Crear PDF
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out = os.path.join(OUTPUT_DIR, f"{fol}_morelos.pdf")
         doc = fitz.open("morelos_hoja1_imagen.pdf")
@@ -349,7 +346,6 @@ def formulario_morelos():
         doc.save(out)
         doc.close()
 
-        # Guardar en Supabase con formato timestamp válido
         _guardar(fol, "Morelos", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], fecha_iso, fecha_ven_iso, d["nombre"])
         return render_template("exitoso.html", folio=fol, morelos=True)
 
