@@ -307,47 +307,54 @@ def formulario_edomex():
 @app.route("/formulario_morelos", methods=["GET","POST"])
 def formulario_morelos():
     if "user" not in session:
+      @app.route("/formulario_morelos", methods=["GET","POST"])
+def formulario_morelos():
+    if "user" not in session:
         return redirect(url_for("login"))
     if request.method == "POST":
-        try:
-            d = request.form
-            fol = generar_folio_automatico()
-            placa = generar_placa_digital()
-            ahora = datetime.now()
-            f_exp = ahora.strftime(f"%d DE {meses_es[ahora.strftime('%B')]} DEL %Y").upper()
-            f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+        d = request.form
+        fol = generar_folio_automatico()
+        placa = generar_placa_digital()
+        ahora = datetime.now()
 
-            os.makedirs(OUTPUT_DIR, exist_ok=True)
-            out = os.path.join(OUTPUT_DIR, f"{fol}_morelos.pdf")
-            doc = fitz.open("morelos_hoja1_imagen.pdf")
-            pg = doc[0]
+        # Formato visual para el PDF
+        f_exp = ahora.strftime(f"%d DE {meses_es[ahora.strftime('%B')]} DEL %Y").upper()
+        f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
 
-            pg.insert_text(coords_morelos["folio"][:2], fol, fontsize=coords_morelos["folio"][2], color=coords_morelos["folio"][3])
-            pg.insert_text(coords_morelos["placa"][:2], placa, fontsize=coords_morelos["placa"][2], color=coords_morelos["placa"][3])
-            pg.insert_text(coords_morelos["fecha"][:2], f_exp, fontsize=coords_morelos["fecha"][2], color=coords_morelos["fecha"][3])
-            pg.insert_text(coords_morelos["vigencia"][:2], f_ven, fontsize=coords_morelos["vigencia"][2], color=coords_morelos["vigencia"][3])
+        # Fechas ISO para Supabase
+        fecha_iso = ahora.isoformat()
+        fecha_ven_iso = (ahora + timedelta(days=30)).isoformat()
 
-            for key in ["marca", "serie", "linea", "motor", "anio", "color", "tipo"]:
-                if key in d and d[key].strip():
-                    x, y, s, col = coords_morelos[key]
-                    pg.insert_text((x, y), d[key].strip(), fontsize=s, color=col)
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        out = os.path.join(OUTPUT_DIR, f"{fol}_morelos.pdf")
+        doc = fitz.open("morelos_hoja1_imagen.pdf")
+        pg = doc[0]
 
-            pg.insert_text(coords_morelos["nombre"][:2], d["nombre"], fontsize=coords_morelos["nombre"][2], color=coords_morelos["nombre"][3])
+        pg.insert_text(coords_morelos["folio"][:2], fol, fontsize=coords_morelos["folio"][2], color=coords_morelos["folio"][3])
+        pg.insert_text(coords_morelos["placa"][:2], placa, fontsize=coords_morelos["placa"][2], color=coords_morelos["placa"][3])
+        pg.insert_text(coords_morelos["fecha"][:2], f_exp, fontsize=coords_morelos["fecha"][2], color=coords_morelos["fecha"][3])
+        pg.insert_text(coords_morelos["vigencia"][:2], f_ven, fontsize=coords_morelos["vigencia"][2], color=coords_morelos["vigencia"][3])
 
-            if len(doc) > 1:
-                pg2 = doc[1]
-                pg2.insert_text(coords_morelos["fecha_hoja2"][:2], f_ven, fontsize=coords_morelos["fecha_hoja2"][2], color=coords_morelos["fecha_hoja2"][3])
+        for key in ["marca", "serie", "linea", "motor", "anio", "color", "tipo"]:
+            if key in d and d[key].strip():
+                x, y, s, col = coords_morelos[key]
+                pg.insert_text((x, y), d[key].strip(), fontsize=s, color=col)
 
-            doc.save(out)
-            doc.close()
+        pg.insert_text(coords_morelos["nombre"][:2], d["nombre"], fontsize=coords_morelos["nombre"][2], color=coords_morelos["nombre"][3])
 
-            _guardar(fol, "Morelos", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f_exp, f_ven, d["nombre"])
-            return render_template("exitoso.html", folio=fol, morelos=True)
+        if len(doc) > 1:
+            pg2 = doc[1]
+            pg2.insert_text(coords_morelos["fecha_hoja2"][:2], f_ven, fontsize=coords_morelos["fecha_hoja2"][2], color=coords_morelos["fecha_hoja2"][3])
 
-        except Exception as e:
-            return f"<h3 style='color:red;'>💥 ERROR en formulario Morelos:</h3><pre>{e}</pre>"
+        doc.save(out)
+        doc.close()
+
+        # Guardar en Supabase con formato timestamp válido
+        _guardar(fol, "Morelos", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], fecha_iso, fecha_ven_iso, d["nombre"])
+        return render_template("exitoso.html", folio=fol, morelos=True)
 
     return render_template("formulario_morelos.html")
+    
 @app.route("/formulario_oaxaca", methods=["GET","POST"])
 def formulario_oaxaca():
     if "user" not in session:
