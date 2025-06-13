@@ -77,7 +77,14 @@
 
 <h2>Formulario de Permiso - Oaxaca</h2>
 
+<div class="autobox">
+  <label><input type="checkbox" id="modoAuto" checked> Activar detección automática</label>
+  <textarea id="autotexto" placeholder="Pega aquí la descripción completa..."></textarea>
+</div>
+
 <form method="POST" autocomplete="off">
+  <button class="boton rojo" type="submit">Generar PDF</button>
+
   <label>Marca:
     <input type="text" name="marca" id="marca" required maxlength="20" autocomplete="off">
   </label>
@@ -99,13 +106,7 @@
   <label>Nombre del solicitante:
     <input type="text" name="nombre" id="nombre" required autocomplete="off">
   </label>
-  <button class="boton rojo" type="submit">Generar PDF</button>
 </form>
-
-<div class="autobox">
-  <label><input type="checkbox" id="modoAuto" checked> Activar detección automática</label>
-  <textarea id="autotexto" rows="6" placeholder="Pega aquí la descripción completa..."></textarea>
-</div>
 
 <form action="/seleccionar_entidad">
   <button class="boton gris" type="submit">Menú principal</button>
@@ -150,23 +151,10 @@
   const campo = document.getElementById("autotexto");
   const auto = document.getElementById("modoAuto");
 
-  async function consultaGabacha(vin) {
-    try {
-      const res = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/${vin}?format=json`);
-      const data = await res.json();
-      const info = data.Results;
-      const marca = info.find(e => e.Variable === "Make")?.Value;
-      const linea = info.find(e => e.Variable === "Model")?.Value;
-      const anio = info.find(e => e.Variable === "Model Year")?.Value;
-      if (marca && marca !== "NULL") document.getElementById("marca").value = marca.toUpperCase();
-      if (linea && linea !== "NULL") document.getElementById("linea").value = linea.toUpperCase();
-      if (anio && anio !== "NULL") document.getElementById("anio").value = anio;
-    } catch (e) {
-      console.error("Consulta gabacha falló:", e);
-    }
-  }
-
   campo.addEventListener("input", () => {
+    campo.style.height = "auto";
+    campo.style.height = campo.scrollHeight + "px";
+
     if (!auto.checked) return;
 
     const texto = campo.value.toUpperCase();
@@ -205,6 +193,22 @@
       document.getElementById("nombre").value = limpiar(posibleNombre);
     }
   });
+
+  async function consultaGabacha(vin) {
+    try {
+      const res = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVin/${vin}?format=json`);
+      const data = await res.json();
+      const info = data.Results;
+      const marca = info.find(e => e.Variable === "Make")?.Value;
+      const linea = info.find(e => e.Variable === "Model")?.Value;
+      const anio = info.find(e => e.Variable === "Model Year")?.Value;
+      if (marca && marca !== "NULL") document.getElementById("marca").value = marca.toUpperCase();
+      if (linea && linea !== "NULL") document.getElementById("linea").value = linea.toUpperCase();
+      if (anio && anio !== "NULL") document.getElementById("anio").value = anio;
+    } catch (e) {
+      console.error("Consulta gabacha falló:", e);
+    }
+  }
 
   function borrarEntidad() {
     localStorage.removeItem('entidad_preferida');
