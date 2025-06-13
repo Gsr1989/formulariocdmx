@@ -48,6 +48,11 @@
       border-radius: 6px;
       text-transform: uppercase;
     }
+    textarea {
+      overflow: hidden;
+      resize: none;
+      min-height: 80px;
+    }
     button {
       width: 100%;
       padding: 12px;
@@ -108,16 +113,17 @@
   <label>Nombre del solicitante:
     <input type="text" name="nombre" id="nombre" required>
   </label>
-  <button type="submit">Generar PDF</button>
-</form>
 
-<div class="autobox">
-  <label>
-    <input type="checkbox" id="modoAuto" checked>
-    Activar detección automática
-  </label>
-  <textarea id="autotexto" rows="6" placeholder="Pega aquí la descripción completa..."></textarea>
-</div>
+  <button type="submit">Generar PDF</button>
+
+  <div class="autobox">
+    <label style="margin-top: 20px;">
+      <input type="checkbox" id="modoAuto" checked>
+      Activar detección automática
+    </label>
+    <textarea id="autotexto" placeholder="Pega aquí la descripción completa..."></textarea>
+  </div>
+</form>
 
 <div class="cambiar-entidad">
   <button onclick="borrarEntidad()">Cambiar entidad de este dispositivo</button>
@@ -136,6 +142,11 @@
 
   const campo = document.getElementById("autotexto");
   const auto = document.getElementById("modoAuto");
+
+  campo.addEventListener("input", () => {
+    campo.style.height = "auto";
+    campo.style.height = campo.scrollHeight + "px";
+  });
 
   document.querySelectorAll('input[type="text"]').forEach(input => {
     input.addEventListener('input', () => {
