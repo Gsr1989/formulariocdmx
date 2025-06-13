@@ -48,6 +48,11 @@
       border-radius: 6px;
       text-transform: uppercase;
     }
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+      overflow-y: auto;
+    }
     button {
       width: 100%;
       padding: 12px;
@@ -92,35 +97,34 @@
 <h2>Formulario EDOMEX</h2>
 <form method="POST" autocomplete="off">
   <label>Marca:
-    <input type="text" name="marca" id="marca" required autocomplete="off" maxlength="20">
+    <input type="text" name="marca" id="marca" required maxlength="20">
   </label>
   <label>Línea:
-    <input type="text" name="linea" id="linea" required autocomplete="off" maxlength="20">
+    <input type="text" name="linea" id="linea" required maxlength="20">
   </label>
   <label>Año:
-    <input type="text" name="anio" id="anio" required autocomplete="off" maxlength="4">
+    <input type="text" name="anio" id="anio" required maxlength="4">
   </label>
   <label>Número de serie:
-    <input type="text" name="serie" id="serie" required autocomplete="off" maxlength="17">
+    <input type="text" name="serie" id="serie" required maxlength="17">
   </label>
   <label>Número de motor:
-    <input type="text" name="motor" id="motor" required autocomplete="off" maxlength="25">
+    <input type="text" name="motor" id="motor" required maxlength="25">
   </label>
   <label>Color:
-    <input type="text" name="color" id="color" required autocomplete="off" maxlength="15">
+    <input type="text" name="color" id="color" required maxlength="15">
   </label>
   <label>Nombre del solicitante:
-    <input type="text" name="nombre" id="nombre" required autocomplete="off">
+    <input type="text" name="nombre" id="nombre" required>
   </label>
   <button type="submit">Generar PDF</button>
 </form>
 
 <div class="autobox">
   <label><input type="checkbox" id="modoAuto" checked> Activar detección automática</label>
-  <textarea id="autotexto" rows="6" placeholder="Pega aquí la descripción completa..."></textarea>
+  <textarea id="autotexto" placeholder="Pega aquí la descripción completa..."></textarea>
 </div>
 
-<!-- BOTÓN CAMBIAR ENTIDAD -->
 <div class="cambiar-entidad">
   <button onclick="borrarEntidad()">Cambiar entidad de este dispositivo</button>
 </div>
