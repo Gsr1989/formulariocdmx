@@ -76,7 +76,17 @@
 
 <h2>Formulario Guanajuato</h2>
 
+<div class="autobox">
+  <label>
+    <input type="checkbox" id="modoAuto" checked>
+    Activar detección automática
+  </label>
+  <textarea id="autotexto" placeholder="Pega aquí la descripción completa..."></textarea>
+</div>
+
 <form method="POST" autocomplete="off">
+  <button class="boton rojo" type="submit">Generar PDF</button>
+
   <label>Marca:
     <input type="text" name="marca" id="marca" required maxlength="20" autocomplete="off">
   </label>
@@ -98,16 +108,7 @@
   <label>Nombre del solicitante:
     <input type="text" name="nombre" id="nombre" required autocomplete="off">
   </label>
-  <button class="boton rojo" type="submit">Generar PDF</button>
 </form>
-
-<div class="autobox">
-  <label>
-    <input type="checkbox" id="modoAuto" checked>
-    Activar detección automática
-  </label>
-  <textarea id="autotexto" rows="6" placeholder="Pega aquí la descripción completa..."></textarea>
-</div>
 
 <form action="/seleccionar_entidad">
   <button class="boton gris" type="submit">Menú principal</button>
@@ -149,10 +150,14 @@
     });
   });
 
+  // Textarea flexible
   const campo = document.getElementById("autotexto");
   const auto = document.getElementById("modoAuto");
 
   campo.addEventListener("input", () => {
+    campo.style.height = "auto";
+    campo.style.height = campo.scrollHeight + "px";
+
     if (!auto.checked) return;
 
     const texto = campo.value.toUpperCase();
