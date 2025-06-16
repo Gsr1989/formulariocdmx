@@ -132,6 +132,75 @@ coords_gto = {
     "nombre": (950,1100,50,(0,0,0)),
     "vigencia": (2200,645,35,(0,0,0)),
 }
+# ---------------- COORDENADAS GUERRERO ----------------
+coords_guerrero = {
+    "folio": (376,769,8,(1,0,0)),
+    "fecha_exp": (122,755,8,(0,0,0)),
+    "fecha_ven": (122,768,8,(0,0,0)),
+    "serie": (376,742,8,(0,0,0)),
+    "motor": (376,729,8,(0,0,0)),
+    "marca": (376,700,8,(0,0,0)),
+    "linea": (376,714,8,(0,0,0)),
+    "color": (376,756,8,(0,0,0)),
+    "nombre": (122,700,8,(0,0,0)),
+    "rot_folio": (440,200,83,(0,0,0)),
+    "rot_fecha_exp": (77,205,8,(0,0,0)),
+    "rot_fecha_ven": (63,205,8,(0,0,0)),
+    "rot_serie": (168,110,18,(0,0,0)),
+    "rot_motor": (224,110,18,(0,0,0)),
+    "rot_marca": (280,110,18,(0,0,0)),
+    "rot_linea": (280,340,18,(0,0,0)),
+    "rot_anio": (305,530,18,(0,0,0)),
+    "rot_color": (224,410,18,(0,0,0)),
+    "rot_nombre": (115,205,8,(0,0,0))
+}
+
+@app.route("/formulario_guerrero", methods=["GET","POST"])
+def formulario_guerrero():
+    if "user" not in session:
+        return redirect(url_for("login"))
+    if request.method == "POST":
+        d = request.form
+        fol = generar_folio_automatico()
+        ahora = datetime.now()
+        f_exp = ahora.strftime("%d/%m/%Y")
+        f_exp_iso = ahora.isoformat()
+        f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+        f_ven_iso = (ahora + timedelta(days=30)).isoformat()
+
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        out = os.path.join(OUTPUT_DIR, f"{fol}_guerrero.pdf")
+        doc = fitz.open("Guerrero.pdf")
+        pg = doc[0]
+
+        # Insertar texto horizontal
+        for campo in ["folio", "fecha_exp", "fecha_ven", "serie", "motor", "marca", "linea", "color", "nombre"]:
+            x, y, s, col = coords_guerrero[campo]
+            pg.insert_text((x, y), d.get(campo if campo != "nombre" else "nombre"), fontsize=s, color=col)
+
+        # Insertar texto rotado
+        pg.insert_text(coords_guerrero["rot_folio"][:2], fol, fontsize=coords_guerrero["rot_folio"][2], rotate=270)
+        pg.insert_text(coords_guerrero["rot_fecha_exp"][:2], f_exp, fontsize=coords_guerrero["rot_fecha_exp"][2], rotate=270)
+        pg.insert_text(coords_guerrero["rot_fecha_ven"][:2], f_ven, fontsize=coords_guerrero["rot_fecha_ven"][2], rotate=270)
+        pg.insert_text(coords_guerrero["rot_serie"][:2], d["serie"], fontsize=coords_guerrero["rot_serie"][2], rotate=270)
+        pg.insert_text(coords_guerrero["rot_motor"][:2], d["motor"], fontsize=coords_guerrero["rot_motor"][2], rotate=270)
+        pg.insert_text(coords_guerrero["rot_marca"][:2], d["marca"], fontsize=coords_guerrero["rot_marca"][2], rotate=270)
+        pg.insert_text(coords_guerrero["rot_linea"][:2], d["linea"], fontsize=coords_guerrero["rot_linea"][2], rotate=270)
+        pg.insert_text(coords_guerrero["rot_anio"][:2], d["anio"], fontsize=coords_guerrero["rot_anio"][2], rotate=270)
+        pg.insert_text(coords_guerrero["rot_color"][:2], d["color"], fontsize=coords_guerrero["rot_color"][2], rotate=270)
+        pg.insert_text(coords_guerrero["rot_nombre"][:2], d["nombre"], fontsize=coords_guerrero["rot_nombre"][2], rotate=270)
+
+        doc.save(out)
+        doc.close()
+
+        _guardar(fol, "Guerrero", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f_exp_iso, f_ven_iso, d["nombre"])
+        return render_template("exitoso.html", folio=fol, guerrero=True)
+    return render_template("formulario_guerrero.html")
+
+@app.route("/abrir_pdf_guerrero/<folio>")
+def abrir_pdf_guerrero(folio):
+    p = os.path.join(OUTPUT_DIR, f"{folio}_guerrero.pdf")
+    return send_file(p, as_attachment=True)
 
 def generar_folio_automatico():
     registros = supabase.table("borradores_registros").select("folio").execute().data
