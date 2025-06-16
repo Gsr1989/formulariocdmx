@@ -426,7 +426,6 @@ def formulario_morelos():
     return render_template("formulario_morelos.html")
     
 @app.route("/formulario_oaxaca", methods=["GET","POST"])
-@app.route("/formulario_oaxaca", methods=["GET","POST"])
 def formulario_oaxaca():
     if "user" not in session:
         return redirect(url_for("login"))
@@ -457,7 +456,6 @@ def formulario_oaxaca():
         return render_template("exitoso.html", folio=fol, oaxaca=True)
     return render_template("formulario_oaxaca.html")
 
-@app.route("/formulario_gto", methods=["GET","POST"])
 @app.route("/formulario_gto", methods=["GET","POST"])
 def formulario_gto():
     if "user" not in session:
