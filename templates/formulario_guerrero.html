@@ -45,7 +45,7 @@
             margin-bottom: 30px;
         }
 
-        input, select, button {
+        input, button {
             padding: 10px;
             font-size: 16px;
             border-radius: 5px;
@@ -81,11 +81,6 @@
     <h2>Registro Guerrero</h2>
 
     <form method="POST">
-        <select name="tipo_vehiculo" required>
-            <option value="">Tipo de Vehículo</option>
-            <option value="Automóvil">Automóvil</option>
-            <option value="Motocicleta">Motocicleta</option>
-        </select>
         <input type="text" name="serie" placeholder="Número de Serie" required>
         <input type="text" name="motor" placeholder="Número de Motor" required>
         <input type="text" name="marca" placeholder="Marca" required>
@@ -96,7 +91,7 @@
         <button type="submit">Generar Permiso</button>
     </form>
 
-    <a href="/seleccionar_entidad">Volver al menú</a>
+    <a href="/seleccionar_entidad">Volver al menú principal</a>
 
     <footer>
         <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
