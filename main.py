@@ -132,6 +132,7 @@ coords_gto = {
     "nombre": (950,1100,50,(0,0,0)),
     "vigencia": (2200,645,35,(0,0,0)),
 }
+
 # ---------------- COORDENADAS GUERRERO ----------------
 coords_guerrero = {
     "folio": (376,769,8,(1,0,0)),
@@ -176,7 +177,8 @@ def formulario_guerrero():
 
         for campo in ["folio", "fecha_exp", "fecha_ven", "serie", "motor", "marca", "linea", "color", "nombre"]:
             x, y, s, col = coords_guerrero[campo]
-            pg.insert_text((x, y), d.get(campo), fontsize=s, color=col)
+            texto = fol if campo == "folio" else (f_exp if campo == "fecha_exp" else (f_ven if campo == "fecha_ven" else d.get(campo)))
+            pg.insert_text((x, y), texto, fontsize=s, color=col)
 
         pg.insert_text(coords_guerrero["rot_folio"][:2], fol, fontsize=coords_guerrero["rot_folio"][2], rotate=270)
         pg.insert_text(coords_guerrero["rot_fecha_exp"][:2], f_exp, fontsize=coords_guerrero["rot_fecha_exp"][2], rotate=270)
@@ -197,10 +199,12 @@ def formulario_guerrero():
 
     return render_template("formulario_guerrero.html")
 
+
 @app.route("/abrir_pdf_guerrero/<folio>")
 def abrir_pdf_guerrero(folio):
     p = os.path.join(OUTPUT_DIR, f"{folio}_guerrero.pdf")
     return send_file(p, as_attachment=True)
+
 
 def generar_folio_guerrero():
     letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -224,107 +228,6 @@ def generar_folio_guerrero():
                 nuevo = f"{par}{str(num).zfill(4)}"
                 if nuevo not in usados:
                     return nuevo
-                
-# ---------------- COORDENADAS GUERRERO ----------------
-coords_guerrero = {
-    "folio": (376,769,8,(1,0,0)),
-    "fecha_exp": (122,755,8,(0,0,0)),
-    "fecha_ven": (122,768,8,(0,0,0)),
-    "serie": (376,742,8,(0,0,0)),
-    "motor": (376,729,8,(0,0,0)),
-    "marca": (376,700,8,(0,0,0)),
-    "linea": (376,714,8,(0,0,0)),
-    "color": (376,756,8,(0,0,0)),
-    "nombre": (122,700,8,(0,0,0)),
-    "rot_folio": (440,200,83,(0,0,0)),
-    "rot_fecha_exp": (77,205,8,(0,0,0)),
-    "rot_fecha_ven": (63,205,8,(0,0,0)),
-    "rot_serie": (168,110,18,(0,0,0)),
-    "rot_motor": (224,110,18,(0,0,0)),
-    "rot_marca": (280,110,18,(0,0,0)),
-    "rot_linea": (280,340,18,(0,0,0)),
-    "rot_anio": (305,530,18,(0,0,0)),
-    "rot_color": (224,410,18,(0,0,0)),
-    "rot_nombre": (115,205,8,(0,0,0))
-}
-
-@app.route("/formulario_guerrero", methods=["GET", "POST"])
-def formulario_guerrero():
-    if "user" not in session:
-        return redirect(url_for("login"))
-
-    if request.method == "POST":
-        d = request.form
-        fol = generar_folio_guerrero()
-        ahora = datetime.now()
-        f_exp = ahora.strftime("%d/%m/%Y")
-        f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-        f_exp_iso = ahora.isoformat()
-        f_ven_iso = (ahora + timedelta(days=30)).isoformat()
-
-        os.makedirs(OUTPUT_DIR, exist_ok=True)
-        out = os.path.join(OUTPUT_DIR, f"{fol}_guerrero.pdf")
-
-        try:
-            doc = fitz.open("Guerrero.pdf")
-            pg = doc[0]
-
-            # Texto horizontal
-            for campo in ["folio", "fecha_exp", "fecha_ven", "serie", "motor", "marca", "linea", "color", "nombre"]:
-                x, y, s, col = coords_guerrero[campo]
-                valor = fol if campo == "folio" else (f_exp if campo == "fecha_exp" else (f_ven if campo == "fecha_ven" else d.get(campo, "")))
-                pg.insert_text((x, y), valor, fontsize=s, color=col)
-
-            # Texto rotado
-            rot_keys = ["rot_folio", "rot_fecha_exp", "rot_fecha_ven", "rot_serie", "rot_motor", "rot_marca", "rot_linea", "rot_anio", "rot_color", "rot_nombre"]
-            rot_values = [fol, f_exp, f_ven, d["serie"], d["motor"], d["marca"], d["linea"], d["anio"], d["color"], d["nombre"]]
-            for k, v in zip(rot_keys, rot_values):
-                x, y, s, col = coords_guerrero[k]
-                pg.insert_text((x, y), v, fontsize=s, color=col, rotate=270)
-
-            doc.save(out)
-            doc.close()
-
-            _guardar(fol, "Guerrero", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f_exp_iso, f_ven_iso, d["nombre"])
-            return render_template("exitoso.html", folio=fol, guerrero=True)
-
-        except Exception as e:
-            print("ERROR AL GENERAR PDF GUERRERO:", e)
-            return f"Error interno: {e}", 500
-
-    return render_template("formulario_guerrero.html")
-
-
-@app.route("/abrir_pdf_guerrero/<folio>")
-def abrir_pdf_guerrero(folio):
-    p = os.path.join(OUTPUT_DIR, f"{folio}_guerrero.pdf")
-    return send_file(p, as_attachment=True)
-
-
-def generar_folio_guerrero():
-    letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    supa = supabase
-    inicio_letras = "AD"
-    inicio_num = 6032
-
-    registros = supa.table("borradores_registros").select("folio").eq("entidad", "Guerrero").execute().data
-    usados = [r["folio"] for r in registros if r["folio"] and len(r["folio"]) == 6 and r["folio"][:2].isalpha()]
-
-    empezar = False
-    for l1 in letras:
-        for l2 in letras:
-            par = l1 + l2
-            for num in range(1, 10000):
-                if not empezar:
-                    if par == inicio_letras and num == inicio_num:
-                        empezar = True
-                    else:
-                        continue
-                nuevo = f"{par}{str(num).zfill(4)}"
-                if nuevo not in usados:
-                    return nuevo
-
-    return "ZZ9999"
 
 def siguiente_folio():
         prefijo = datetime.now().strftime("%m")  # mes actual
