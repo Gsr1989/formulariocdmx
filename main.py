@@ -226,53 +226,6 @@ def generar_folio_guerrero():
                     return nuevo
                 
 # ---------------- COORDENADAS GUERRERO ----------------
-
-coords_guerrero = { "folio": (376,769,8,(1,0,0)), "fecha_exp": (122,755,8,(0,0,0)), "fecha_ven": (122,768,8,(0,0,0)), "serie": (376,742,8,(0,0,0)), "motor": (376,729,8,(0,0,0)), "marca": (376,700,8,(0,0,0)), "linea": (376,714,8,(0,0,0)), "color": (376,756,8,(0,0,0)), "nombre": (122,700,8,(0,0,0)), "rot_folio": (440,200,83,(0,0,0)), "rot_fecha_exp": (77,205,8,(0,0,0)), "rot_fecha_ven": (63,205,8,(0,0,0)), "rot_serie": (168,110,18,(0,0,0)), "rot_motor": (224,110,18,(0,0,0)), "rot_marca": (280,110,18,(0,0,0)), "rot_linea": (280,340,18,(0,0,0)), "rot_anio": (305,530,18,(0,0,0)), "rot_color": (224,410,18,(0,0,0)), "rot_nombre": (115,205,8,(0,0,0)) }
-
-@app.route("/formulario_guerrero", methods=["GET","POST"]) def formulario_guerrero(): if "user" not in session: return redirect(url_for("login"))
-
-if request.method == "POST":
-    d = request.form
-    fol = generar_folio_guerrero()
-    ahora = datetime.now()
-    f_exp = ahora.strftime("%d/%m/%Y")
-    f_exp_iso = ahora.isoformat()
-    f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-    f_ven_iso = (ahora + timedelta(days=30)).isoformat()
-
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-    out = os.path.join(OUTPUT_DIR, f"{fol}_guerrero.pdf")
-
-    try:
-        doc = fitz.open("Guerrero.pdf")
-        pg = doc[0]
-
-        for campo in ["folio", "fecha_exp", "fecha_ven", "serie", "motor", "marca", "linea", "color", "nombre"]:
-            x, y, s, col = coords_guerrero[campo]
-            valor = fol if campo == "folio" else (f_exp if campo == "fecha_exp" else (f_ven if campo == "fecha_ven" else d.get(campo, "")))
-            pg.insert_text((x, y), valor, fontsize=s, color=col)
-
-        # Insertar texto rotado
-        rot_coords = ["rot_folio", "rot_fecha_exp", "rot_fecha_ven", "rot_serie", "rot_motor", "rot_marca", "rot_linea", "rot_anio", "rot_color", "rot_nombre"]
-        valores_rot = [fol, f_exp, f_ven, d["serie"], d["motor"], d["marca"], d["linea"], d["anio"], d["color"], d["nombre"]]
-        for coord, val in zip(rot_coords, valores_rot):
-            x, y, s, col = coords_guerrero[coord]
-            pg.insert_text((x, y), val, fontsize=s, color=col, rotate=270)
-
-        doc.save(out)
-        doc.close()
-
-        _guardar(fol, "Guerrero", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f_exp_iso, f_ven_iso, d["nombre"])
-        return render_template("exitoso.html", folio=fol, guerrero=True)
-
-    except Exception as e:
-        print(f"Error generando PDF Guerrero: {e}")
-        return f"Error generando PDF Guerrero: {e}", 500
-
-return render_template("formulario_guerrero.html")
-
-@app.route("/abrir_pdf_guerrero/<folio>") def abrir_pdf_guerrero(folio): p = os.path.join(OUTPUT_DIR, f"{folio}_guerrero.pdf") return send_file(p, as_attachment=True)
-# ---------------- COORDENADAS GUERRERO ----------------
 coords_guerrero = {
     "folio": (376,769,8,(1,0,0)),
     "fecha_exp": (122,755,8,(0,0,0)),
