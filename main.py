@@ -174,12 +174,10 @@ def formulario_guerrero():
         doc = fitz.open("Guerrero.pdf")
         pg = doc[0]
 
-        # Insertar texto horizontal
         for campo in ["folio", "fecha_exp", "fecha_ven", "serie", "motor", "marca", "linea", "color", "nombre"]:
             x, y, s, col = coords_guerrero[campo]
-            pg.insert_text((x, y), d.get(campo if campo != "nombre" else "nombre"), fontsize=s, color=col)
+            pg.insert_text((x, y), d.get(campo), fontsize=s, color=col)
 
-        # Insertar texto rotado
         pg.insert_text(coords_guerrero["rot_folio"][:2], fol, fontsize=coords_guerrero["rot_folio"][2], rotate=270)
         pg.insert_text(coords_guerrero["rot_fecha_exp"][:2], f_exp, fontsize=coords_guerrero["rot_fecha_exp"][2], rotate=270)
         pg.insert_text(coords_guerrero["rot_fecha_ven"][:2], f_ven, fontsize=coords_guerrero["rot_fecha_ven"][2], rotate=270)
@@ -196,9 +194,14 @@ def formulario_guerrero():
 
         _guardar(fol, "Guerrero", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f_exp_iso, f_ven_iso, d["nombre"])
         return render_template("exitoso.html", folio=fol, guerrero=True)
-        return render_template("formulario_guerrero.html")
+
+    return render_template("formulario_guerrero.html")
 
 @app.route("/abrir_pdf_guerrero/<folio>")
+def abrir_pdf_guerrero(folio):
+    p = os.path.join(OUTPUT_DIR, f"{folio}_guerrero.pdf")
+    return send_file(p, as_attachment=True)
+
 def generar_folio_guerrero():
     letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     supa = supabase
