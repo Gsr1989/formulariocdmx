@@ -647,5 +647,8 @@ def folio_actual():
     return f"Folio actual: {lineas[-1]}"
 
 
+# <- Aquí la pegas
+generar_folio_automatico = generar_folio_por_mes
+
 if __name__ == "__main__":
     app.run(debug=True)
