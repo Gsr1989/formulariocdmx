@@ -51,12 +51,6 @@
             border-radius: 5px;
             border: 1px solid #ccc;
             width: 100%;
-            box-sizing: border-box;
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 80px;
             text-transform: uppercase;
         }
 
@@ -92,9 +86,17 @@
             text-decoration: none;
         }
 
-        .textarea-container {
+        #observaciones {
             width: 90%;
             max-width: 400px;
+            margin-top: 0;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-transform: uppercase;
+            overflow: hidden;
+            resize: none;
         }
     </style>
 </head>
@@ -116,13 +118,9 @@
         <button type="submit">Generar Permiso</button>
     </form>
 
-    <a href="/seleccionar_entidad">Volver al menú principal</a>
-
     <a onclick="borrarEntidad()" class="btn-cambiar">Cambiar entidad de este dispositivo</a>
 
-    <div class="textarea-container">
-        <textarea placeholder="Observaciones (opcional)"></textarea>
-    </div>
+    <textarea id="observaciones" placeholder="Observaciones (opcional)" oninput="ajustarAltura(this)"></textarea>
 
     <footer>
         <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
@@ -133,6 +131,11 @@
             localStorage.removeItem('entidad_preferida');
             alert('Entidad eliminada. Puedes seleccionar una nueva.');
             window.location.href = "/seleccionar_entidad";
+        }
+
+        function ajustarAltura(elemento) {
+            elemento.style.height = 'auto';
+            elemento.style.height = (elemento.scrollHeight) + 'px';
         }
     </script>
 </body>
