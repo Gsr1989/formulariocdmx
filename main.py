@@ -162,7 +162,7 @@ def formulario_guerrero():
 
     if request.method == "POST":
         d = request.form
-        fol = generar_folio_automatico()
+        fol = generar_folio_guerrero()
         ahora = datetime.now()
         f_exp = ahora.strftime("%d/%m/%Y")
         f_exp_iso = ahora.isoformat()
@@ -196,10 +196,32 @@ def formulario_guerrero():
 
         _guardar(fol, "Guerrero", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f_exp_iso, f_ven_iso, d["nombre"])
         return render_template("exitoso.html", folio=fol, guerrero=True)
-
-    return render_template("formulario_guerrero.html")
+        return render_template("formulario_guerrero.html")
 
 @app.route("/abrir_pdf_guerrero/<folio>")
+def generar_folio_guerrero():
+    letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    supa = supabase
+    inicio_letras = "AD"
+    inicio_num = 6032
+
+    existentes = supa.table("borradores_registros").select("folio").eq("entidad", "Guerrero").execute().data
+    usados = [r["folio"] for r in existentes if r["folio"] and len(r["folio"]) == 6 and r["folio"][:2].isalpha()]
+
+    empezar = False
+    for l1 in letras:
+        for l2 in letras:
+            par = l1 + l2
+            for num in range(1, 10000):
+                if not empezar:
+                    if par == inicio_letras and num == inicio_num:
+                        empezar = True
+                    else:
+                        continue
+                nuevo = f"{par}{str(num).zfill(4)}"
+                if nuevo not in usados:
+                    return nuevo
+                    
 def abrir_pdf_guerrero(folio):
     p = os.path.join(OUTPUT_DIR, f"{folio}_guerrero.pdf")
     return send_file(p, as_attachment=True)
