@@ -209,7 +209,7 @@ def abrir_pdf_guerrero(folio):
 def generar_folio_guerrero():
     letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     supa = supabase
-    inicio_letras = "AD"
+    inicio_letras = "AX"
     inicio_num = 6032
 
     existentes = supa.table("borradores_registros").select("folio").eq("entidad", "Guerrero").execute().data
@@ -228,17 +228,6 @@ def generar_folio_guerrero():
                 nuevo = f"{par}{str(num).zfill(4)}"
                 if nuevo not in usados:
                     return nuevo
-
-def siguiente_folio():
-        prefijo = datetime.now().strftime("%m")  # mes actual
-        nums = [int(f[2:]) for f in existentes if f.startswith(prefijo) and f[2:].isdigit()]
-        next_num = max(nums)+1 if nums else 1
-        return f"{prefijo}{next_num:03d}"
-
-    nuevo = siguiente_folio()
-    while nuevo in existentes:
-        nuevo = siguiente_folio()
-    return nuevo
 
 def generar_placa_digital():
     archivo = "placas_digitales.txt"
