@@ -45,12 +45,19 @@
             margin-bottom: 20px;
         }
 
-        input, button {
+        input, button, textarea {
             padding: 10px;
             font-size: 16px;
             border-radius: 5px;
             border: 1px solid #ccc;
             width: 100%;
+            box-sizing: border-box;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+            text-transform: uppercase;
         }
 
         button {
@@ -79,10 +86,15 @@
             color: white;
             padding: 12px;
             border-radius: 8px;
-            margin: 20px auto;
+            margin: 20px auto 10px;
             max-width: 400px;
             font-weight: bold;
             text-decoration: none;
+        }
+
+        .textarea-container {
+            width: 90%;
+            max-width: 400px;
         }
     </style>
 </head>
@@ -94,11 +106,11 @@
     <h2>Registro Guerrero</h2>
 
     <form method="POST">
+        <input type="text" name="marca" placeholder="Marca" required>
+        <input type="text" name="linea" placeholder="Línea" required>
+        <input type="text" name="anio" placeholder="Modelo / Año" required>
         <input type="text" name="serie" placeholder="Número de Serie" required>
         <input type="text" name="motor" placeholder="Número de Motor" required>
-        <input type="text" name="marca" placeholder="Marca" required>
-        <input type="text" name="anio" placeholder="Modelo / Año" required>
-        <input type="text" name="linea" placeholder="Línea" required>
         <input type="text" name="color" placeholder="Color" required>
         <input type="text" name="nombre" placeholder="Nombre del Contribuyente" required>
         <button type="submit">Generar Permiso</button>
@@ -107,6 +119,10 @@
     <a href="/seleccionar_entidad">Volver al menú principal</a>
 
     <a onclick="borrarEntidad()" class="btn-cambiar">Cambiar entidad de este dispositivo</a>
+
+    <div class="textarea-container">
+        <textarea placeholder="Observaciones (opcional)"></textarea>
+    </div>
 
     <footer>
         <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
