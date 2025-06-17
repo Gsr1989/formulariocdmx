@@ -213,17 +213,17 @@ def generar_folio_guerrero():
 
     empezar = False
     for l1 in letras:
-    for l2 in letras:
-        par = l1 + l2
-        for num in range(1, 10000):
-            if not empezar:
-                if par == inicio_letras and num == inicio_num:
-                    empezar = True  # ← ¡ESTO FALTABA!
-                else:
-                    continue
-            nuevo = f"{par}{str(num).zfill(4)}"
-            if nuevo not in usados:
-                return nuevo
+        for l2 in letras:
+            par = l1 + l2
+            for num in range(1, 10000):
+                if not empezar:
+                    if par == inicio_letras and num == inicio_num:
+                        empezar = True
+                    else:
+                        continue
+                nuevo = f"{par}{str(num).zfill(4)}"
+                if nuevo not in usados:
+                    return nuevo
                 
 ---------------- COORDENADAS GUERRERO ----------------
 
