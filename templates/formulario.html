@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Formulario para generar PDF</title>
+  <title>Registro Guerrero</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body {
@@ -27,7 +27,7 @@
     form {
       background: white;
       padding: 20px;
-      margin: 10px auto 40px;
+      margin: 10px auto 20px;
       border-radius: 12px;
       box-shadow: 0 0 8px rgba(0,0,0,0.1);
       max-width: 400px;
@@ -67,13 +67,13 @@
       background-color: #9e0d22;
     }
     .autobox {
-      margin: 20px auto;
+      margin: 20px auto 10px;
       max-width: 400px;
       width: 90%;
       text-align: left;
     }
     .cambiar-entidad {
-      margin: 30px auto;
+      margin: 30px auto 0;
       max-width: 400px;
     }
     .cambiar-entidad button {
@@ -93,7 +93,7 @@
   <img src="{{ url_for('static', filename='logo.png') }}" alt="Encabezado">
 </header>
 
-<h2>Formulario para generar PDF</h2>
+<h2>Registro Guerrero</h2>
 <form method="POST" autocomplete="off">
   <label>Marca:
     <input type="text" name="marca" id="marca" required maxlength="20">
@@ -110,11 +110,14 @@
   <label>Número de motor:
     <input type="text" name="motor" id="motor" required maxlength="25">
   </label>
-  <label>Nombre del solicitante:
+  <label>Color:
+    <input type="text" name="color" id="color" required maxlength="20">
+  </label>
+  <label>Nombre del contribuyente:
     <input type="text" name="nombre" id="nombre" required>
   </label>
 
-  <button type="submit">Generar PDF</button>
+  <button type="submit">Generar Permiso</button>
 
   <div class="autobox">
     <label style="margin-top: 20px;">
@@ -136,8 +139,8 @@
 <script>
   function borrarEntidad() {
     localStorage.removeItem('entidad_preferida');
-    alert('Entidad eliminada. Volverás al menú principal.');
-    window.location.href = "/";
+    alert('Entidad eliminada. Puedes seleccionar una nueva.');
+    window.location.href = "/seleccionar_entidad";
   }
 
   const campo = document.getElementById("autotexto");
@@ -158,13 +161,16 @@
     if (!auto.checked) return;
 
     const texto = campo.value.toUpperCase();
-    const limpiar = txt => txt.replace(/(MARCA|L[ÍI]NEA|SUBMARCA|MODELO|AÑO|N[ÚU]MERO DE SERIE|SERIE|MOTOR|NOMBRE DEL SOLICITANTE|NOMBRE|:)/g, '').trim();
+    const limpiar = txt => txt.replace(/(MARCA|L[ÍI]NEA|SUBMARCA|MODELO|AÑO|N[ÚU]MERO DE SERIE|SERIE|MOTOR|COLOR|NOMBRE DEL CONTRIBUYENTE|NOMBRE|:)/g, '').trim();
 
     const marca = texto.match(/MARCA\s+[A-Z0-9\s]+/);
     if (marca) document.getElementById("marca").value = limpiar(marca[0]);
 
     const linea = texto.match(/L[ÍI]NEA\s+[A-Z0-9\s]+/);
     if (linea) document.getElementById("linea").value = limpiar(linea[0]);
+
+    const color = texto.match(/COLOR\s+[A-Z0-9\s]+/);
+    if (color) document.getElementById("color").value = limpiar(color[0]);
 
     const año = texto.match(/\b(19[5-9][0-9]|20[0-4][0-9]|[1-4][0-9]{3}|50000)\b/);
     if (año) document.getElementById("anio").value = año[0];
@@ -194,30 +200,6 @@
       document.getElementById("nombre").value = limpiar(posibleNombre);
     }
   });
-
-  function saltarAuto() {
-    const ids = ["marca", "linea", "anio", "serie", "motor", "nombre"];
-    for (let i = 0; i < ids.length - 1; i++) {
-      const actual = document.getElementById(ids[i]);
-      const siguiente = document.getElementById(ids[i + 1]);
-
-      actual.addEventListener('input', () => {
-        if (actual.value.length >= actual.maxLength) {
-          siguiente.focus();
-        }
-      });
-
-      actual.addEventListener('paste', () => {
-        setTimeout(() => {
-          if (actual.value.length >= actual.maxLength) {
-            siguiente.focus();
-          }
-        }, 50);
-      });
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded', saltarAuto);
 </script>
 </body>
 </html>
