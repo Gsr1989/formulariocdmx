@@ -42,7 +42,7 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         input, button {
@@ -71,6 +71,19 @@
             color: #8a1538;
             font-weight: bold;
         }
+
+        .btn-cambiar {
+            display: block;
+            text-align: center;
+            background-color: #a83232;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 20px auto;
+            max-width: 400px;
+            font-weight: bold;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -93,8 +106,18 @@
 
     <a href="/seleccionar_entidad">Volver al menú principal</a>
 
+    <a onclick="borrarEntidad()" class="btn-cambiar">Cambiar entidad de este dispositivo</a>
+
     <footer>
         <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
     </footer>
+
+    <script>
+        function borrarEntidad() {
+            localStorage.removeItem('entidad_preferida');
+            alert('Entidad eliminada. Puedes seleccionar una nueva.');
+            window.location.href = "/seleccionar_entidad";
+        }
+    </script>
 </body>
 </html>
