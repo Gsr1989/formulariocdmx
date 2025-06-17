@@ -195,7 +195,7 @@ def formulario_guerrero():
 
         _guardar(fol, "Guerrero", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f_exp_iso, f_ven_iso, d["nombre"])
     return render_template("exitoso.html", folio=fol, guerrero=True)
-    return render_template("formulario_guerrero.html")
+return render_template("formulario_guerrero.html")
 
 @app.route("/abrir_pdf_guerrero/<folio>")
 def abrir_pdf_guerrero(folio):
