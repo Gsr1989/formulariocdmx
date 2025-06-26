@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
+<!DOCTYPE html><html lang="es">
 <head>
     <meta charset="UTF-8">
     <title>Registro Guerrero</title>
@@ -13,130 +12,138 @@
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-        }
+        }header, footer {
+        width: 100%;
+        background-color: #8a1538;
+        text-align: center;
+    }
 
-        header, footer {
-            width: 100%;
-            background-color: #8a1538;
-            text-align: center;
-        }
+    header img, footer img {
+        width: 100%;
+        max-width: 500px;
+    }
 
-        header img, footer img {
-            width: 100%;
-            max-width: 500px;
-        }
+    h2 {
+        margin: 30px 0 20px;
+        font-size: 22px;
+        color: #333;
+    }
 
-        h2 {
-            margin: 30px 0 20px;
-            font-size: 22px;
-            color: #333;
-        }
+    form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        width: 90%;
+        max-width: 400px;
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+    }
 
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: 90%;
-            max-width: 400px;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
-            margin-bottom: 20px;
-        }
+    input, button, textarea {
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        width: 100%;
+        text-transform: uppercase;
+    }
 
-        input, button, textarea {
-            padding: 10px;
-            font-size: 16px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            width: 100%;
-            text-transform: uppercase;
-        }
+    button {
+        background-color: #bc2b29;
+        color: white;
+        font-weight: bold;
+        cursor: pointer;
+        border: none;
+    }
 
-        button {
-            background-color: #bc2b29;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            border: none;
-        }
+    button:hover {
+        opacity: 0.9;
+    }
 
-        button:hover {
-            opacity: 0.9;
-        }
+    a {
+        text-decoration: none;
+        margin-top: 10px;
+        color: #8a1538;
+        font-weight: bold;
+    }
 
-        a {
-            text-decoration: none;
-            margin-top: 10px;
-            color: #8a1538;
-            font-weight: bold;
-        }
+    .btn-cambiar {
+        display: block;
+        text-align: center;
+        background-color: #a83232;
+        color: white;
+        padding: 12px;
+        border-radius: 8px;
+        margin: 20px auto 10px;
+        max-width: 400px;
+        font-weight: bold;
+        text-decoration: none;
+    }
 
-        .btn-cambiar {
-            display: block;
-            text-align: center;
-            background-color: #a83232;
-            color: white;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 20px auto 10px;
-            max-width: 400px;
-            font-weight: bold;
-            text-decoration: none;
-        }
+    #observaciones {
+        width: 90%;
+        max-width: 400px;
+        margin-top: 0;
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        text-transform: uppercase;
+        overflow: hidden;
+        resize: none;
+    }
+</style>
 
-        #observaciones {
-            width: 90%;
-            max-width: 400px;
-            margin-top: 0;
-            padding: 10px;
-            font-size: 16px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            text-transform: uppercase;
-            overflow: hidden;
-            resize: none;
-        }
-    </style>
 </head>
 <body>
     <header>
         <img src="{{ url_for('static', filename='logo.png') }}" alt="Encabezado">
-    </header>
+    </header><h2>Registro Guerrero</h2>
 
-    <h2>Registro Guerrero</h2>
+<form method="POST">
+    <input type="text" name="marca" placeholder="Marca" required maxlength="20" autocomplete="off" oninput="this.value = this.value.toUpperCase(); saltar(this)">
+    <input type="text" name="linea" placeholder="Línea" required maxlength="20" autocomplete="off" oninput="this.value = this.value.toUpperCase(); saltar(this)">
+    <input type="text" name="anio" placeholder="Modelo / Año" required maxlength="4" autocomplete="off" oninput="this.value = this.value.toUpperCase(); saltar(this)">
+    <input type="text" name="serie" placeholder="Número de Serie" required maxlength="17" autocomplete="off" oninput="this.value = this.value.toUpperCase(); saltar(this)">
+    <input type="text" name="motor" placeholder="Número de Motor" required maxlength="17" autocomplete="off" oninput="this.value = this.value.toUpperCase(); saltar(this)">
+    <input type="text" name="color" placeholder="Color" required maxlength="20" autocomplete="off" oninput="this.value = this.value.toUpperCase(); saltar(this)">
+    <input type="text" name="nombre" placeholder="Nombre del Contribuyente" required maxlength="50" autocomplete="off" oninput="this.value = this.value.toUpperCase();">
+    <button type="submit">Generar Permiso</button>
+</form>
 
-    <form method="POST">
-        <input type="text" name="marca" placeholder="Marca" required>
-        <input type="text" name="linea" placeholder="Línea" required>
-        <input type="text" name="anio" placeholder="Modelo / Año" required>
-        <input type="text" name="serie" placeholder="Número de Serie" required>
-        <input type="text" name="motor" placeholder="Número de Motor" required>
-        <input type="text" name="color" placeholder="Color" required>
-        <input type="text" name="nombre" placeholder="Nombre del Contribuyente" required>
-        <button type="submit">Generar Permiso</button>
-    </form>
+<a onclick="borrarEntidad()" class="btn-cambiar">Cambiar entidad de este dispositivo</a>
 
-    <a onclick="borrarEntidad()" class="btn-cambiar">Cambiar entidad de este dispositivo</a>
+<textarea id="observaciones" name="observaciones" placeholder="Observaciones (opcional)" oninput="ajustarAltura(this); this.value = this.value.toUpperCase();"></textarea>
 
-    <textarea id="observaciones" placeholder="Observaciones (opcional)" oninput="ajustarAltura(this)"></textarea>
+<footer>
+    <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
+</footer>
 
-    <footer>
-        <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
-    </footer>
+<script>
+    function borrarEntidad() {
+        localStorage.removeItem('entidad_preferida');
+        alert('Entidad eliminada. Puedes seleccionar una nueva.');
+        window.location.href = "/seleccionar_entidad";
+    }
 
-    <script>
-        function borrarEntidad() {
-            localStorage.removeItem('entidad_preferida');
-            alert('Entidad eliminada. Puedes seleccionar una nueva.');
-            window.location.href = "/seleccionar_entidad";
+    function ajustarAltura(elemento) {
+        elemento.style.height = 'auto';
+        elemento.style.height = (elemento.scrollHeight) + 'px';
+    }
+
+    function saltar(input) {
+        if (input.value.length >= input.maxLength) {
+            let formElements = Array.from(document.querySelectorAll('form input'));
+            let index = formElements.indexOf(input);
+            if (index >= 0 && index < formElements.length - 1) {
+                formElements[index + 1].focus();
+            }
         }
+    }
+</script>
 
-        function ajustarAltura(elemento) {
-            elemento.style.height = 'auto';
-            elemento.style.height = (elemento.scrollHeight) + 'px';
-        }
-    </script>
 </body>
 </html>
