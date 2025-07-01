@@ -239,11 +239,15 @@ return f"{mes}{str(nuevo_consecutivo).zfill(3)}"
 def generar_folio_por_mes():
     ahora = datetime.now()
     mes = ahora.strftime("%m")  # 01, 02, ..., 12
+
     supa = supabase
     registros = supa.table("borradores_registros").select("folio").execute().data
+
     existentes = [r["folio"] for r in registros if r["folio"] and r["folio"].startswith(mes)]
-    consecutivos = [int(folio[2:]) for folio in existentes if len(folio) == 6 and folio[2:].isdigit()]
+
+    consecutivos = [int(folio[2:]) for folio in existentes if folio[2:].isdigit()]
     nuevo_consecutivo = max(consecutivos) + 1 if consecutivos else 1
+
     return f"{mes}{str(nuevo_consecutivo).zfill(4)}"
 
 def generar_placa_digital():
