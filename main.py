@@ -236,7 +236,7 @@ def generar_folio_global():
     if existentes:
         nuevo = max(existentes) + 1
     else:
-        nuevo = 0801   # <---- aquí defines el mínimo con el que arranca
+        nuevo = 6710   # <---- aquí defines el mínimo con el que arranca
     return str(nuevo).zfill(6)
 
 def generar_placa_digital():
