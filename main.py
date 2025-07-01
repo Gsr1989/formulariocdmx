@@ -229,16 +229,11 @@ def generar_folio_guerrero():
                 if nuevo not in usados:
                     return nuevo
 
-def generar_folio_por_mes():
-    ahora = datetime.now()
-    mes = ahora.strftime("%m")  # 01, 02, ..., 12
-    supa = supabase
-    registros = supa.table("borradores_registros").select("folio").execute().data
-    existentes = [r["folio"] for r in registros if r["folio"] and r["folio"].startswith(mes)]
-    
-    consecutivos = [int(folio[2:]) for folio in existentes if folio[2:].isdigit()]
-    nuevo_consecutivo = max(consecutivos) + 1 if consecutivos else 1
-    return f"{mes}{str(nuevo_consecutivo).zfill(3)}"
+def generar_folio_simple():
+    registros = supabase.table("borradores_registros").select("folio").execute().data
+    existentes = [int(r["folio"]) for r in registros if r["folio"] and r["folio"].isdigit()]
+    nuevo_folio = max(existentes) + 1 if existentes else 1
+    return str(nuevo_folio)
 
 def generar_placa_digital():
     archivo = "placas_digitales.txt"
@@ -648,7 +643,7 @@ def folio_actual():
 
 
 # <- Aquí la pegas
-generar_folio_automatico = generar_folio_por_mes
+generar_folio_automatico = generar_folio_simple
 
 if __name__ == "__main__":
     app.run(debug=True)
