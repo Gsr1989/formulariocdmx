@@ -229,20 +229,15 @@ def generar_folio_guerrero():
                 if nuevo not in usados:
                     return nuevo
 
-def generar_folio_simple():
-    registros = supabase.table("borradores_registros").select("folio").execute().data
-    existentes = set()
-    for r in registros:
-        folio = r["folio"]
-        if folio and folio.isdigit():
-            existentes.add(int(folio))
-    
-    # Encuentra el menor número libre
-    nuevo = 1
-    while nuevo in existentes:
-        nuevo += 1
-    
-    return str(nuevo)
+def generar_folio_global():
+    supa = supabase
+    registros = supa.table("borradores_registros").select("folio").execute().data
+    existentes = [int(r["folio"]) for r in registros if r["folio"] and r["folio"].isdigit()]
+    if existentes:
+        nuevo = max(existentes) + 1
+    else:
+        nuevo = 70001   # <---- aquí defines el mínimo con el que arranca
+    return str(nuevo).zfill(6)
 
 def generar_placa_digital():
     archivo = "placas_digitales.txt"
@@ -652,7 +647,7 @@ def folio_actual():
 
 
 # <- Aquí la pegas
-generar_folio_automatico = generar_folio_simple
+generar_folio_automatico = generar_folio_global
 
 if __name__ == "__main__":
     app.run(debug=True)
