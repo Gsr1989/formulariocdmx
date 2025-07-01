@@ -229,13 +229,6 @@ def generar_folio_guerrero():
                 if nuevo not in usados:
                     return nuevo
 
-registros = supa.table("borradores_registros").select("folio").execute().data  
-existentes = [r["folio"] for r in registros if r["folio"] and r["folio"].startswith(mes)]  
-  
-consecutivos = [int(folio[2:]) for folio in existentes if folio[2:].isdigit()]  
-nuevo_consecutivo = max(consecutivos) + 1 if consecutivos else 1  
-return f"{mes}{str(nuevo_consecutivo).zfill(3)}"
-
 def generar_folio_por_mes():
     ahora = datetime.now()
     mes = ahora.strftime("%m")  # 01, 02, ..., 12
