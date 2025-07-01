@@ -237,7 +237,6 @@ nuevo_consecutivo = max(consecutivos) + 1 if consecutivos else 1
 return f"{mes}{str(nuevo_consecutivo).zfill(3)}"
 
 def generar_folio_por_mes():
-def generar_folio_por_mes():
     ahora = datetime.now()
     mes = ahora.strftime("%m")  # 01, 02, ..., 12
     supa = supabase
