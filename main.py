@@ -308,7 +308,6 @@ w=csv.writer(f)
 w.writerow(["folio","entidad","serie","marca","linea","motor","anio","color","fecha_exp","fecha_ven","nombre"])
 for r in regs:
 w.writerow([r["folio"],r["entidad"],r["serie"],r["marca"],r["linea"],r["motor"],r["anio"],r["color"],r["fecha_exp"],r["fecha_ven"],r["nombre"]])
-
 @app.route("/", methods=["GET","POST"])
 def login():
 if request.method=="POST" and request.form.get("user")==USUARIO and request.form.get("pass")==CONTRASENA:
@@ -327,7 +326,7 @@ if "user" not in session:
 return redirect(url_for("login"))
 return render_template("seleccionar_entidad.html")
 
---- Formularios por entidad ---
+# --- Formularios por entidad ---
 
 @app.route("/formulario", methods=["GET","POST"])
 def formulario_cdmx():
@@ -449,211 +448,209 @@ if request.method == "POST":
     return render_template("exitoso.html", folio=fol, morelos=True)  
 
 return render_template("formulario_morelos.html")
-
 @app.route("/formulario_oaxaca", methods=["GET","POST"])
 def formulario_oaxaca():
-if "user" not in session:
-return redirect(url_for("login"))
-if request.method == "POST":
-d = request.form
-fol = generar_folio_automatico()
-ahora = datetime.now()
-f1 = ahora.strftime("%d/%m/%Y")
-f1_iso = ahora.isoformat()
-f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-f_ven_iso = (ahora + timedelta(days=30)).isoformat()
+    if "user" not in session:
+        return redirect(url_for("login"))
+    if request.method == "POST":
+        d = request.form
+        fol = generar_folio_automatico()
+        ahora = datetime.now()
+        f1 = ahora.strftime("%d/%m/%Y")
+        f1_iso = ahora.isoformat()
+        f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+        f_ven_iso = (ahora + timedelta(days=30)).isoformat()
 
-os.makedirs(OUTPUT_DIR, exist_ok=True)  
-    out = os.path.join(OUTPUT_DIR, f"{fol}_oaxaca.pdf")  
-    doc = fitz.open("oaxacachido.pdf")  
-    pg = doc[0]  
-    pg.insert_text(coords_oaxaca["folio"][:2], fol, fontsize=coords_oaxaca["folio"][2], color=coords_oaxaca["folio"][3])  
-    pg.insert_text(coords_oaxaca["fecha1"][:2], f1, fontsize=coords_oaxaca["fecha1"][2], color=coords_oaxaca["fecha1"][3])  
-    pg.insert_text(coords_oaxaca["fecha2"][:2], f1, fontsize=coords_oaxaca["fecha2"][2], color=coords_oaxaca["fecha2"][3])  
-    for key in ["marca", "serie", "linea", "motor", "anio", "color"]:  
-        x, y, s, col = coords_oaxaca[key]  
-        pg.insert_text((x, y), d[key], fontsize=s, color=col)  
-    pg.insert_text(coords_oaxaca["vigencia"][:2], f_ven, fontsize=coords_oaxaca["vigencia"][2], color=coords_oaxaca["vigencia"][3])  
-    pg.insert_text(coords_oaxaca["nombre"][:2], d["nombre"], fontsize=coords_oaxaca["nombre"][2], color=coords_oaxaca["nombre"][3])  
-    doc.save(out); doc.close()  
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        out = os.path.join(OUTPUT_DIR, f"{fol}_oaxaca.pdf")
+        doc = fitz.open("oaxacachido.pdf")
+        pg = doc[0]
+        pg.insert_text(coords_oaxaca["folio"][:2], fol, fontsize=coords_oaxaca["folio"][2], color=coords_oaxaca["folio"][3])
+        pg.insert_text(coords_oaxaca["fecha1"][:2], f1, fontsize=coords_oaxaca["fecha1"][2], color=coords_oaxaca["fecha1"][3])
+        pg.insert_text(coords_oaxaca["fecha2"][:2], f1, fontsize=coords_oaxaca["fecha2"][2], color=coords_oaxaca["fecha2"][3])
+        for key in ["marca", "serie", "linea", "motor", "anio", "color"]:
+            x, y, s, col = coords_oaxaca[key]
+            pg.insert_text((x, y), d[key], fontsize=s, color=col)
+        pg.insert_text(coords_oaxaca["vigencia"][:2], f_ven, fontsize=coords_oaxaca["vigencia"][2], color=coords_oaxaca["vigencia"][3])
+        pg.insert_text(coords_oaxaca["nombre"][:2], d["nombre"], fontsize=coords_oaxaca["nombre"][2], color=coords_oaxaca["nombre"][3])
+        doc.save(out)
+        doc.close()
 
-    _guardar(fol, "Oaxaca", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f1_iso, f_ven_iso, d["nombre"])  
-    return render_template("exitoso.html", folio=fol, oaxaca=True)  
-return render_template("formulario_oaxaca.html")
+        _guardar(fol, "Oaxaca", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f1_iso, f_ven_iso, d["nombre"])
+        return render_template("exitoso.html", folio=fol, oaxaca=True)
+    return render_template("formulario_oaxaca.html")
 
 @app.route("/formulario_gto", methods=["GET","POST"])
 def formulario_gto():
-if "user" not in session:
-return redirect(url_for("login"))
-if request.method == "POST":
-d = request.form
-fol = generar_folio_automatico()
-ahora = datetime.now()
-f_exp = ahora.strftime("%d/%m/%Y")
-f_exp_iso = ahora.isoformat()
-f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-f_ven_iso = (ahora + timedelta(days=30)).isoformat()
+    if "user" not in session:
+        return redirect(url_for("login"))
+    if request.method == "POST":
+        d = request.form
+        fol = generar_folio_automatico()
+        ahora = datetime.now()
+        f_exp = ahora.strftime("%d/%m/%Y")
+        f_exp_iso = ahora.isoformat()
+        f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+        f_ven_iso = (ahora + timedelta(days=30)).isoformat()
 
-os.makedirs(OUTPUT_DIR, exist_ok=True)  
-    out = os.path.join(OUTPUT_DIR, f"{fol}_gto.pdf")  
-    doc = fitz.open("permiso guanajuato.pdf"); pg = doc[0]  
-    pg.insert_text(coords_gto["folio"][:2], fol, fontsize=coords_gto["folio"][2], color=coords_gto["folio"][3])  
-    pg.insert_text(coords_gto["fecha"][:2], f_exp, fontsize=coords_gto["fecha"][2], color=coords_gto["fecha"][3])  
-    for key in ["marca", "serie", "linea", "motor", "anio", "color"]:  
-        x, y, s, col = coords_gto[key]  
-        pg.insert_text((x, y), d[key], fontsize=s, color=col)  
-    pg.insert_text(coords_gto["vigencia"][:2], f_ven, fontsize=coords_gto["vigencia"][2], color=coords_gto["vigencia"][3])  
-    pg.insert_text(coords_gto["nombre"][:2], d["nombre"], fontsize=coords_gto["nombre"][2], color=coords_gto["nombre"][3])  
-    doc.save(out); doc.close()  
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        out = os.path.join(OUTPUT_DIR, f"{fol}_gto.pdf")
+        doc = fitz.open("permiso guanajuato.pdf"); pg = doc[0]
+        pg.insert_text(coords_gto["folio"][:2], fol, fontsize=coords_gto["folio"][2], color=coords_gto["folio"][3])
+        pg.insert_text(coords_gto["fecha"][:2], f_exp, fontsize=coords_gto["fecha"][2], color=coords_gto["fecha"][3])
+        for key in ["marca", "serie", "linea", "motor", "anio", "color"]:
+            x, y, s, col = coords_gto[key]
+            pg.insert_text((x, y), d[key], fontsize=s, color=col)
+        pg.insert_text(coords_gto["vigencia"][:2], f_ven, fontsize=coords_gto["vigencia"][2], color=coords_gto["vigencia"][3])
+        pg.insert_text(coords_gto["nombre"][:2], d["nombre"], fontsize=coords_gto["nombre"][2], color=coords_gto["nombre"][3])
+        doc.save(out); doc.close()
 
-    _guardar(fol, "GTO", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f_exp_iso, f_ven_iso, d["nombre"])  
-    return render_template("exitoso.html", folio=fol, gto=True)  
-return render_template("formulario_gto.html")
+        _guardar(fol, "GTO", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f_exp_iso, f_ven_iso, d["nombre"])
+        return render_template("exitoso.html", folio=fol, gto=True)
+    return render_template("formulario_gto.html")
 
---- LISTAR, ELIMINAR, RENOVAR ---
+# --- LISTAR, ELIMINAR, RENOVAR ---
 
 @app.route("/listar")
 def listar():
-if "user" not in session:
-return redirect(url_for("login"))
-registros = cargar_registros()
-registros.sort(key=lambda x: x["folio"], reverse=True)
-folio_actual = registros[0]["folio"] if registros else "NINGUNO"
-return render_template("listar.html", registros=registros, now=datetime.now(), folio_actual=folio_actual)
+    if "user" not in session:
+        return redirect(url_for("login"))
+    registros = cargar_registros()
+    registros.sort(key=lambda x: x["folio"], reverse=True)
+    folio_actual = registros[0]["folio"] if registros else "NINGUNO"
+    return render_template("listar.html", registros=registros, now=datetime.now(), folio_actual=folio_actual)
 
 @app.route("/editar_folio/<folio>", methods=["GET", "POST"])
 def editar_folio(folio):
-if "user" not in session:
-return redirect(url_for("login"))
+    if "user" not in session:
+        return redirect(url_for("login"))
 
-response = supabase.table("borradores_registros").select("*").eq("folio", folio).execute()  
-if not response.data:  
-    return redirect(url_for("listar"))  
+    response = supabase.table("borradores_registros").select("*").eq("folio", folio).execute()
+    if not response.data:
+        return redirect(url_for("listar"))
 
-actual = response.data[0]  
+    actual = response.data[0]
 
-if request.method == "POST":  
-    nuevos_datos = {  
-        "marca": request.form.get("marca"),  
-        "linea": request.form.get("linea"),  
-        "anio": request.form.get("anio"),  
-        "numero_serie": request.form.get("serie"),  
-        "numero_motor": request.form.get("motor"),  
-        "color": request.form.get("color"),  
-        "contribuyente": request.form.get("nombre")  
-    }  
-    supabase.table("borradores_registros").update(nuevos_datos).eq("folio", folio).execute()  
-    return redirect(url_for("listar"))  
+    if request.method == "POST":
+        nuevos_datos = {
+            "marca": request.form.get("marca"),
+            "linea": request.form.get("linea"),
+            "anio": request.form.get("anio"),
+            "numero_serie": request.form.get("serie"),
+            "numero_motor": request.form.get("motor"),
+            "color": request.form.get("color"),
+            "contribuyente": request.form.get("nombre")
+        }
+        supabase.table("borradores_registros").update(nuevos_datos).eq("folio", folio).execute()
+        return redirect(url_for("listar"))
 
-return render_template("editar_formulario.html", datos=actual)
+    return render_template("editar_formulario.html", datos=actual)
 
 @app.route("/eliminar/<folio>", methods=["POST"])
 def eliminar_folio(folio):
-regs = [r for r in cargar_registros() if r["folio"]!=folio]
-guardar_registros(regs)
-return redirect(url_for("listar"))
+    regs = [r for r in cargar_registros() if r["folio"]!=folio]
+    guardar_registros(regs)
+    return redirect(url_for("listar"))
 
 @app.route("/eliminar_multiples", methods=["POST"])
 def eliminar_multiples():
-folios = request.form.getlist("folios")
-if folios:
-regs = cargar_registros()
-regs = [r for r in regs if r["folio"] not in folios]
-guardar_registros(regs)
-return redirect(url_for("listar"))
+    folios = request.form.getlist("folios")
+    if folios:
+        regs = cargar_registros()
+        regs = [r for r in regs if r["folio"] not in folios]
+        guardar_registros(regs)
+    return redirect(url_for("listar"))
 
 @app.route("/renovar/<folio>")
 def renovar(folio):
-regs = cargar_registros()
-viejo = next((r for r in regs if r["folio"]==folio), None)
-if not viejo:
-return redirect(url_for("listar"))
-venc = datetime.strptime(viejo["fecha_ven"], "%d/%m/%Y")
-if datetime.now() < venc:
-return redirect(url_for("listar"))
-nuevo = generar_folio_automatico()
-ahora = datetime.now()
-exp_f = ahora.strftime("%d/%m/%Y")
-ven_f = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-entidad = viejo["entidad"]
-plantilla = {
-"CDMX":"cdmxdigital2025ppp.pdf",
-"EDOMEX":"edomex_plantilla_alta_res.pdf",
-"Morelos":"morelos_hoja1_imagen.pdf",
-"Oaxaca":"oaxacachido.pdf",
-"GTO":"permiso guanajuato.pdf"
-}[entidad]
-coords_map = {
-"CDMX":coords_cdmx,"EDOMEX":coords_edomex,
-"Morelos":coords_morelos,"Oaxaca":coords_oaxaca,"GTO":coords_gto
-}[entidad]
-clave_exp = "fecha_exp" if "fecha_exp" in coords_map else ("fecha" if "fecha" in coords_map else "fecha1")
-clave_ven = "fecha_ven" if "fecha_ven" in coords_map else ("vigencia" if "vigencia" in coords_map else "fecha2")
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-out = os.path.join(OUTPUT_DIR, f"{nuevo}_{entidad.lower()}.pdf")
-doc = fitz.open(plantilla); pg = doc[0]
-pg.insert_text(coords_map["folio"][:2], nuevo, fontsize=coords_map["folio"][2], color=coords_map["folio"][3])
-pg.insert_text(coords_map[clave_exp][:2], exp_f, fontsize=coords_map[clave_exp][2], color=coords_map[clave_exp][3])
-pg.insert_text(coords_map[clave_ven][:2], ven_f, fontsize=coords_map[clave_ven][2], color=coords_map[clave_ven][3])
-for campo in ["marca","serie","linea","motor","anio","color","nombre"]:
-if campo in coords_map:
-x,y,s,col = coords_map[campo]
-pg.insert_text((x,y), viejo[campo], fontsize=s, color=col)
-# SOLO MORELOS: nueva placa digital en renovación
-if entidad == "Morelos":
-placa = generar_placa_digital()
-x, y, s, col = coords_morelos["placa"]
-pg.insert_text((x, y), placa, fontsize=s, color=col)
-if len(doc)>1:
-pg2 = doc[1]
-x2, y2, s2, col2 = coords_morelos["fecha_hoja2"]
-pg2.insert_text((x2, y2), ven_f, fontsize=s2, color=col2)
-doc.save(out); doc.close()
-guardar(nuevo, entidad, viejo["serie"], viejo["marca"], viejo["linea"], viejo["motor"], viejo["anio"], viejo["color"], exp_f, ven_f, viejo["nombre"])
-return redirect(url_for(f"abrir_pdf{entidad.lower()}", folio=nuevo))
-
---- DESCARGA PDFs ---
+    regs = cargar_registros()
+    viejo = next((r for r in regs if r["folio"]==folio), None)
+    if not viejo:
+        return redirect(url_for("listar"))
+    venc = datetime.strptime(viejo["fecha_ven"], "%d/%m/%Y")
+    if datetime.now() < venc:
+        return redirect(url_for("listar"))
+    nuevo = generar_folio_automatico()
+    ahora = datetime.now()
+    exp_f = ahora.strftime("%d/%m/%Y")
+    ven_f = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+    entidad = viejo["entidad"]
+    plantilla = {
+        "CDMX":"cdmxdigital2025ppp.pdf",
+        "EDOMEX":"edomex_plantilla_alta_res.pdf",
+        "Morelos":"morelos_hoja1_imagen.pdf",
+        "Oaxaca":"oaxacachido.pdf",
+        "GTO":"permiso guanajuato.pdf"
+    }[entidad]
+    coords_map = {
+        "CDMX":coords_cdmx,"EDOMEX":coords_edomex,
+        "Morelos":coords_morelos,"Oaxaca":coords_oaxaca,"GTO":coords_gto
+    }[entidad]
+    clave_exp = "fecha_exp" if "fecha_exp" in coords_map else ("fecha" if "fecha" in coords_map else "fecha1")
+    clave_ven = "fecha_ven" if "fecha_ven" in coords_map else ("vigencia" if "vigencia" in coords_map else "fecha2")
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    out = os.path.join(OUTPUT_DIR, f"{nuevo}_{entidad.lower()}.pdf")
+    doc = fitz.open(plantilla); pg = doc[0]
+    pg.insert_text(coords_map["folio"][:2], nuevo, fontsize=coords_map["folio"][2], color=coords_map["folio"][3])
+    pg.insert_text(coords_map[clave_exp][:2], exp_f, fontsize=coords_map[clave_exp][2], color=coords_map[clave_exp][3])
+    pg.insert_text(coords_map[clave_ven][:2], ven_f, fontsize=coords_map[clave_ven][2], color=coords_map[clave_ven][3])
+    for campo in ["marca","serie","linea","motor","anio","color","nombre"]:
+        if campo in coords_map:
+            x,y,s,col = coords_map[campo]
+            pg.insert_text((x,y), viejo[campo], fontsize=s, color=col)
+    # SOLO MORELOS: nueva placa digital en renovación
+    if entidad == "Morelos":
+        placa = generar_placa_digital()
+        x, y, s, col = coords_morelos["placa"]
+        pg.insert_text((x, y), placa, fontsize=s, color=col)
+    if len(doc)>1:
+        pg2 = doc[1]
+        x2, y2, s2, col2 = coords_morelos["fecha_hoja2"]
+        pg2.insert_text((x2, y2), ven_f, fontsize=s2, color=col2)
+    doc.save(out); doc.close()
+    guardar(nuevo, entidad, viejo["serie"], viejo["marca"], viejo["linea"], viejo["motor"], viejo["anio"], viejo["color"], exp_f, ven_f, viejo["nombre"])
+    return redirect(url_for(f"abrir_pdf{entidad.lower()}", folio=nuevo))
+    # --- DESCARGA PDFs ---
 
 @app.route("/abrir_pdf_cdmx/<folio>")
 def abrir_pdf_cdmx(folio):
-p = os.path.join(OUTPUT_DIR, f"{folio}_cdmx.pdf")
-return send_file(p, as_attachment=True)
+    p = os.path.join(OUTPUT_DIR, f"{folio}_cdmx.pdf")
+    return send_file(p, as_attachment=True)
 
 @app.route("/abrir_pdf_edomex/<folio>")
 def abrir_pdf_edomex(folio):
-p = os.path.join(OUTPUT_DIR, f"{folio}_edomex.pdf")
-return send_file(p, as_attachment=True)
+    p = os.path.join(OUTPUT_DIR, f"{folio}_edomex.pdf")
+    return send_file(p, as_attachment=True)
 
 @app.route("/abrir_pdf_morelos/<folio>")
 def abrir_pdf_morelos(folio):
-p = os.path.join(OUTPUT_DIR, f"{folio}_morelos.pdf")
-return send_file(p, as_attachment=True)
+    p = os.path.join(OUTPUT_DIR, f"{folio}_morelos.pdf")
+    return send_file(p, as_attachment=True)
 
 @app.route("/abrir_pdf_oaxaca/<folio>")
 def abrir_pdf_oaxaca(folio):
-p = os.path.join(OUTPUT_DIR, f"{folio}_oaxaca.pdf")
-return send_file(p, as_attachment=True)
+    p = os.path.join(OUTPUT_DIR, f"{folio}_oaxaca.pdf")
+    return send_file(p, as_attachment=True)
 
 @app.route("/abrir_pdf_gto/<folio>")
 def abrir_pdf_gto(folio):
-p = os.path.join(OUTPUT_DIR, f"{folio}_gto.pdf")
-return send_file(p, as_attachment=True)
+    p = os.path.join(OUTPUT_DIR, f"{folio}_gto.pdf")
+    return send_file(p, as_attachment=True)
 
 @app.route("/folio_actual")
 def folio_actual():
-ruta = "folios_globales.txt"
-if not os.path.exists(ruta):
-return "No hay folios generados aún."
-with open(ruta) as f:
-lineas = [l.strip() for l in f if l.strip()]
-if not lineas:
-return "No hay folios generados aún."
-return f"Folio actual: {lineas[-1]}"
+    ruta = "folios_globales.txt"
+    if not os.path.exists(ruta):
+        return "No hay folios generados aún."
+    with open(ruta) as f:
+        lineas = [l.strip() for l in f if l.strip()]
+    if not lineas:
+        return "No hay folios generados aún."
+    return f"Folio actual: {lineas[-1]}"
 
-<- Aquí la pegas
+# <- Aquí la pegas
 
 generar_folio_automatico = generar_folio_por_mes
 
-if name == "main":
-app.run(debug=True)
-
+if __name__ == "__main__":
+    app.run(debug=True)
