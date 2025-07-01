@@ -209,8 +209,8 @@ def abrir_pdf_guerrero(folio):
 def generar_folio_guerrero():
     letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     supa = supabase
-    inicio_letras = "AX"
-    inicio_num = 6032
+    inicio_letras = "AZ"
+    inicio_num = 2364
 
     existentes = supa.table("borradores_registros").select("folio").eq("entidad", "Guerrero").execute().data
     usados = [r["folio"] for r in existentes if r["folio"] and len(r["folio"]) == 6 and r["folio"][:2].isalpha()]
@@ -237,26 +237,15 @@ nuevo_consecutivo = max(consecutivos) + 1 if consecutivos else 1
 return f"{mes}{str(nuevo_consecutivo).zfill(3)}"
 
 def generar_folio_por_mes():
+def generar_folio_por_mes():
     ahora = datetime.now()
-    mes = ahora.strftime("%m")
+    mes = ahora.strftime("%m")  # 01, 02, ..., 12
     supa = supabase
-
-    # Traer todos los folios del mes
     registros = supa.table("borradores_registros").select("folio").execute().data
     existentes = [r["folio"] for r in registros if r["folio"] and r["folio"].startswith(mes)]
-    consecutivos = sorted([int(folio[2:]) for folio in existentes if folio[2:].isdigit()])
-
-    if not consecutivos:
-        siguiente = 1
-    else:
-        siguiente = 1
-        for n in range(1, max(consecutivos) + 2):
-            if n not in consecutivos:
-                siguiente = n
-                break
-
-    nuevo_folio = f"{mes}{str(siguiente).zfill(3)}"
-    return nuevo_folio
+    consecutivos = [int(folio[2:]) for folio in existentes if len(folio) == 6 and folio[2:].isdigit()]
+    nuevo_consecutivo = max(consecutivos) + 1 if consecutivos else 1
+    return f"{mes}{str(nuevo_consecutivo).zfill(4)}"
 
 def generar_placa_digital():
     archivo = "placas_digitales.txt"
