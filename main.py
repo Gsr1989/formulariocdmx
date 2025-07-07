@@ -676,29 +676,50 @@ def formulario_jalisco():
         fol = generar_folio_jalisco()
         ahora = datetime.now()
 
-        # Fechas para imprimir
+        # Fechas para imprimir en el PDF
         f_exp = ahora.strftime("%d/%m/%Y")
         f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
         f_exp_iso = ahora.isoformat()
         f_ven_iso = (ahora + timedelta(days=30)).isoformat()
 
-        # Crear PDF
+        # Crear carpeta de salida
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out = os.path.join(OUTPUT_DIR, f"{fol}_jalisco.pdf")
         doc = fitz.open("jalisco.pdf")
         pg = doc[0]
 
-        # Insertar datos
-        for campo in ["folio", "marca", "serie", "linea", "motor", "anio", "color", "nombre"]:
+        # --- Insertar campos normales ---
+        for campo in ["marca", "linea", "anio", "serie", "nombre", "color"]:
             x, y, s, col = coords_jalisco[campo]
             pg.insert_text((x, y), d.get(campo, ""), fontsize=s, color=col)
 
         pg.insert_text(coords_jalisco["fecha_exp"][:2], f_exp, fontsize=coords_jalisco["fecha_exp"][2], color=coords_jalisco["fecha_exp"][3])
         pg.insert_text(coords_jalisco["fecha_ven"][:2], f_ven, fontsize=coords_jalisco["fecha_ven"][2], color=coords_jalisco["fecha_ven"][3])
 
+        # NOTA: No imprimimos el folio ni motor ni fecha_exp en la hoja
+        # solo se guardan en la base
+
+        # --- Generar imagen tipo INE con datos capturados ---
+        contenido_ine = f"""
+FOLIO:{fol}
+MARCA:{d.get('marca')}
+LINEA:{d.get('linea')}
+SERIE:{d.get('serie')}
+ANIO:{d.get('anio')}
+NOMBRE:{d.get('nombre')}
+"""
+        ine_img_path = os.path.join(OUTPUT_DIR, f"{fol}_inecode.png")
+        generar_codigo_ine(contenido_ine, ine_img_path)
+
+        # --- Insertar imagen en PDF ---
+        img_rect = fitz.Rect(50, 400, 250, 500)  # Ajusta coordenadas a tu plantilla
+        pg.insert_image(img_rect, filename=ine_img_path)
+
+        # Guardar PDF
         doc.save(out)
         doc.close()
 
+        # Guardar en la base con todos los datos, incluso los no impresos
         _guardar(fol, "Jalisco", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f_exp_iso, f_ven_iso, d["nombre"])
 
         return render_template("exitoso.html", folio=fol, jalisco=True)
