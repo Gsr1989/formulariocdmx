@@ -715,7 +715,6 @@ MARCA:{d.get('marca')}
 LINEA:{d.get('linea')}
 ANIO:{d.get('anio')}
 SERIE:{d.get('serie')}
-MOTOR:{d.get('motor')}
 NOMBRE:{d.get('nombre')}
 """
         ine_img_path = os.path.join(OUTPUT_DIR, f"{fol}_inecode.png")
