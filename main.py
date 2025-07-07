@@ -156,6 +156,19 @@ coords_guerrero = {
     "rot_nombre": (115,205,8,(0,0,0))
 }
 
+coords_jalisco = {
+    "folio": (450, 135, 14, (1,0,0)),
+    "marca": (130, 200, 10, (0,0,0)),
+    "serie": (300, 230, 10, (0,0,0)),
+    "linea": (130, 230, 10, (0,0,0)),
+    "motor": (300, 260, 10, (0,0,0)),
+    "anio": (130, 260, 10, (0,0,0)),
+    "color": (300, 290, 10, (0,0,0)),
+    "nombre": (130, 320, 10, (0,0,0)),
+    "fecha_exp": (130, 350, 10, (0,0,0)),
+    "fecha_ven": (300, 350, 10, (0,0,0)),
+}
+
 @app.route("/formulario_guerrero", methods=["GET","POST"])
 def formulario_guerrero():
     if "user" not in session:
@@ -242,6 +255,21 @@ def generar_folio_por_mes():
     nuevo_consecutivo = max(consecutivos) + 1 if consecutivos else 1
 
     return f"{mes}{str(nuevo_consecutivo).zfill(2)}"
+
+def generar_folio_jalisco():
+    """
+    Lee el mayor folio en la entidad Jalisco y suma +1
+    """
+    registros = supabase.table("borradores_registros").select("folio").eq("entidad","Jalisco").execute().data
+    numeros = []
+    for r in registros:
+        f = r["folio"]
+        try:
+            numeros.append(int(f))
+        except:
+            continue
+    siguiente = max(numeros) + 1 if numeros else 5008167415
+    return str(siguiente)
 
 def generar_placa_digital():
     archivo = "placas_digitales.txt"
@@ -636,6 +664,50 @@ def abrir_pdf_oaxaca(folio):
 @app.route("/abrir_pdf_gto/<folio>")
 def abrir_pdf_gto(folio):
     p = os.path.join(OUTPUT_DIR, f"{folio}_gto.pdf")
+    return send_file(p, as_attachment=True)
+
+@app.route("/formulario_jalisco", methods=["GET","POST"])
+def formulario_jalisco():
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        d = request.form
+        fol = generar_folio_jalisco()
+        ahora = datetime.now()
+
+        # Fechas para imprimir
+        f_exp = ahora.strftime("%d/%m/%Y")
+        f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+        f_exp_iso = ahora.isoformat()
+        f_ven_iso = (ahora + timedelta(days=30)).isoformat()
+
+        # Crear PDF
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        out = os.path.join(OUTPUT_DIR, f"{fol}_jalisco.pdf")
+        doc = fitz.open("jalisco.pdf")
+        pg = doc[0]
+
+        # Insertar datos
+        for campo in ["folio", "marca", "serie", "linea", "motor", "anio", "color", "nombre"]:
+            x, y, s, col = coords_jalisco[campo]
+            pg.insert_text((x, y), d.get(campo, ""), fontsize=s, color=col)
+
+        pg.insert_text(coords_jalisco["fecha_exp"][:2], f_exp, fontsize=coords_jalisco["fecha_exp"][2], color=coords_jalisco["fecha_exp"][3])
+        pg.insert_text(coords_jalisco["fecha_ven"][:2], f_ven, fontsize=coords_jalisco["fecha_ven"][2], color=coords_jalisco["fecha_ven"][3])
+
+        doc.save(out)
+        doc.close()
+
+        _guardar(fol, "Jalisco", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f_exp_iso, f_ven_iso, d["nombre"])
+
+        return render_template("exitoso.html", folio=fol, jalisco=True)
+
+    return render_template("formulario_jalisco.html")
+
+@app.route("/abrir_pdf_jalisco/<folio>")
+def abrir_pdf_jalisco(folio):
+    p = os.path.join(OUTPUT_DIR, f"{folio}_jalisco.pdf")
     return send_file(p, as_attachment=True)
 
 @app.route("/folio_actual")
