@@ -256,22 +256,14 @@ def generar_folio_por_mes():
 
     return f"{mes}{str(nuevo_consecutivo).zfill(2)}"
 
-import qrcode
+import pdf417gen
+from PIL import Image
 
 def generar_codigo_ine(contenido, ruta_salida):
-    """
-    Genera una imagen QR tipo INE con el contenido de texto y la guarda como PNG.
-    """
-    qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=10,
-        border=4,
-    )
-    qr.add_data(contenido)
-    qr.make(fit=True)
-    img = qr.make_image(fill_color="black", back_color="white")
-    img.save(ruta_salida)
+    # Genera los datos PDF417 (como INE)
+    codes = pdf417gen.encode(contenido, columns=6, security_level=5)
+    image = pdf417gen.render_image(codes)  # Devuelve un objeto PIL.Image
+    image.save(ruta_salida)
 
 def generar_folio_jalisco():
     """
