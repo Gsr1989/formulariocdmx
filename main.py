@@ -348,6 +348,21 @@ def guardar_registros(regs):
         for r in regs:
             w.writerow([r["folio"],r["entidad"],r["serie"],r["marca"],r["linea"],r["motor"],r["anio"],r["color"],r["fecha_exp"],r["fecha_ven"],r["nombre"]])
 
+def obtener_folio_representativo():
+    try:
+        with open("folio_representativo.txt") as f:
+            return int(f.read().strip())
+    except FileNotFoundError:
+        with open("folio_representativo.txt", "w") as f:
+            f.write("331997")
+        return 331997
+
+def incrementar_folio_representativo(folio_actual):
+    nuevo = folio_actual + 1
+    with open("folio_representativo.txt", "w") as f:
+        f.write(str(nuevo))
+    return nuevo
+
 @app.route("/", methods=["GET","POST"])
 def login():
     if request.method=="POST" and request.form.get("user")==USUARIO and request.form.get("pass")==CONTRASENA:
@@ -705,12 +720,15 @@ def formulario_jalisco():
         pg.insert_text((930, 391), fol, fontsize=14, color=(0, 0, 0))
 
         # --- Imprimir FOLIO REPRESENTATIVO dos veces ---
-        fol_representativo = "331997"
-        pg.insert_text((328, 804), fol_representativo, fontsize=32, color=(0, 0, 0))
-        pg.insert_text((653, 200), fol_representativo, fontsize=45, color=(0, 0, 0))
+        fol_representativo = int(obtener_folio_representativo())
+        pg.insert_text((328, 804), str(fol_representativo), fontsize=32, color=(0, 0, 0))
+        pg.insert_text((653, 200), str(fol_representativo), fontsize=45, color=(0, 0, 0))
+        incrementar_folio_representativo(fol_representativo)
+
 # --- Imprimir FOLIO con asteriscos al estilo etiqueta ---
         pg.insert_text((930, 615), f"*{fol}*", fontsize=35, color=(0,0,0), fontname="Courier")
         pg.insert_text((1080, 800), "DIGITAL", fontsize=14, color=(0, 0, 0)) 
+        
         # --- Generar imagen tipo INE y colocarla ---
         contenido_ine = f"""
 FOLIO:{fol}
