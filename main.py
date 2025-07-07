@@ -681,96 +681,53 @@ def formulario_jalisco():
         return redirect(url_for("login"))
 
     if request.method == "POST":
-    d = request.form
-    fol = generar_folio_jalisco()
-    ahora = datetime.now()
+        d = request.form
+        fol = generar_folio_jalisco()
+        ahora = datetime.now()
 
-    # Fechas para guardar en Supabase (no se imprimen ya en el PDF)
-    f_exp_iso = ahora.isoformat()
-    f_ven_iso = (ahora + timedelta(days=30)).isoformat()
+        # Fechas para guardar en Supabase (no se imprimen ya en el PDF)
+        f_exp_iso = ahora.isoformat()
+        f_ven_iso = (ahora + timedelta(days=30)).isoformat()
 
-    # Crear carpeta de salida
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-    out = os.path.join(OUTPUT_DIR, f"{fol}_jalisco.pdf")
-    doc = fitz.open("jalisco.pdf")
-    pg = doc[0]
-
-    # --- Insertar campos normales del formulario ---
-    for campo in ["marca", "linea", "anio", "serie", "nombre", "color"]:
-        x, y, s, col = coords_jalisco[campo]
-        pg.insert_text((x, y), d.get(campo, ""), fontsize=s, color=col)
-
-    # --- Imprimir FOLIO generado automáticamente ---
-    pg.insert_text((900, 100), fol, fontsize=14, color=(0, 0, 0))
-
-    # --- Imprimir FOLIO REPRESENTATIVO dos veces ---
-    fol_representativo = "331997"
-    pg.insert_text((900, 150), fol_representativo, fontsize=14, color=(0, 0, 0))
-    pg.insert_text((900, 200), fol_representativo, fontsize=14, color=(0, 0, 0))
-
-    # --- Generar imagen tipo INE y colocarla ---
-    contenido_ine = f"""
-FOLIO:{fol}
-MARCA:{d.get('marca')}
-LINEA:{d.get('linea')}
-ANIO:{d.get('anio')}
-SERIE:{d.get('serie')}
-NOMBRE:{d.get('nombre')}
-"""
-    ine_img_path = os.path.join(OUTPUT_DIR, f"{fol}_inecode.png")
-    generar_codigo_ine(contenido_ine, ine_img_path)
-
-    img_rect = fitz.Rect(882.5, 30, 1127.5, 180)  # Usa tu última configuración que dijiste "ya quedó"
-    pg.insert_image(img_rect, filename=ine_img_path)
-
-    # Guardar PDF
-    doc.save(out)
-    doc.close()
-
-    # Guardar en la base con todos los datos, incluso los no impresos
-    _guardar(fol, "Jalisco", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f_exp_iso, f_ven_iso, d["nombre"])
-
-    return render_template("exitoso.html", folio=fol, jalisco=True)
         # Crear carpeta de salida
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out = os.path.join(OUTPUT_DIR, f"{fol}_jalisco.pdf")
         doc = fitz.open("jalisco.pdf")
         pg = doc[0]
 
-        # --- Insertar campos normales ---
+        # --- Insertar campos normales del formulario ---
         for campo in ["marca", "linea", "anio", "serie", "nombre", "color"]:
             x, y, s, col = coords_jalisco[campo]
             pg.insert_text((x, y), d.get(campo, ""), fontsize=s, color=col)
 
-        pg.insert_text(coords_jalisco["fecha_exp"][:2], f_exp, fontsize=coords_jalisco["fecha_exp"][2], color=coords_jalisco["fecha_exp"][3])
-        pg.insert_text(coords_jalisco["fecha_ven"][:2], f_ven, fontsize=coords_jalisco["fecha_ven"][2], color=coords_jalisco["fecha_ven"][3])
+        # --- Imprimir FOLIO generado automáticamente ---
+        pg.insert_text((900, 100), fol, fontsize=14, color=(0, 0, 0))
 
-        # NOTA: No imprimimos el folio ni motor ni fecha_exp en la hoja
-        # solo se guardan en la base
+        # --- Imprimir FOLIO REPRESENTATIVO dos veces ---
+        fol_representativo = "331997"
+        pg.insert_text((900, 150), fol_representativo, fontsize=14, color=(0, 0, 0))
+        pg.insert_text((900, 200), fol_representativo, fontsize=14, color=(0, 0, 0))
 
-        # --- Generar imagen tipo INE con datos capturados ---
+        # --- Generar imagen tipo INE y colocarla ---
         contenido_ine = f"""
 FOLIO:{fol}
 MARCA:{d.get('marca')}
 LINEA:{d.get('linea')}
 ANIO:{d.get('anio')}
 SERIE:{d.get('serie')}
-MOTOR:{d.get('motor')}
 NOMBRE:{d.get('nombre')}
 """
         ine_img_path = os.path.join(OUTPUT_DIR, f"{fol}_inecode.png")
         generar_codigo_ine(contenido_ine, ine_img_path)
 
-        # --- Insertar imagen en PDF ---
-        img_rect = fitz.Rect(892.5, 20, 1137.5, 170)
-# Altura = 120 - 20 = 100  # Ajusta coordenadas a tu plantilla
+        img_rect = fitz.Rect(882.5, 30, 1127.5, 180)
         pg.insert_image(img_rect, filename=ine_img_path)
 
         # Guardar PDF
         doc.save(out)
         doc.close()
 
-        # Guardar en la base con todos los datos, incluso los no impresos
+        # Guardar en la base con todos los datos
         _guardar(fol, "Jalisco", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f_exp_iso, f_ven_iso, d["nombre"])
 
         return render_template("exitoso.html", folio=fol, jalisco=True)
