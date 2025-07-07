@@ -166,7 +166,7 @@ coords_jalisco = {
     "color": (330, 451, 14, (0,0,0)),
     "nombre": (330, 331, 14, (0,0,0)),
     "fecha_exp": (130, 350, 14, (0,0,0)),
-    "fecha_ven": (320, 550, 60, (0,0,0)),
+    "fecha_ven": (310, 560, 75, (0,0,0)),
 }
 
 @app.route("/formulario_guerrero", methods=["GET","POST"])
@@ -706,8 +706,8 @@ def formulario_jalisco():
 
         # --- Imprimir FOLIO REPRESENTATIVO dos veces ---
         fol_representativo = "331997"
-        pg.insert_text((320, 804), fol_representativo, fontsize=33, color=(0, 0, 0))
-        pg.insert_text((653, 200), fol_representativo, fontsize=47, color=(0, 0, 0))
+        pg.insert_text((325, 804), fol_representativo, fontsize=32, color=(0, 0, 0))
+        pg.insert_text((653, 200), fol_representativo, fontsize=45, color=(0, 0, 0))
 
         # --- Generar imagen tipo INE y colocarla ---
         contenido_ine = f"""
