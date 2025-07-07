@@ -722,7 +722,7 @@ NOMBRE:{d.get('nombre')}
         generar_codigo_ine(contenido_ine, ine_img_path)
 
         # --- Insertar imagen en PDF ---
-        img_rect = fitz.Rect(1000, 20, 1000, 170)  # Ajusta coordenadas a tu plantilla
+        img_rect = fitz.Rect(1250, 20, 1400, 170)  # Ajusta coordenadas a tu plantilla
         pg.insert_image(img_rect, filename=ine_img_path)
 
         # Guardar PDF
