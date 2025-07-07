@@ -79,12 +79,14 @@
       <a id="descargar" class="verde" href="{{ url_for('abrir_pdf_oaxaca', folio=folio) }}">Abrir PDF</a>
     {% elif guerrero %}
       <a id="descargar" class="verde" href="{{ url_for('abrir_pdf_guerrero', folio=folio) }}">Abrir PDF</a>
+    {% elif jalisco %}
+      <a id="descargar" class="verde" href="{{ url_for('abrir_pdf_jalisco', folio=folio) }}">Abrir PDF</a>
     {% endif %}
     <a class="azul" href="{{ url_for('seleccionar_entidad') }}">Volver al Menú</a>
     <a class="rojo" href="{{ url_for('logout') }}">Cerrar Sesión</a>
   </div>
 
-  {% if cdmx or edomex or morelos or gto or oaxaca or guerrero %}
+  {% if cdmx or edomex or morelos or gto or oaxaca or guerrero or jalisco %}
   <div class="modal" id="miModal">
     <div class="modal-contenido">
       <h2>¿Te gustaría activar el folio {{ folio }} ahora mismo?</h2>
@@ -113,6 +115,8 @@
         window.location.href = "https://oaxaca-gob-semovi.onrender.com/registro_admin";
       {% elif guerrero %}
         window.location.href = "https://tlapadecomonfortexpediciondepermisosgob2.onrender.com/registro_admin";
+      {% elif jalisco %}
+        window.location.href = "https://tujalisco.onrender.com/registro_admin";
       {% endif %}
     }
   </script>
