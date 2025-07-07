@@ -702,12 +702,12 @@ def formulario_jalisco():
             pg.insert_text(coords_jalisco["fecha_ven"][:2], (ahora + timedelta(days=30)).strftime("%d/%m/%Y"), fontsize=coords_jalisco["fecha_ven"][2], color=coords_jalisco["fecha_ven"][3])
 
         # --- Imprimir FOLIO generado automáticamente ---
-        pg.insert_text((960, 391), fol, fontsize=14, color=(0, 0, 0))
+        pg.insert_text((930, 391), fol, fontsize=14, color=(0, 0, 0))
 
         # --- Imprimir FOLIO REPRESENTATIVO dos veces ---
         fol_representativo = "331997"
-        pg.insert_text((350, 900), fol_representativo, fontsize=24, color=(0, 0, 0))
-        pg.insert_text((500, 200), fol_representativo, fontsize=24, color=(0, 0, 0))
+        pg.insert_text((450, 900), fol_representativo, fontsize=50, color=(0, 0, 0))
+        pg.insert_text((500, 300), fol_representativo, fontsize=35, color=(0, 0, 0))
 
         # --- Generar imagen tipo INE y colocarla ---
         contenido_ine = f"""
@@ -721,7 +721,7 @@ NOMBRE:{d.get('nombre')}
         ine_img_path = os.path.join(OUTPUT_DIR, f"{fol}_inecode.png")
         generar_codigo_ine(contenido_ine, ine_img_path)
 
-        img_rect = fitz.Rect(882.5, 30, 1127.5, 180)
+        img_rect = fitz.Rect(887.5, 25, 1132.5, 175)
         pg.insert_image(img_rect, filename=ine_img_path)
 
         # Guardar PDF
