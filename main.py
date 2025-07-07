@@ -256,6 +256,23 @@ def generar_folio_por_mes():
 
     return f"{mes}{str(nuevo_consecutivo).zfill(2)}"
 
+import qrcode
+
+def generar_codigo_ine(contenido, ruta_salida):
+    """
+    Genera una imagen QR tipo INE con el contenido de texto y la guarda como PNG.
+    """
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,
+        border=4,
+    )
+    qr.add_data(contenido)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+    img.save(ruta_salida)
+
 def generar_folio_jalisco():
     """
     Lee el mayor folio en la entidad Jalisco y suma +1
