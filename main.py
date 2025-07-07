@@ -706,8 +706,8 @@ def formulario_jalisco():
 
         # --- Imprimir FOLIO REPRESENTATIVO dos veces ---
         fol_representativo = "331997"
-        pg.insert_text((900, 150), fol_representativo, fontsize=14, color=(0, 0, 0))
-        pg.insert_text((900, 200), fol_representativo, fontsize=14, color=(0, 0, 0))
+        pg.insert_text((350, 900), fol_representativo, fontsize=24, color=(0, 0, 0))
+        pg.insert_text((500, 200), fol_representativo, fontsize=24, color=(0, 0, 0))
 
         # --- Generar imagen tipo INE y colocarla ---
         contenido_ine = f"""
