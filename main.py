@@ -166,7 +166,7 @@ coords_jalisco = {
     "color": (330, 435, 14, (0,0,0)),
     "nombre": (330, 375, 14, (0,0,0)),
     "fecha_exp": (130, 350, 10, (0,0,0)),
-    "fecha_ven": (350, 450, 14, (0,0,0)),
+    "fecha_ven": (330, 650, 14, (0,0,0)),
 }
 
 @app.route("/formulario_guerrero", methods=["GET","POST"])
