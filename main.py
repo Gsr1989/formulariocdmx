@@ -699,6 +699,7 @@ def formulario_jalisco():
         for campo in ["marca", "linea", "anio", "serie", "nombre", "color"]:
             x, y, s, col = coords_jalisco[campo]
             pg.insert_text((x, y), d.get(campo, ""), fontsize=s, color=col)
+            pg.insert_text(coords_jalisco["fecha_ven"][:2], (ahora + timedelta(days=30)).strftime("%d/%m/%Y"), fontsize=coords_jalisco["fecha_ven"][2], color=coords_jalisco["fecha_ven"][3])
 
         # --- Imprimir FOLIO generado automáticamente ---
         pg.insert_text((960, 391), fol, fontsize=14, color=(0, 0, 0))
