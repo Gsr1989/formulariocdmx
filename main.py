@@ -715,13 +715,14 @@ MARCA:{d.get('marca')}
 LINEA:{d.get('linea')}
 ANIO:{d.get('anio')}
 SERIE:{d.get('serie')}
+MOTOR:{d.get('motor')}
 NOMBRE:{d.get('nombre')}
 """
         ine_img_path = os.path.join(OUTPUT_DIR, f"{fol}_inecode.png")
         generar_codigo_ine(contenido_ine, ine_img_path)
 
         # --- Insertar imagen en PDF ---
-        img_rect = fitz.Rect(1000, 25, 1000, 175)  # Ajusta coordenadas a tu plantilla
+        img_rect = fitz.Rect(1620, 20, 1770, 170)  # Ajusta coordenadas a tu plantilla
         pg.insert_image(img_rect, filename=ine_img_path)
 
         # Guardar PDF
