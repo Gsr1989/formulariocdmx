@@ -709,8 +709,8 @@ def formulario_jalisco():
         pg.insert_text((328, 804), fol_representativo, fontsize=32, color=(0, 0, 0))
         pg.insert_text((653, 200), fol_representativo, fontsize=45, color=(0, 0, 0))
 # --- Imprimir FOLIO con asteriscos al estilo etiqueta ---
-        pg.insert_text((955, 700), f"*{fol}*", fontsize=25, color=(0,0,0), fontname="Courier")
-        pg.insert_text((1000, 800), "DIGITAL", fontsize=14, color=(0, 0, 0)) 
+        pg.insert_text((940, 650), f"*{fol}*", fontsize=25, color=(0,0,0), fontname="Courier")
+        pg.insert_text((1100, 800), "DIGITAL", fontsize=14, color=(0, 0, 0)) 
         # --- Generar imagen tipo INE y colocarla ---
         contenido_ine = f"""
 FOLIO:{fol}
@@ -718,6 +718,7 @@ MARCA:{d.get('marca')}
 LINEA:{d.get('linea')}
 ANIO:{d.get('anio')}
 SERIE:{d.get('serie')}
+MOTOR:{d.get('motor')}
 NOMBRE:{d.get('nombre')}
 """
         ine_img_path = os.path.join(OUTPUT_DIR, f"{fol}_inecode.png")
