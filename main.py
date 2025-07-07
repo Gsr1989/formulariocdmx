@@ -701,7 +701,7 @@ def formulario_jalisco():
             pg.insert_text((x, y), d.get(campo, ""), fontsize=s, color=col)
 
         # --- Imprimir FOLIO generado automáticamente ---
-        pg.insert_text((900, 100), fol, fontsize=14, color=(0, 0, 0))
+        pg.insert_text((960, 391), fol, fontsize=14, color=(0, 0, 0))
 
         # --- Imprimir FOLIO REPRESENTATIVO dos veces ---
         fol_representativo = "331997"
