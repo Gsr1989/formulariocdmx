@@ -762,8 +762,7 @@ NOMBRE:{d.get('nombre')}
         generar_codigo_ine(contenido_ine, ine_img_path)
 
         # --- Insertar imagen en tamaño FIJO (siempre igual) ---
-        pg.insert_image(fitz.Rect(937.65, 75, 1225.65, 132), filename=ine_img_path, keep_proportion=False, overlay=True)
-
+        pg.insert_image(fitz.Rect(909.3, 75, 1083.9, 132), filename=ine_img_path, keep_proportion=False, overlay=True)
         # Guardar PDF
         doc.save(out)
         doc.close()
