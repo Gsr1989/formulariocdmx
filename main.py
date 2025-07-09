@@ -363,13 +363,32 @@ def incrementar_folio_representativo(folio_actual):
         f.write(str(nuevo))
     return nuevo
 
-@app.route("/", methods=["GET","POST"])
+@app.route("/", methods=["GET", "POST"])
 def login():
-    if request.method=="POST" and request.form.get("user")==USUARIO and request.form.get("pass")==CONTRASENA:
-        session["user"]=USUARIO
-        return redirect(url_for("seleccionar_entidad"))
-    return render_template("login.html")
+    if request.method == "POST":
+        user_input = request.form.get("user")
+        pass_input = request.form.get("pass")
 
+        # Validar admin
+        if user_input == USUARIO and pass_input == CONTRASENA:
+            session["user"] = USUARIO
+            session["rol"] = "admin"
+            return redirect(url_for("seleccionar_entidad"))
+
+        # Validar usuario tercero
+        resultado = supabase.table("usuarios_terceros").select("*").eq("username", user_input).eq("password", pass_input).execute()
+        datos = resultado.data
+        if datos:
+            session["user"] = user_input
+            session["rol"] = "tercero"
+            session["entidades_permitidas"] = datos[0].get("entidades_permitidas")
+            return redirect(url_for("panel_tercero"))
+
+        # Fallido
+        return render_template("login.html", error="Credenciales incorrectas")
+
+    return render_template("login.html")
+    
 @app.route("/logout")
 def logout():
     session.clear()
@@ -771,6 +790,42 @@ def folio_actual():
     if not lineas:
         return "No hay folios generados aún."
     return f"Folio actual: {lineas[-1]}"
+
+import json
+
+@app.route("/crear_usuario", methods=["GET", "POST"])
+def crear_usuario():
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        entidades = request.form.getlist("entidades")  # Lista de entidades seleccionadas
+
+        # Serializa la lista para guardarla en texto en Supabase
+        entidades_json = json.dumps(entidades)
+
+        # Guardar en la tabla usuarios_terceros
+        supabase.table("usuarios_terceros").insert({
+            "username": username,
+            "password": password,
+            "entidades_permitidas": entidades_json
+        }).execute()
+
+        return redirect(url_for("seleccionar_entidad"))
+
+    return render_template("crear_usuario.html")
+
+import json
+
+@app.route("/panel_tercero")
+def panel_tercero():
+    if "user" not in session or session.get("rol") != "tercero":
+        return redirect(url_for("login"))
+
+    entidades = json.loads(session.get("entidades_permitidas", "[]"))
+    return render_template("panel_tercero.html", entidades=entidades)
 
 
 # <- Aquí la pegas
