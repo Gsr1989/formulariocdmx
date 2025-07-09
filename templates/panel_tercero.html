@@ -2,16 +2,73 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Panel de Usuario</title>
+    <title>Panel de Tercero</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        header, footer {
+            width: 100%;
+            background-color: #8a1538;
+            text-align: center;
+        }
+        header img, footer img {
+            width: 100%;
+            max-width: 500px;
+        }
+        h2 {
+            margin: 30px 0 20px;
+            font-size: 22px;
+            color: #333;
+        }
+        .botones {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 40px;
+        }
+        .btn {
+            color: white;
+            text-decoration: none;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 16px;
+            width: 100%;
+            text-align: center;
+            border: none;
+            background-color: #8a1538;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+    </style>
 </head>
 <body>
-    <h2>Bienvenido {{ session["user"] }}</h2>
-    <h3>Permisos:</h3>
-    <ul>
-        {% for e in entidades %}
-            <li><a href="/formulario_{{ e|lower }}">{{ e }}</a></li>
+    <header>
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Encabezado">
+    </header>
+
+    <h2>Bienvenido {{ session['user'] }}</h2>
+    <p>Selecciona la entidad a la que tienes acceso:</p>
+
+    <div class="botones">
+        {% for entidad in entidades %}
+            <a href="{{ entidad }}" class="btn">{{ entidad.replace('/formulario_', '').upper() }}</a>
         {% endfor %}
-    </ul>
-    <a href="/logout">Cerrar sesión</a>
+    </div>
+
+    <footer>
+        <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
+    </footer>
 </body>
 </html>
