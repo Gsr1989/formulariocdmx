@@ -396,10 +396,10 @@ def logout():
 
 @app.route("/seleccionar_entidad")
 def seleccionar_entidad():
-    if "user" not in session:
+    if "user" not in session or session.get("rol") != "admin":
         return redirect(url_for("login"))
     return render_template("seleccionar_entidad.html")
-
+    
 # --- Formularios por entidad ---
 @app.route("/formulario", methods=["GET","POST"])
 def formulario_cdmx():
