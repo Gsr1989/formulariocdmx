@@ -761,7 +761,7 @@ NOMBRE:{d.get('nombre')}
         ine_img_path = os.path.join(OUTPUT_DIR, f"{fol}_inecode.png")
         generar_codigo_ine(contenido_ine, ine_img_path)
 
-        img_rect = fitz.Rect(896.65, 30, 1184.65, 101)
+        img_rect = fitz.Rect(921.65, 55, 1353.65, 111.7)
         pg.insert_image(img_rect, filename=ine_img_path)
 
         # Guardar PDF
