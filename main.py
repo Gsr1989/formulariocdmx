@@ -824,8 +824,21 @@ def panel_tercero():
     if "user" not in session or session.get("rol") != "tercero":
         return redirect(url_for("login"))
 
-    entidades = json.loads(session.get("entidades_permitidas", "[]"))
+    # Cargar de supabase el user logueado
+    username = session.get("user")
+    res = supabase.table("usuarios_terceros").select("*").eq("username", username).execute()
+    if not res.data:
+        return redirect(url_for("login"))
+
+    entidades_json = res.data[0]["entidades_permitidas"]
+    try:
+        entidades = json.loads(entidades_json)
+    except Exception:
+        entidades = []
+
     return render_template("panel_tercero.html", entidades=entidades)
+
+
 
 
 # <- Aquí la pegas
