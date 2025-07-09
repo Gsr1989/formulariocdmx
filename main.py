@@ -791,8 +791,6 @@ def folio_actual():
         return "No hay folios generados aún."
     return f"Folio actual: {lineas[-1]}"
 
-import json
-
 @app.route("/crear_usuario", methods=["GET", "POST"])
 def crear_usuario():
     if "user" not in session:
@@ -816,8 +814,6 @@ def crear_usuario():
         return redirect(url_for("seleccionar_entidad"))
 
     return render_template("crear_usuario.html")
-
-import json
 
 @app.route("/panel_tercero")
 def panel_tercero():
