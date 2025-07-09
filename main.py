@@ -744,7 +744,7 @@ def formulario_jalisco():
         pg.insert_text((653, 200), str(fol_representativo), fontsize=45, color=(0, 0, 0))
         incrementar_folio_representativo(fol_representativo)
 
-# --- Imprimir FOLIO con asteriscos al estilo etiqueta ---
+        # --- Imprimir FOLIO con asteriscos al estilo etiqueta ---
         pg.insert_text((910, 620), f"*{fol}*", fontsize=30, color=(0,0,0), fontname="Courier")
         pg.insert_text((1083, 800), "DIGITAL", fontsize=14, color=(0, 0, 0)) 
         
@@ -761,8 +761,9 @@ NOMBRE:{d.get('nombre')}
         ine_img_path = os.path.join(OUTPUT_DIR, f"{fol}_inecode.png")
         generar_codigo_ine(contenido_ine, ine_img_path)
 
-        img_rect = fitz.Rect(921.65, 55, 1353.65, 112)
-        pg.insert_image(img_rect, filename=ine_img_path)
+        # --- Insertar imagen en tamaño FIJO (siempre igual) ---
+        img_rect = fitz.Rect(901.65, 75, 1333.65, 132)
+        pg.insert_image(img_rect, filename=ine_img_path, keep_proportion=False, overlay=True)
 
         # Guardar PDF
         doc.save(out)
