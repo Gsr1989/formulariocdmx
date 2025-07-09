@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Usuario</title>
+</head>
+<body>
+    <h2>Bienvenido {{ session["user"] }}</h2>
+    <h3>Permisos:</h3>
+    <ul>
+        {% for e in entidades %}
+            <li><a href="/formulario_{{ e|lower }}">{{ e }}</a></li>
+        {% endfor %}
+    </ul>
+    <a href="/logout">Cerrar sesión</a>
+</body>
+</html>
