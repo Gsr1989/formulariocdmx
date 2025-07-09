@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Crear usuario 3ro</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px; }
+        h2 { color: #8a1538; }
+        form { background: white; padding: 20px; border-radius: 8px; max-width: 400px; margin: auto; }
+        label { display: block; margin-top: 10px; }
+        input[type="text"], input[type="password"] {
+            width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box;
+        }
+        button {
+            background-color: #8a1538; color: white; border: none;
+            padding: 10px; border-radius: 5px; margin-top: 15px; width: 100%;
+            cursor: pointer;
+        }
+        button:hover { opacity: 0.9; }
+        .checkbox-group { margin-top: 15px; }
+        .checkbox-group label { display: block; }
+    </style>
+</head>
+<body>
+    <h2>Crear usuario para 3ro</h2>
+    <form method="POST">
+        <label for="usuario">Usuario</label>
+        <input type="text" name="usuario" id="usuario" required>
+
+        <label for="password">Contraseña</label>
+        <input type="password" name="password" id="password" required>
+
+        <div class="checkbox-group">
+            <strong>Selecciona accesos:</strong>
+            <label><input type="checkbox" name="entidades" value="CDMX"> CDMX</label>
+            <label><input type="checkbox" name="entidades" value="EDOMEX"> EDOMEX</label>
+            <label><input type="checkbox" name="entidades" value="MORELOS"> Morelos</label>
+            <label><input type="checkbox" name="entidades" value="GUANAJUATO"> Guanajuato</label>
+            <label><input type="checkbox" name="entidades" value="OAXACA"> Oaxaca</label>
+            <label><input type="checkbox" name="entidades" value="GUERRERO"> Guerrero</label>
+            <label><input type="checkbox" name="entidades" value="JALISCO"> Jalisco</label>
+        </div>
+
+        <button type="submit">Crear usuario</button>
+    </form>
+</body>
+</html>
