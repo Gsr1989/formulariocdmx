@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="es">
+<!DOCTYPE html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Permisos Generados</title>
@@ -36,7 +37,9 @@
 </head>
 <body>
   <h2>Permisos Generados</h2>
-  <input id="search" type="text" placeholder="Buscar folio, entidad o nombre..." />  <form method="POST" action="{{ url_for('eliminar_multiples') }}">
+  <input id="search" type="text" placeholder="Buscar folio, entidad o nombre..." />  
+
+  <form method="POST" action="{{ url_for('eliminar_multiples') }}">
     <table id="tabla">
       <thead>
         <tr>
@@ -77,6 +80,10 @@
               <a class="download" href="{{ url_for('abrir_pdf_gto', folio=reg.folio) }}">PDF</a>
             {% elif reg.entidad=='Guerrero' %}
               <a class="download" href="{{ url_for('abrir_pdf_guerrero', folio=reg.folio) }}">PDF</a>
+            {% elif reg.entidad=='Jalisco' %}
+              <a class="download" href="{{ url_for('abrir_pdf_jalisco', folio=reg.folio) }}">PDF</a>
+              <br>
+              <a class="download" style="background:#b58900;" href="{{ url_for('reimprimir_jalisco', folio=reg.folio) }}">Editar/Reimprimir</a>
             {% endif %}
           </td>
           <td>
@@ -96,9 +103,11 @@
         </tr>
         {% endfor %}
       </tbody>
-    </table><button type="submit" class="btn-borrar" onclick="return confirm('¿Eliminar selección?')">Eliminar selección</button>
+    </table>
+    <button type="submit" class="btn-borrar" onclick="return confirm('¿Eliminar selección?')">Eliminar selección</button>
+  </form>
 
-  </form><a href="{{ url_for('seleccionar_entidad') }}" class="btn-back">Volver al Menú</a>
+  <a href="{{ url_for('seleccionar_entidad') }}" class="btn-back">Volver al Menú</a>
 
   <script>
     document.getElementById('search').addEventListener('input', function(){
@@ -113,5 +122,6 @@
         checks[i].checked = master.checked;
       }
     }
-  </script></body>
+  </script>
+</body>
 </html>
