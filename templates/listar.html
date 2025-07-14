@@ -66,25 +66,9 @@
           <td>{{ reg.fecha_ven }}</td>
           <td>{{ reg.nombre }}</td>
           <td>
-            {% if reg.pdf_url %}
-              <a class="download" href="{{ reg.pdf_url }}" target="_blank">PDF</a>
-            {% elif reg.entidad=='CDMX' %}
-              <a class="download" href="{{ url_for('abrir_pdf_cdmx', folio=reg.folio) }}">PDF</a>
-            {% elif reg.entidad=='EDOMEX' %}
-              <a class="download" href="{{ url_for('abrir_pdf_edomex', folio=reg.folio) }}">PDF</a>
-            {% elif reg.entidad=='Morelos' %}
-              <a class="download" href="{{ url_for('abrir_pdf_morelos', folio=reg.folio) }}">PDF</a>
-            {% elif reg.entidad=='Oaxaca' %}
-              <a class="download" href="{{ url_for('abrir_pdf_oaxaca', folio=reg.folio) }}">PDF</a>
-            {% elif reg.entidad=='GTO' %}
-              <a class="download" href="{{ url_for('abrir_pdf_gto', folio=reg.folio) }}">PDF</a>
-            {% elif reg.entidad=='Guerrero' %}
-              <a class="download" href="{{ url_for('abrir_pdf_guerrero', folio=reg.folio) }}">PDF</a>
-            {% elif reg.entidad=='Jalisco' %}
-              <a class="download" href="{{ url_for('abrir_pdf_jalisco', folio=reg.folio) }}">PDF</a>
-              <br>
-              <a class="download" style="background:#b58900;" href="{{ url_for('reimprimir_jalisco', folio=reg.folio) }}">Editar/Reimprimir</a>
-            {% endif %}
+            <a class="download" href="{{ reg.pdf_url if reg.pdf_url else url_for('abrir_pdf', entidad=reg.entidad, folio=reg.folio) }}" target="_blank">PDF</a>
+            <br>
+            <a class="download" style="background:#b58900;" href="{{ url_for('editar_folio', folio=reg.folio) }}">Editar/Reimprimir</a>
           </td>
           <td>
             <form action="{{ url_for('eliminar_folio', folio=reg.folio) }}" method="post" onsubmit="return confirm('¿Eliminar {{ reg.folio }}?');">
