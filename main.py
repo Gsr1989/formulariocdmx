@@ -927,6 +927,19 @@ def reimprimir_jalisco(folio):
     # GET: Renderiza formulario precargado
     return render_template("editar_formulario_jalisco.html", datos=actual)
 
+@app.route("/abrir_pdf/<entidad>/<folio>")
+def abrir_pdf(entidad, folio):
+    # Verifica sesión
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    # Busca en Supabase
+    res = supabase.table("borradores_registros").select("url_pdf").eq("folio", folio).execute()
+    if not res.data or not res.data[0].get("url_pdf"):
+        return "PDF no encontrado o no disponible.", 404
+
+    url_pdf = res.data[0]["url_pdf"]
+    return redirect(url_pdf)
 
 # <- Aquí la pegas
 generar_folio_automatico = generar_folio_por_mes
