@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Permiso Jalisco</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f1f1f1; }
+    form { max-width: 400px; margin: auto; background: #fff; padding: 20px; border-radius: 6px; }
+    input { width: 100%; padding: 8px; margin: 6px 0; border: 1px solid #ccc; border-radius: 4px; }
+    button { background: #8a1538; color: white; padding: 10px; border: none; border-radius: 4px; width: 100%; }
+  </style>
+</head>
+<body>
+  <h2 style="text-align:center;">Editar Permiso Jalisco {{ datos.folio }}</h2>
+  <form method="POST">
+    <input name="marca" placeholder="Marca" value="{{ datos.marca }}">
+    <input name="linea" placeholder="Línea" value="{{ datos.linea }}">
+    <input name="anio" placeholder="Año" value="{{ datos.anio }}">
+    <input name="serie" placeholder="Serie" value="{{ datos.numero_serie }}">
+    <input name="numero_motor" placeholder="Motor" value="{{ datos.numero_motor }}">
+    <input name="color" placeholder="Color" value="{{ datos.color }}">
+    <input name="nombre" placeholder="Nombre del contribuyente" value="{{ datos.contribuyente }}">
+    <button type="submit">Guardar Cambios</button>
+  </form>
+</body>
+</html>
