@@ -600,10 +600,12 @@ def editar_folio(folio):
     response = supabase.table("borradores_registros").select("*").eq("folio", folio).execute()
     if not response.data:
         return redirect(url_for("listar"))
-
+    
     actual = response.data[0]
+    entidad = actual["entidad"]
 
     if request.method == "POST":
+        # Actualiza datos en Supabase
         nuevos_datos = {
             "marca": request.form.get("marca"),
             "linea": request.form.get("linea"),
@@ -611,9 +613,15 @@ def editar_folio(folio):
             "numero_serie": request.form.get("serie"),
             "numero_motor": request.form.get("motor"),
             "color": request.form.get("color"),
-            "contribuyente": request.form.get("nombre")
+            "contribuyente": request.form.get("nombre"),
         }
+
         supabase.table("borradores_registros").update(nuevos_datos).eq("folio", folio).execute()
+
+        # Solo Jalisco: regenera el PDF417 y el PDF
+        if entidad == "Jalisco":
+            generar_pdf_editado_jalisco(folio, nuevos_datos)
+
         return redirect(url_for("listar"))
 
     return render_template("editar_formulario.html", datos=actual)
@@ -835,7 +843,89 @@ def panel_tercero():
 
     return render_template("panel_tercero.html", entidades=entidades)
 
+def generar_pdf_editado_jalisco(folio, datos):
+    ahora = datetime.now()
+    ven_f = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+    f_exp_iso = ahora.isoformat()
+    f_ven_iso = (ahora + timedelta(days=30)).isoformat()
 
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    out_path = os.path.join(OUTPUT_DIR, f"{folio}_jalisco.pdf")
+    doc = fitz.open("jalisco.pdf")
+    pg = doc[0]
+
+    # Insertar datos editados
+    for campo in ["marca", "linea", "anio", "serie", "nombre", "color"]:
+        x, y, s, col = coords_jalisco[campo]
+        valor = datos.get(campo, "")
+        pg.insert_text((x, y), valor, fontsize=s, color=col)
+    
+    # Insertar nueva vigencia
+    pg.insert_text(coords_jalisco["fecha_ven"][:2], ven_f, fontsize=coords_jalisco["fecha_ven"][2], color=coords_jalisco["fecha_ven"][3])
+
+    # Insertar el folio
+    pg.insert_text((930, 391), folio, fontsize=14, color=(0,0,0))
+
+    # Folio representativo (opcional, puedes quitar esto si ya no se actualiza al editar)
+    fol_representativo = int(obtener_folio_representativo())
+    pg.insert_text((328, 804), str(fol_representativo), fontsize=32, color=(0,0,0))
+    pg.insert_text((653, 200), str(fol_representativo), fontsize=45, color=(0,0,0))
+
+    # Formato tipo etiqueta
+    pg.insert_text((910, 620), f"*{folio}*", fontsize=30, color=(0,0,0), fontname="Courier")
+    pg.insert_text((1083, 800), "DIGITAL", fontsize=14, color=(0,0,0)) 
+
+    # Generar nuevo PDF417
+    contenido_ine = f"""
+FOLIO:{folio}
+MARCA:{datos.get('marca')}
+LINEA:{datos.get('linea')}
+ANIO:{datos.get('anio')}
+SERIE:{datos.get('serie')}
+MOTOR:{datos.get('numero_motor')}
+NOMBRE:{datos.get('nombre')}
+"""
+    ine_img_path = os.path.join(OUTPUT_DIR, f"{folio}_inecode.png")
+    generar_codigo_ine(contenido_ine, ine_img_path)
+
+    # Insertar imagen en el PDF
+    pg.insert_image(fitz.Rect(937.65, 75, 1168.955, 132), filename=ine_img_path, keep_proportion=False, overlay=True)
+
+    # Guardar el PDF editado
+    doc.save(out_path)
+    doc.close()
+
+    # Subir a Supabase
+    url_pdf = subir_pdf_supabase(out_path, f"{folio}_jalisco.pdf")
+    supabase.table("borradores_registros").update({"url_pdf": url_pdf}).eq("folio", folio).execute()
+
+@app.route("/reimprimir_jalisco/<folio>", methods=["GET", "POST"])
+def reimprimir_jalisco(folio):
+    if "user" not in session:
+        return redirect(url_for("login"))
+
+    # Obtener datos actuales de Supabase
+    res = supabase.table("borradores_registros").select("*").eq("folio", folio).execute()
+    if not res.data:
+        return redirect(url_for("listar"))
+    actual = res.data[0]
+
+    if request.method == "POST":
+        # Formulario enviado con datos editados
+        nuevos_datos = {
+            "marca": request.form.get("marca"),
+            "linea": request.form.get("linea"),
+            "anio": request.form.get("anio"),
+            "serie": request.form.get("serie"),
+            "numero_motor": request.form.get("numero_motor"),
+            "nombre": request.form.get("nombre"),
+            "color": request.form.get("color"),
+        }
+        generar_pdf_editado_jalisco(folio, nuevos_datos)
+        return redirect(url_for("abrir_pdf_jalisco", folio=folio))
+
+    # GET: Renderiza formulario precargado
+    return render_template("editar_formulario_jalisco.html", datos=actual)
 
 
 # <- Aquí la pegas
