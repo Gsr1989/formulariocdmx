@@ -428,16 +428,21 @@ def formulario_cdmx():
         doc = fitz.open("cdmxdigital2025ppp.pdf")
         pg = doc[0]
 
-        # Insertar texto
-        pg.insert_text(coords_cdmx["folio"][:2], fol, fontsize=coords_cdmx["folio"][2], color=coords_cdmx["folio"][3])
-        pg.insert_text(coords_cdmx["fecha"][:2], fecha_visual, fontsize=coords_cdmx["fecha"][2], color=coords_cdmx["fecha"][3])
+        pg.insert_text(coords_cdmx["folio"][:2], fol,
+                       fontsize=coords_cdmx["folio"][2], color=coords_cdmx["folio"][3])
+        pg.insert_text(coords_cdmx["fecha"][:2], fecha_visual,
+                       fontsize=coords_cdmx["fecha"][2], color=coords_cdmx["fecha"][3])
+
         for key in ["marca", "serie", "linea", "motor", "anio"]:
             x, y, s, col = coords_cdmx[key]
             pg.insert_text((x, y), d[key], fontsize=s, color=col)
-        pg.insert_text(coords_cdmx["vigencia"][:2], vigencia_visual, fontsize=coords_cdmx["vigencia"][2], color=coords_cdmx["vigencia"][3])
-        pg.insert_text(coords_cdmx["nombre"][:2], d["nombre"], fontsize=coords_cdmx["nombre"][2], color=coords_cdmx["nombre"][3])
 
-        # Crear QR
+        pg.insert_text(coords_cdmx["vigencia"][:2], vigencia_visual,
+                       fontsize=coords_cdmx["vigencia"][2], color=coords_cdmx["vigencia"][3])
+        pg.insert_text(coords_cdmx["nombre"][:2], d["nombre"],
+                       fontsize=coords_cdmx["nombre"][2], color=coords_cdmx["nombre"][3])
+
+        # -------- Generar QR de texto --------
         qr_text = (
             f"Folio: {fol}\n"
             f"Marca: {d['marca']}\n"
@@ -460,24 +465,23 @@ def formulario_cdmx():
         qr_path = os.path.join(OUTPUT_DIR, f"{fol}_cdmx_qr.png")
         img.save(qr_path)
 
-        # Posicionar QR: 1.6x1.6 cm al centro abajo de la hoja
-        tam_qr = 1.6 * 28.35  # = 45.36 pts
+        # -------- Insertar QR centrado abajo --------
+        tam_qr = 1.6 * 28.35  # 1.6 cm → 45.36 pts
         ancho_pagina = pg.rect.width
-        alto_pagina = pg.rect.height
-        centro_x = ancho_pagina / 2
-        x0 = centro_x - (tam_qr / 2)
-        x1 = centro_x + (tam_qr / 2)
+
+        x0 = (ancho_pagina / 2) - (tam_qr / 2)
+        x1 = (ancho_pagina / 2) + (tam_qr / 2)
+
         y0 = 14.17  # 0.5 cm desde abajo
         y1 = y0 + tam_qr
 
         qr_rect = fitz.Rect(x0, y0, x1, y1)
         pg.insert_image(qr_rect, filename=qr_path, keep_proportion=False, overlay=True)
+        # --------------------------------------------
 
-        # Guardar PDF
         doc.save(out)
         doc.close()
 
-        # Guardar registro en base de datos
         _guardar(
             fol, "CDMX",
             d["serie"], d["marca"], d["linea"],
