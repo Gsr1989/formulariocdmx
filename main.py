@@ -466,7 +466,8 @@ def formulario_cdmx():
         img.save(qr_path)
 
         # -------- Insertar QR centrado abajo --------
-        tam_qr = 1.6 * 28.35  # 1.6 cm → 45.36 pts        ancho_pagina = pg.rect.width
+        tam_qr = 1.6 * 28.35  # 1.6 cm → 45.36 pts       
+        ancho_pagina = pg.rect.width
 
         x0 = (ancho_pagina / 2) - (tam_qr / 2)-15
         x1 = (ancho_pagina / 2) + (tam_qr / 2)-15
