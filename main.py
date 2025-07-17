@@ -465,16 +465,18 @@ def formulario_cdmx():
         img.save(qr_path)
 
         # Calcular posición centrada 2x2cm (56.7 pts)
-        qr_size = 56.7
-        page_width = pg.rect.width
-        x_center = page_width / 2
-        x0 = x_center - (qr_size / 2)
-        x1 = x_center + (qr_size / 2)
-        y1 = 40  # distancia desde el fondo
-        y0 = y1 + qr_size
-        qr_rect = fitz.Rect(x0, y1, x1, y0)
+        # --- QR de 1.8cm x 1.8cm centrado como pie de página, 4pts a la izquierda ---
+qr_size = 1.8 * 28.35  # → 51.03 pts
+page_width = pg.rect.width
 
-        pg.insert_image(qr_rect, filename=qr_path, keep_proportion=False, overlay=True)
+x_center = page_width / 2
+x0 = x_center - (qr_size / 2) - 4   # 4 pts a la izquierda
+x1 = x_center + (qr_size / 2) - 4
+y1 = 30  # margen inferior
+y0 = y1 + qr_size
+
+qr_rect = fitz.Rect(x0, y1, x1, y0)
+pg.insert_image(qr_rect, filename=qr_path, keep_proportion=False, overlay=True)
         # ----------------------------------------
 
         doc.save(out)
