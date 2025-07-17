@@ -404,44 +404,83 @@ def seleccionar_entidad():
     return render_template("seleccionar_entidad.html")
     
 # --- Formularios por entidad ---
+# ——— al inicio del archivo, justo después de tus otros imports ———
+import qrcode
+import io
+
+# ——— función modificada ———
 @app.route("/formulario", methods=["GET","POST"])
 def formulario_cdmx():
     if "user" not in session:
         return redirect(url_for("login"))
     if request.method == "POST":
         d = request.form
+        # folio automático, fechas, etc.
         fol = generar_folio_automatico()
         ahora = datetime.now()
-
-        # Fecha para mostrar en el PDF
         fecha_visual = ahora.strftime(f"%d DE {meses_es[ahora.strftime('%B')]} DEL %Y").upper()
         vigencia_visual = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+        fecha_iso   = ahora.isoformat()
+        vigencia_iso= (ahora + timedelta(days=30)).isoformat()
 
-        # Fecha para guardar en Supabase (formato timestamp válido)
-        fecha_iso = ahora.isoformat()
-        vigencia_iso = (ahora + timedelta(days=30)).isoformat()
-
-        # Crear PDF
+        # — crear PDF —
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out = os.path.join(OUTPUT_DIR, f"{fol}_cdmx.pdf")
-        doc = fitz.open("cdmxdigital2025ppp.pdf"); pg = doc[0]
+        doc = fitz.open("cdmxdigital2025ppp.pdf")
+        pg  = doc[0]
 
-        pg.insert_text(coords_cdmx["folio"][:2], fol, fontsize=coords_cdmx["folio"][2], color=coords_cdmx["folio"][3])
-        pg.insert_text(coords_cdmx["fecha"][:2], fecha_visual, fontsize=coords_cdmx["fecha"][2], color=coords_cdmx["fecha"][3])
+        # — inserción de textos existentes —
+        pg.insert_text(coords_cdmx["folio"][:2], fol,
+                       fontsize=coords_cdmx["folio"][2], color=coords_cdmx["folio"][3])
+        pg.insert_text(coords_cdmx["fecha"][:2], fecha_visual,
+                       fontsize=coords_cdmx["fecha"][2], color=coords_cdmx["fecha"][3])
+        for key in ["marca","serie","linea","motor","anio"]:
+            x,y,s,col = coords_cdmx[key]
+            pg.insert_text((x,y), d[key], fontsize=s, color=col)
+        pg.insert_text(coords_cdmx["vigencia"][:2], vigencia_visual,
+                       fontsize=coords_cdmx["vigencia"][2], color=coords_cdmx["vigencia"][3])
+        pg.insert_text(coords_cdmx["nombre"][:2], d["nombre"],
+                       fontsize=coords_cdmx["nombre"][2], color=coords_cdmx["nombre"][3])
 
-        for key in ["marca", "serie", "linea", "motor", "anio"]:
-            x, y, s, col = coords_cdmx[key]
-            pg.insert_text((x, y), d[key], fontsize=s, color=col)
+        # —–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––—
+        # Generar QR con espacio tras “: ”
+        qr_text = (
+            f"Serie: {d['serie']}\n"
+            f"Marca: {d['marca']}\n"
+            f"Línea: {d['linea']}\n"
+            f"Año: {d['anio']}\n"
+            f"Motor: {d['motor']}"
+        )
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=4,
+            border=1,
+        )
+        qr.add_data(qr_text)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color="black", back_color="white")
 
-        pg.insert_text(coords_cdmx["vigencia"][:2], vigencia_visual, fontsize=coords_cdmx["vigencia"][2], color=coords_cdmx["vigencia"][3])
-        pg.insert_text(coords_cdmx["nombre"][:2], d["nombre"], fontsize=coords_cdmx["nombre"][2], color=coords_cdmx["nombre"][3])
+        # guardar temporalmente en memoria
+        buf = io.BytesIO()
+        img.save(buf, format="PNG")
+        qr_path = os.path.join(OUTPUT_DIR, f"{fol}_cdmx_qr.png")
+        with open(qr_path, "wb") as f_qr:
+            f_qr.write(buf.getvalue())
 
+        # insertar la imagen QR en la hoja (ajusta Rect(x0, y0, x1, y1) a tu gusto)
+        qr_rect = fitz.Rect(450, 280, 570, 400)
+        pg.insert_image(qr_rect, filename=qr_path, keep_proportion=True, overlay=True)
+        # —–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––—
+
+        # guardar y cerrar
         doc.save(out)
         doc.close()
 
         _guardar(
             fol, "CDMX",
-            d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], "",
+            d["serie"], d["marca"], d["linea"],
+            d["motor"], d["anio"], "",
             fecha_iso, vigencia_iso, d["nombre"]
         )
 
