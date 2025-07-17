@@ -470,7 +470,7 @@ def formulario_cdmx():
             f_qr.write(buf.getvalue())
 
         # insertar la imagen QR en la hoja (ajusta Rect(x0, y0, x1, y1) a tu gusto)
-        qr_rect = fitz.Rect(350, 240, 800, 300)
+        qr_rect = fitz.Rect(350, 200, 350, 700)
         pg.insert_image(qr_rect, filename=qr_path, keep_proportion=True, overlay=True)
         # —–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––—
 
