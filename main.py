@@ -465,19 +465,39 @@ def formulario_cdmx():
         img.save(qr_path)
 
         # Calcular posición centrada 2x2cm (56.7 pts)
-        # --- QR de 1.8cm x 1.8cm centrado como pie de página, 4pts a la izquierda ---
-qr_size = 1.8 * 28.35  # → 51.03 pts
-page_width = pg.rect.width
+        # -------- QR 1.6cm x 1.6cm, abajo a la izquierda estilo validación SEMOVI --------
+qr_text = (
+    f"Folio: {fol}\n"
+    f"Marca: {d['marca']}\n"
+    f"Línea: {d['linea']}\n"
+    f"Año: {d['anio']}\n"
+    f"Serie: {d['serie']}\n"
+    f"Motor: {d['motor']}"
+)
 
-x_center = page_width / 2
-x0 = x_center - (qr_size / 2) - 4   # 4 pts a la izquierda
-x1 = x_center + (qr_size / 2) - 4
-y1 = 30  # margen inferior
+qr = qrcode.QRCode(
+    version=1,
+    error_correction=qrcode.constants.ERROR_CORRECT_L,
+    box_size=10,
+    border=2,
+)
+qr.add_data(qr_text)
+qr.make(fit=True)
+img = qr.make_image(fill_color="black", back_color="white")
+
+qr_path = os.path.join(OUTPUT_DIR, f"{fol}_cdmx_qr.png")
+img.save(qr_path)
+
+# Tamaño fijo de 1.6cm x 1.6cm → 45.36 pts
+qr_size = 1.6 * 28.35  # = 45.36
+x0 = 65  # Desde la izquierda
+y1 = 55  # Desde abajo
+x1 = x0 + qr_size
 y0 = y1 + qr_size
 
 qr_rect = fitz.Rect(x0, y1, x1, y0)
 pg.insert_image(qr_rect, filename=qr_path, keep_proportion=False, overlay=True)
-        # ----------------------------------------
+# ----------------------------------------------------------------------------------
 
         doc.save(out)
         doc.close()
