@@ -407,7 +407,6 @@ def seleccionar_entidad():
 # ——— al inicio del archivo, justo después de tus otros imports ———
 import qrcode
 import io
-
 # ——— función modificada ———
 @app.route("/formulario", methods=["GET","POST"])
 def formulario_cdmx():
@@ -473,31 +472,72 @@ qr_text = (
     f"Año: {d['anio']}\n"
     f"Serie: {d['serie']}\n"
     f"Motor: {d['motor']}"
-)
+@app.route("/formulario", methods=["GET", "POST"])
+def formulario_cdmx():
+    if "user" not in session:
+        return redirect(url_for("login"))
 
-qr = qrcode.QRCode(
-    version=1,
-    error_correction=qrcode.constants.ERROR_CORRECT_L,
-    box_size=10,
-    border=2,
-)
-qr.add_data(qr_text)
-qr.make(fit=True)
-img = qr.make_image(fill_color="black", back_color="white")
+    if request.method == "POST":
+        d = request.form
+        fol = generar_folio_automatico()
+        ahora = datetime.now()
+        fecha_visual = ahora.strftime(f"%d DE {meses_es[ahora.strftime('%B')]} DEL %Y").upper()
+        vigencia_visual = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+        fecha_iso = ahora.isoformat()
+        vigencia_iso = (ahora + timedelta(days=30)).isoformat()
 
-qr_path = os.path.join(OUTPUT_DIR, f"{fol}_cdmx_qr.png")
-img.save(qr_path)
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        out = os.path.join(OUTPUT_DIR, f"{fol}_cdmx.pdf")
+        doc = fitz.open("cdmxdigital2025ppp.pdf")
+        pg = doc[0]
 
-# Tamaño fijo de 1.6cm x 1.6cm → 45.36 pts
-qr_size = 1.6 * 28.35  # = 45.36
-x0 = 65  # Desde la izquierda
-y1 = 55  # Desde abajo
-x1 = x0 + qr_size
-y0 = y1 + qr_size
+        pg.insert_text(coords_cdmx["folio"][:2], fol,
+                       fontsize=coords_cdmx["folio"][2], color=coords_cdmx["folio"][3])
+        pg.insert_text(coords_cdmx["fecha"][:2], fecha_visual,
+                       fontsize=coords_cdmx["fecha"][2], color=coords_cdmx["fecha"][3])
 
-qr_rect = fitz.Rect(x0, y1, x1, y0)
-pg.insert_image(qr_rect, filename=qr_path, keep_proportion=False, overlay=True)
-# ----------------------------------------------------------------------------------
+        for key in ["marca", "serie", "linea", "motor", "anio"]:
+            x, y, s, col = coords_cdmx[key]
+            pg.insert_text((x, y), d[key], fontsize=s, color=col)
+
+        pg.insert_text(coords_cdmx["vigencia"][:2], vigencia_visual,
+                       fontsize=coords_cdmx["vigencia"][2], color=coords_cdmx["vigencia"][3])
+        pg.insert_text(coords_cdmx["nombre"][:2], d["nombre"],
+                       fontsize=coords_cdmx["nombre"][2], color=coords_cdmx["nombre"][3])
+
+        # -------- QR estilo SEMOVI: 1.6cm x 1.6cm fijo en la parte inferior izquierda --------
+        qr_text = (
+            f"Folio: {fol}\n"
+            f"Marca: {d['marca']}\n"
+            f"Línea: {d['linea']}\n"
+            f"Año: {d['anio']}\n"
+            f"Serie: {d['serie']}\n"
+            f"Motor: {d['motor']}"
+        )
+
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=2,
+        )
+        qr.add_data(qr_text)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color="black", back_color="white")
+
+        qr_path = os.path.join(OUTPUT_DIR, f"{fol}_cdmx_qr.png")
+        img.save(qr_path)
+
+        # Tamaño fijo de 1.6cm x 1.6cm → 45.36 pts
+        qr_size = 1.6 * 28.35  # 1.6 cm a puntos
+        x0 = 65  # Desde la izquierda
+        y1 = 55  # Desde abajo
+        x1 = x0 + qr_size
+        y0 = y1 + qr_size
+
+        qr_rect = fitz.Rect(x0, y1, x1, y0)
+        pg.insert_image(qr_rect, filename=qr_path, keep_proportion=False, overlay=True)
+        # ----------------------------------------------------------------------------------
 
         doc.save(out)
         doc.close()
@@ -510,6 +550,7 @@ pg.insert_image(qr_rect, filename=qr_path, keep_proportion=False, overlay=True)
         )
 
         return render_template("exitoso.html", folio=fol, cdmx=True)
+
     return render_template("formulario.html")
     
 @app.route("/formulario_edomex", methods=["GET","POST"])
