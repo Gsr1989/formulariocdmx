@@ -441,39 +441,42 @@ def formulario_cdmx():
         pg.insert_text(coords_cdmx["nombre"][:2], d["nombre"],
                        fontsize=coords_cdmx["nombre"][2], color=coords_cdmx["nombre"][3])
 
-        # -------- QR estilo SEMOVI: 1.6cm x 1.6cm fijo en la parte inferior izquierda --------
-        qr_text = (
-            f"Folio: {fol}\n"
-            f"Marca: {d['marca']}\n"
-            f"Línea: {d['linea']}\n"
-            f"Año: {d['anio']}\n"
-            f"Serie: {d['serie']}\n"
-            f"Motor: {d['motor']}"
-        )
+        # -------- QR estilo SEMOVI: 1.6cm x 1.6cm fijo en el pie de página centrado --------
+qr_text = (
+    f"Folio: {fol}\n"
+    f"Marca: {d['marca']}\n"
+    f"Línea: {d['linea']}\n"
+    f"Año: {d['anio']}\n"
+    f"Serie: {d['serie']}\n"
+    f"Motor: {d['motor']}"
+)
 
-        qr = qrcode.QRCode(
-            version=1,
-            error_correction=qrcode.constants.ERROR_CORRECT_L,
-            box_size=10,
-            border=2,
-        )
-        qr.add_data(qr_text)
-        qr.make(fit=True)
-        img = qr.make_image(fill_color="black", back_color="white")
+qr = qrcode.QRCode(
+    version=1,
+    error_correction=qrcode.constants.ERROR_CORRECT_L,
+    box_size=10,
+    border=2,
+)
+qr.add_data(qr_text)
+qr.make(fit=True)
+img = qr.make_image(fill_color="black", back_color="white")
 
-        qr_path = os.path.join(OUTPUT_DIR, f"{fol}_cdmx_qr.png")
-        img.save(qr_path)
+qr_path = os.path.join(OUTPUT_DIR, f"{fol}_cdmx_qr.png")
+img.save(qr_path)
 
-        # Tamaño fijo de 1.6cm x 1.6cm → 45.36 pts
-        qr_size = 1.6 * 28.35  # 1.6 cm a puntos
-        x0 = 65  # Desde la izquierda
-        y1 = 55  # Desde abajo
-        x1 = x0 + qr_size
-        y0 = y1 + qr_size
+# Tamaño fijo de 1.6cm x 1.6cm → 45.36 pts
+qr_size = 1.6 * 28.35  # 1.6 cm en puntos
 
-        qr_rect = fitz.Rect(x0, y1, x1, y0)
-        pg.insert_image(qr_rect, filename=qr_path, keep_proportion=False, overlay=True)
-        # ----------------------------------------------------------------------------------
+page_width = pg.rect.width
+x_center = page_width / 2
+x0 = x_center - (qr_size / 2)
+x1 = x_center + (qr_size / 2)
+y1 = 30  # margen inferior (30 pts desde el fondo)
+y0 = y1 + qr_size
+
+qr_rect = fitz.Rect(x0, y1, x1, y0)
+pg.insert_image(qr_rect, filename=qr_path, keep_proportion=False, overlay=True)
+# ----------------------------------------------------------------------------------
 
         doc.save(out)
         doc.close()
