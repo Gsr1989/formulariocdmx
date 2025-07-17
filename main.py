@@ -472,7 +472,7 @@ def formulario_cdmx():
         x0 = (ancho_pagina / 2) - (tam_qr / 2)
         x1 = (ancho_pagina / 2) + (tam_qr / 2)
 
-        y0 = 14.17  # 0.5 cm desde abajo
+        y0 = 1.17  # 0.5 cm desde abajo
         y1 = y0 + tam_qr
 
         qr_rect = fitz.Rect(x0, y0, x1, y1)
