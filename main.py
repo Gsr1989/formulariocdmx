@@ -413,6 +413,7 @@ import io
 def formulario_cdmx():
     if "user" not in session:
         return redirect(url_for("login"))
+
     if request.method == "POST":
         d = request.form
         fol = generar_folio_automatico()
@@ -427,22 +428,16 @@ def formulario_cdmx():
         doc = fitz.open("cdmxdigital2025ppp.pdf")
         pg = doc[0]
 
-        # Insertar textos en coordenadas
-        pg.insert_text(coords_cdmx["folio"][:2], fol,
-                       fontsize=coords_cdmx["folio"][2], color=coords_cdmx["folio"][3])
-        pg.insert_text(coords_cdmx["fecha"][:2], fecha_visual,
-                       fontsize=coords_cdmx["fecha"][2], color=coords_cdmx["fecha"][3])
-
+        # Insertar texto
+        pg.insert_text(coords_cdmx["folio"][:2], fol, fontsize=coords_cdmx["folio"][2], color=coords_cdmx["folio"][3])
+        pg.insert_text(coords_cdmx["fecha"][:2], fecha_visual, fontsize=coords_cdmx["fecha"][2], color=coords_cdmx["fecha"][3])
         for key in ["marca", "serie", "linea", "motor", "anio"]:
             x, y, s, col = coords_cdmx[key]
             pg.insert_text((x, y), d[key], fontsize=s, color=col)
+        pg.insert_text(coords_cdmx["vigencia"][:2], vigencia_visual, fontsize=coords_cdmx["vigencia"][2], color=coords_cdmx["vigencia"][3])
+        pg.insert_text(coords_cdmx["nombre"][:2], d["nombre"], fontsize=coords_cdmx["nombre"][2], color=coords_cdmx["nombre"][3])
 
-        pg.insert_text(coords_cdmx["vigencia"][:2], vigencia_visual,
-                       fontsize=coords_cdmx["vigencia"][2], color=coords_cdmx["vigencia"][3])
-        pg.insert_text(coords_cdmx["nombre"][:2], d["nombre"],
-                       fontsize=coords_cdmx["nombre"][2], color=coords_cdmx["nombre"][3])
-
-        # -------- QR estilo SEMOVI: 1.6cm x 1.6cm fijo en el pie de página centrado --------
+        # Crear QR
         qr_text = (
             f"Folio: {fol}\n"
             f"Marca: {d['marca']}\n"
@@ -465,30 +460,24 @@ def formulario_cdmx():
         qr_path = os.path.join(OUTPUT_DIR, f"{fol}_cdmx_qr.png")
         img.save(qr_path)
 
-        # Tamaño fijo del QR: 1.6cm = 45.36 pts
-tam_qr = 1.6 * 28.35
+        # Posicionar QR: 1.6x1.6 cm al centro abajo de la hoja
+        tam_qr = 1.6 * 28.35  # = 45.36 pts
+        ancho_pagina = pg.rect.width
+        alto_pagina = pg.rect.height
+        centro_x = ancho_pagina / 2
+        x0 = centro_x - (tam_qr / 2)
+        x1 = centro_x + (tam_qr / 2)
+        y0 = 14.17  # 0.5 cm desde abajo
+        y1 = y0 + tam_qr
 
-# Centro horizontal de la hoja (para centrar QR)
-ancho_pagina = pg.rect.width
-centro_x = ancho_pagina / 2
-x0 = centro_x - (tam_qr / 2)
-x1 = centro_x + (tam_qr / 2)
+        qr_rect = fitz.Rect(x0, y0, x1, y1)
+        pg.insert_image(qr_rect, filename=qr_path, keep_proportion=False, overlay=True)
 
-# Altura total de hoja tamaño carta
-alto_pagina = pg.rect.height
-
-# Dejar 0.5 cm (14.17 pts) de margen inferior
-y0 = 14.17
-y1 = y0 + tam_qr
-
-# Crear el rectángulo
-qr_rect = fitz.Rect(x0, y0, x1, y1)
-pg.insert_image(qr_rect, filename=qr_path, keep_proportion=False, overlay=True)
-        # ----------------------------------------------------------------------------------
-
+        # Guardar PDF
         doc.save(out)
         doc.close()
 
+        # Guardar registro en base de datos
         _guardar(
             fol, "CDMX",
             d["serie"], d["marca"], d["linea"],
@@ -497,8 +486,9 @@ pg.insert_image(qr_rect, filename=qr_path, keep_proportion=False, overlay=True)
         )
 
         return render_template("exitoso.html", folio=fol, cdmx=True)
+
     return render_template("formulario.html")
-    
+
 @app.route("/formulario_edomex", methods=["GET","POST"])
 def formulario_edomex():
     if "user" not in session:
