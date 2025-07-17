@@ -764,7 +764,6 @@ LINEA:{d.get('linea')}
 ANIO:{d.get('anio')}
 SERIE:{d.get('serie')}
 MOTOR:{d.get('motor')}
-NOMBRE:{d.get('nombre')}
 """
         ine_img_path = os.path.join(OUTPUT_DIR, f"{fol}_inecode.png")
         generar_codigo_ine(contenido_ine, ine_img_path)
@@ -781,6 +780,7 @@ NOMBRE:{d.get('nombre')}
         return render_template("exitoso.html", folio=fol, jalisco=True)
 
     return render_template("formulario_jalisco.html")
+
 
 @app.route("/abrir_pdf_jalisco/<folio>")
 def abrir_pdf_jalisco(folio):
