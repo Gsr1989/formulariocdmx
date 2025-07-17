@@ -445,11 +445,12 @@ def formulario_cdmx():
         # —–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––—
         # Generar QR con espacio tras “: ”
         qr_text = (
-            f"Serie: {d['serie']}\n"
-            f"Marca: {d['marca']}\n"
-            f"Línea: {d['linea']}\n"
-            f"Año: {d['anio']}\n"
-            f"Motor: {d['motor']}"
+    f"Folio: {fol}\n"
+    f"Marca: {d['marca']}\n"
+    f"Línea: {d['linea']}\n"
+    f"Año: {d['anio']}\n"
+    f"Serie: {d['serie']}\n"
+    f"Motor: {d['motor']}"
         )
         qr = qrcode.QRCode(
             version=1,
@@ -469,7 +470,7 @@ def formulario_cdmx():
             f_qr.write(buf.getvalue())
 
         # insertar la imagen QR en la hoja (ajusta Rect(x0, y0, x1, y1) a tu gusto)
-        qr_rect = fitz.Rect(450, 280, 570, 400)
+        qr_rect = fitz.Rect(350, 240, 800, 300)
         pg.insert_image(qr_rect, filename=qr_path, keep_proportion=True, overlay=True)
         # —–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––—
 
