@@ -465,18 +465,25 @@ def formulario_cdmx():
         qr_path = os.path.join(OUTPUT_DIR, f"{fol}_cdmx_qr.png")
         img.save(qr_path)
 
-        # Tamaño fijo de 1.6cm x 1.6cm → 45.36 pts
-        qr_size = 1.6 * 28.35  # 1.6 cm en puntos
+        # Tamaño fijo del QR: 1.6cm = 45.36 pts
+tam_qr = 1.6 * 28.35
 
-        page_width = pg.rect.width
-        x_center = page_width / 2
-        x0 = x_center - (qr_size / 2)
-        x1 = x_center + (qr_size / 2)
-        y1 = 30  # margen inferior
-        y0 = y1 + qr_size
+# Centro horizontal de la hoja (para centrar QR)
+ancho_pagina = pg.rect.width
+centro_x = ancho_pagina / 2
+x0 = centro_x - (tam_qr / 2)
+x1 = centro_x + (tam_qr / 2)
 
-        qr_rect = fitz.Rect(x0, y1, x1, y0)
-        pg.insert_image(qr_rect, filename=qr_path, keep_proportion=False, overlay=True)
+# Altura total de hoja tamaño carta
+alto_pagina = pg.rect.height
+
+# Dejar 0.5 cm (14.17 pts) de margen inferior
+y0 = 14.17
+y1 = y0 + tam_qr
+
+# Crear el rectángulo
+qr_rect = fitz.Rect(x0, y0, x1, y1)
+pg.insert_image(qr_rect, filename=qr_path, keep_proportion=False, overlay=True)
         # ----------------------------------------------------------------------------------
 
         doc.save(out)
