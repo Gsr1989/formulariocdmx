@@ -415,66 +415,68 @@ def formulario_cdmx():
         return redirect(url_for("login"))
     if request.method == "POST":
         d = request.form
-        # folio automático, fechas, etc.
         fol = generar_folio_automatico()
         ahora = datetime.now()
         fecha_visual = ahora.strftime(f"%d DE {meses_es[ahora.strftime('%B')]} DEL %Y").upper()
         vigencia_visual = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-        fecha_iso   = ahora.isoformat()
-        vigencia_iso= (ahora + timedelta(days=30)).isoformat()
+        fecha_iso = ahora.isoformat()
+        vigencia_iso = (ahora + timedelta(days=30)).isoformat()
 
-        # — crear PDF —
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out = os.path.join(OUTPUT_DIR, f"{fol}_cdmx.pdf")
         doc = fitz.open("cdmxdigital2025ppp.pdf")
-        pg  = doc[0]
+        pg = doc[0]
 
-        # — inserción de textos existentes —
         pg.insert_text(coords_cdmx["folio"][:2], fol,
                        fontsize=coords_cdmx["folio"][2], color=coords_cdmx["folio"][3])
         pg.insert_text(coords_cdmx["fecha"][:2], fecha_visual,
                        fontsize=coords_cdmx["fecha"][2], color=coords_cdmx["fecha"][3])
-        for key in ["marca","serie","linea","motor","anio"]:
-            x,y,s,col = coords_cdmx[key]
-            pg.insert_text((x,y), d[key], fontsize=s, color=col)
+
+        for key in ["marca", "serie", "linea", "motor", "anio"]:
+            x, y, s, col = coords_cdmx[key]
+            pg.insert_text((x, y), d[key], fontsize=s, color=col)
+
         pg.insert_text(coords_cdmx["vigencia"][:2], vigencia_visual,
                        fontsize=coords_cdmx["vigencia"][2], color=coords_cdmx["vigencia"][3])
         pg.insert_text(coords_cdmx["nombre"][:2], d["nombre"],
                        fontsize=coords_cdmx["nombre"][2], color=coords_cdmx["nombre"][3])
 
-        # —–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––—
-        # Generar QR con espacio tras “: ”
+        # -------- QR centrado abajo 2x2cm --------
         qr_text = (
-    f"Folio: {fol}\n"
-    f"Marca: {d['marca']}\n"
-    f"Línea: {d['linea']}\n"
-    f"Año: {d['anio']}\n"
-    f"Serie: {d['serie']}\n"
-    f"Motor: {d['motor']}"
+            f"Folio: {fol}\n"
+            f"Marca: {d['marca']}\n"
+            f"Línea: {d['linea']}\n"
+            f"Año: {d['anio']}\n"
+            f"Serie: {d['serie']}\n"
+            f"Motor: {d['motor']}"
         )
+
         qr = qrcode.QRCode(
             version=1,
             error_correction=qrcode.constants.ERROR_CORRECT_L,
-            box_size=4,
-            border=1,
+            box_size=10,
+            border=2,
         )
         qr.add_data(qr_text)
         qr.make(fit=True)
         img = qr.make_image(fill_color="black", back_color="white")
 
-        # guardar temporalmente en memoria
-        buf = io.BytesIO()
-        img.save(buf, format="PNG")
         qr_path = os.path.join(OUTPUT_DIR, f"{fol}_cdmx_qr.png")
-        with open(qr_path, "wb") as f_qr:
-            f_qr.write(buf.getvalue())
+        img.save(qr_path)
 
-        # insertar la imagen QR en la hoja (ajusta Rect(x0, y0, x1, y1) a tu gusto)
-        qr_rect = fitz.Rect(350, 200, 350, 700)
-        pg.insert_image(qr_rect, filename=qr_path, keep_proportion=True, overlay=True)
-        # —–––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––—
+        # Calcular posición centrada 2x2cm (56.7 pts)
+        qr_size = 56.7
+        page_width = pg.rect.width
+        x_center = page_width / 2
+        x0 = x_center - (qr_size / 2)
+        x1 = x_center + (qr_size / 2)
+        y1 = 40  # distancia desde el fondo
+        y0 = y1 + qr_size
+        qr_rect = fitz.Rect(x0, y1, x1, y0)
 
-        # guardar y cerrar
+        pg.insert_image(qr_rect, filename=qr_path, keep_proportion=False, overlay=True)
+        # ----------------------------------------
+
         doc.save(out)
         doc.close()
 
