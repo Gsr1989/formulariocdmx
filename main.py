@@ -409,7 +409,7 @@ import qrcode
 import io
 # ——— función modificada ———
 
-        @app.route("/formulario", methods=["GET", "POST"])
+@app.route("/formulario", methods=["GET", "POST"])
 def formulario_cdmx():
     if "user" not in session:
         return redirect(url_for("login"))
