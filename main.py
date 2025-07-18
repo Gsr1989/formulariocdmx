@@ -500,7 +500,10 @@ def formulario_cdmx():
 @app.route("/formulario_edomex", methods=["GET", "POST"])
 def formulario_edomex():
     if request.method == "POST":
-        # 1. Recoge y normaliza los campos del formulario
+        # 1. Generar folio
+        folio = generar_folio_automatico()
+
+        # 2. Recoge y normaliza los campos del formulario
         marca  = request.form["marca"].upper()
         linea  = request.form["linea"].upper()
         anio   = request.form["anio"].upper()
@@ -509,54 +512,53 @@ def formulario_edomex():
         color  = request.form["color"].upper()
         nombre = request.form["nombre"].upper()
 
-        # 2. Abre la plantilla PDF de EDOMEX y selecciona la primera página
-        plantilla = fitz.open("edomex_plantilla_alta_res.pdf")
-        page      = plantilla[0]
-
-        # 3. Calcula fechas de expedición y vencimiento
+        # 3. Fechas de expedición y vencimiento
         ahora     = datetime.now()
         fecha_exp = ahora.strftime("%d/%m/%Y")
         fecha_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
 
-        # 4. Construye un diccionario con todos los valores a insertar
+        # 4. Abre la plantilla y la primera página
+        plantilla = fitz.open("edomex_plantilla_alta_res.pdf")
+        page      = plantilla[0]
+
+        # 5. Preparar valores a insertar, incluyendo folio
         valores = {
+            "folio":     folio,
             "marca":     marca,
             "linea":     linea,
             "anio":      anio,
             "serie":     serie,
             "motor":     motor,
             "color":     color,
-            "nombre":    nombre,
             "fecha_exp": fecha_exp,
-            "fecha_ven": fecha_ven
+            "fecha_ven": fecha_ven,
+            "nombre":    nombre
         }
 
-        # 5. Inserta cada campo de texto usando coords_edomex definido en main.py
+        # 6. Inserta cada texto usando coords_edomex
         for campo, texto in valores.items():
             if campo in coords_edomex:
                 x, y, fontsize, color_rgb = coords_edomex[campo]
-                page.insert_text(
-                    (x, y),
-                    texto,
-                    fontsize=fontsize,
-                    color=color_rgb
-                )
+                page.insert_text((x, y), texto, fontsize=fontsize, color=color_rgb)
 
-        # 6. Genera el código PDF417 con la misma cadena de datos
-        cadena      = f"{marca}|{linea}|{anio}|{serie}|{motor}|{color}|{nombre}"
+        # 7. Genera el PDF417 sólo con folio|marca|línea|año|serie|motor|EDOMEX DIGITAL
+        cadena = f"{folio}|{marca}|{linea}|{anio}|{serie}|{motor}|EDOMEX DIGITAL"
         codes       = encode(cadena, columns=6, security_level=5)
         barcode_img = render_image(codes)
 
-        # 7. Inserta la imagen del PDF417 en la plantilla
+        # 8. Inserta la imagen del código movida 15pt a la izq y 70pt arriba
         buf       = BytesIO()
         barcode_img.save(buf, format="PNG")
         img_bytes = buf.getvalue()
-        # Ajusta este rect según el espacio de tu plantilla
-        # Mover 15pt a la izquierda y 70pt hacia arriba
-        rect = fitz.Rect(25,  80,  325,  160)
+        rect = fitz.Rect(
+            coords_edomex["serie"][0] - 15,   # x0: 15pt más a la izquierda
+            coords_edomex["serie"][1] - 70,   # y0: 70pt más arriba
+            coords_edomex["serie"][0] - 15 + (350-50),  # ancho igual al original (300pt)
+            coords_edomex["serie"][1] - 70 + (330-250)  # alto igual al original (80pt)
+        )
         page.insert_image(rect, stream=img_bytes, keep_proportion=True)
 
-        # 8. Guarda el PDF generado y lo devuelve al cliente
+        # 9. Guarda y envía el PDF
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out_path = os.path.join(OUTPUT_DIR, f"{serie}_{motor}_edomex.pdf")
         plantilla.save(out_path)
@@ -564,7 +566,7 @@ def formulario_edomex():
 
         return send_file(out_path, as_attachment=True)
 
-    # Si es GET, muestra el formulario vacío
+    # Si es GET, renderiza el formulario
     return render_template("formulario_edomex.html")
     
 @app.route("/formulario_morelos", methods=["GET","POST"])
