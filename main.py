@@ -494,16 +494,14 @@ def formulario_cdmx():
     return render_template("formulario.html")
 
 from flask import Flask, request, render_template
+from pdf417gen import encode, render_image
 from io import BytesIO
 import base64
-from pdf417gen import encode, render_image
 
 app = Flask(__name__)
 
 @app.route("/formulario_edomex", methods=["GET", "POST"])
 def formulario_edomex():
-    barcode_base64 = None
-
     if request.method == "POST":
         folio  = request.form.get("folio", "").upper()
         marca  = request.form.get("marca", "").upper()
@@ -514,29 +512,18 @@ def formulario_edomex():
         color  = request.form.get("color", "").upper()
         nombre = request.form.get("nombre", "").upper()
 
-        texto_barcode = (
-            f"FOLIO: {folio}  MARCA: {marca}  LÍNEA: {linea}  "
-            f"AÑO: {anio}  SERIE: {serie}  MOTOR: {motor}  PERMISO EDOMEX"
-        )
-
-        # Generar imagen PDF417
-        codes = encode(texto_barcode, columns=6, security_level=5)
+        texto = f"FOLIO: {folio} MARCA: {marca} LINEA: {linea} AÑO: {anio} SERIE: {serie} MOTOR: {motor} PERMISO EDOMEX"
+        codes = encode(texto, columns=6, security_level=5)
         image = render_image(codes)
+
         buffer = BytesIO()
         image.save(buffer, format="PNG")
         buffer.seek(0)
         barcode_base64 = base64.b64encode(buffer.read()).decode("utf-8")
 
-        return render_template(
-            "formulario_edomex.html",
-            folio=folio,
-            marca=marca,
-            linea=linea,
-            anio=anio,
-            serie=serie,
-            motor=motor,
-            color=color,
-            nombre=nombre,
+        return render_template("formulario_edomex.html",
+            folio=folio, marca=marca, linea=linea, anio=anio,
+            serie=serie, motor=motor, color=color, nombre=nombre,
             barcode_base64=barcode_base64
         )
 
