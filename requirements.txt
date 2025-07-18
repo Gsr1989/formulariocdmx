@@ -2,7 +2,6 @@ flask
 PyMuPDF
 gunicorn
 git+https://github.com/supabase-community/supabase-py
-pdf417gen
+git+https://github.com/kigster/python-pdf417.git
 Pillow
 qrcode[pil]
-reportlab
