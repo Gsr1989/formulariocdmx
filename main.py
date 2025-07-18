@@ -495,15 +495,6 @@ def formulario_cdmx():
 
     return render_template("formulario.html")
 
-from flask import Flask, render_template, request, send_file
-import fitz  # PyMuPDF
-from pdf417gen import encode, render_image
-from io import BytesIO
-import os, base64, datetime
-
-app = Flask(__name__)
-OUTPUT_DIR = "static/pdfs"
-
 @app.route("/formulario_edomex", methods=["GET", "POST"])
 def formulario_edomex():
     if request.method == "POST":
