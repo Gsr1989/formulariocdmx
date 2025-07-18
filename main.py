@@ -504,14 +504,14 @@ from reportlab.lib.utils import ImageReader
 def formulario_edomex():
     if request.method == "POST":
         # ─── Obtener campos y forzar mayúsculas ───────────────────────────────
-        folio = request.form.get("folio", "").upper()
-        marca = request.form.get("marca", "").upper()
-        linea = request.form.get("linea", "").upper()
-        anio  = request.form.get("anio",  "").upper()
-        serie = request.form.get("serie", "").upper()
-        motor = request.form.get("motor", "").upper()
-        color = request.form.get("color", "").upper()
-        nombre= request.form.get("nombre","").upper()
+        folio  = request.form.get("folio", "").upper()
+        marca  = request.form.get("marca", "").upper()
+        linea  = request.form.get("linea", "").upper()
+        anio   = request.form.get("anio", "").upper()
+        serie  = request.form.get("serie", "").upper()
+        motor  = request.form.get("motor", "").upper()
+        color  = request.form.get("color", "").upper()
+        nombre = request.form.get("nombre", "").upper()
 
         # ─── Texto para el PDF417 ──────────────────────────────────────────────
         texto_barcode = (
@@ -521,7 +521,7 @@ def formulario_edomex():
 
         # ─── Generar código de barras PDF417 ───────────────────────────────────
         codes = encode(texto_barcode, columns=6, security_level=5)
-        img  = render_image(codes)
+        img   = render_image(codes)
 
         buf_img = BytesIO()
         img.save(buf_img, format="PNG")
@@ -530,17 +530,16 @@ def formulario_edomex():
         # ─── Crear el PDF ──────────────────────────────────────────────────────
         buf_pdf = BytesIO()
         c = canvas.Canvas(buf_pdf, pagesize=LETTER)
-        c.drawString( 50, 750, f"FOLIO: {folio}" )
-        c.drawString( 50, 730, f"MARCA: {marca}" )
-        c.drawString( 50, 710, f"LÍNEA: {linea}" )
-        c.drawString( 50, 690, f"AÑO: {anio}" )
-        c.drawString( 50, 670, f"SERIE: {serie}" )
-        c.drawString( 50, 650, f"MOTOR: {motor}" )
-        c.drawString( 50, 630, f"COLOR: {color}" )
-        c.drawString( 50, 610, f"NOMBRE: {nombre}" )
-        c.drawString( 50, 590, "PERMISO EDOMEX" )
+        c.drawString(50, 750, f"FOLIO: {folio}")
+        c.drawString(50, 730, f"MARCA: {marca}")
+        c.drawString(50, 710, f"LÍNEA: {linea}")
+        c.drawString(50, 690, f"AÑO: {anio}")
+        c.drawString(50, 670, f"SERIE: {serie}")
+        c.drawString(50, 650, f"MOTOR: {motor}")
+        c.drawString(50, 630, f"COLOR: {color}")
+        c.drawString(50, 610, f"NOMBRE: {nombre}")
+        c.drawString(50, 590, "PERMISO EDOMEX")
 
-        # insertar imagen del código
         qr_reader = ImageReader(buf_img)
         c.drawImage(qr_reader, 50, 450, width=300, height=120, preserveAspectRatio=True)
 
@@ -557,7 +556,6 @@ def formulario_edomex():
 
     # GET → mostrar el formulario
     return render_template("formulario_edomex.html")
-```0
 
 @app.route("/formulario_morelos", methods=["GET","POST"])
 def formulario_morelos():
