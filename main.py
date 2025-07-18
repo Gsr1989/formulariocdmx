@@ -1,10 +1,14 @@
 from flask import Flask, render_template, request, send_file, redirect, url_for, session
+from io import BytesIO
+import base64
+from pdf417gen import encode, render_image
+import qrcode
 from datetime import datetime, timedelta
-import fitz  # PyMuPDF
 import os
 import string
 import csv
 from supabase import create_client, Client
+import json
 
 # Configuración básica
 app = Flask(__name__)
@@ -526,7 +530,7 @@ def formulario_edomex():
         return render_template("formulario_edomex.html", barcode_base64=barcode_base64, **datos)
 
     return render_template("formulario_edomex.html")
-
+    
 @app.route("/formulario_morelos", methods=["GET","POST"])
 def formulario_morelos():
     if "user" not in session:
