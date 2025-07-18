@@ -94,7 +94,10 @@
 </header>
 
 <h2>Formulario EDOMEX</h2>
-<form action="{{ url_for('formulario_edomex') }}" method="POST" autocomplete="off">
+<form action="{{ url_for('formulario_edomex') }}"
+      method="POST"
+      target="_blank"
+      autocomplete="off">
   <label>Marca:
     <input type="text" name="marca" id="marca" required maxlength="20" value="{{ marca|default('') }}">
   </label>
@@ -116,15 +119,8 @@
   <label>Nombre del solicitante:
     <input type="text" name="nombre" id="nombre" required value="{{ nombre|default('') }}">
   </label>
-  <button type="submit">Generar código</button>
+  <button type="submit">Descargar permiso EDOMEX</button>
 </form>
-
-{% if barcode_base64 %}
-  <div style="margin: 20px auto; max-width: 400px;">
-    <h3>Código PDF417 generado:</h3>
-    <img src="data:image/png;base64,{{ barcode_base64 }}" alt="Código PDF417" style="width: 100%; max-width: 350px;">
-  </div>
-{% endif %}
 
 <div class="autobox">
   <label><input type="checkbox" id="modoAuto" checked> Activar detección automática</label>
