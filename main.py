@@ -409,8 +409,6 @@ def seleccionar_entidad():
     
 # --- Formularios por entidad ---
 # ——— al inicio del archivo, justo después de tus otros imports ———
-import qrcode
-import io
 # ——— función modificada ———
 
 @app.route("/formulario", methods=["GET", "POST"])
