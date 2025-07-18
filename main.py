@@ -555,9 +555,7 @@ def formulario_edomex():
     coords_edomex["serie"][1] - 70,                        # y0: sin cambio
     coords_edomex["serie"][0] - 15 + (350 - 50) - 200,      # x1: 200 pt menos (recorte derecha)
     coords_edomex["serie"][1] - 70 + (330 - 250) - 100      # y1: 100 pt menos (recorte abajo)
-)
-```0
-        )
+
         page.insert_image(rect, stream=img_bytes, keep_proportion=True)
 
         # 9. Guarda y envía el PDF
