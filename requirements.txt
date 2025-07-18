@@ -5,3 +5,4 @@ git+https://github.com/supabase-community/supabase-py
 pdf417gen
 Pillow
 qrcode[pil]
+reportlab
