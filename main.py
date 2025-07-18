@@ -540,29 +540,30 @@ def formulario_edomex():
                 page.insert_text((x, y), texto, fontsize=fs, color=col)
 
         # 6. Generar PDF417 sin etiquetas, sólo valores + "EDOMEX DIGITAL"
-        cadena      = f"{folio}|{marca}|{linea}|{anio}|{serie}|{motor}|EDOMEX DIGITAL"
-        codes       = encode(cadena, columns=6, security_level=5)
+        cadena = f"{folio}|{marca}|{linea}|{anio}|{serie}|{motor}|EDOMEX DIGITAL"
+        codes = encode(cadena, columns=6, security_level=5)
         barcode_img = render_image(codes)
 
-        # 7. Insertar el código con tamaño fijo 2"x1" y desplazado 15pt izq y 15pt abajo
-        buf       = BytesIO()
+        # 7. Insertar código con tamaño fijo 2x1 pulgadas y recortado 1cm de ancho
+        buf = BytesIO()
         barcode_img.save(buf, format="PNG")
         img_bytes = buf.getvalue()
-        orig_w = 2 * 72   # 2 pulgadas → 144pt
-        orig_h = 1 * 72   # 1 pulgada → 72pt
 
-        # toma la posición actual y le quita 200pt, luego ajuste extra
-        x0 = coords_edomex["serie"][0] - 200 - 15
-        y0 = coords_edomex["serie"][1] - 160 + 15
+        width_pt  = (2 * 72) - 28.35  # 2 pulgadas menos 1 cm
+        height_pt = 1 * 72            # 1 pulgada exacta
+
+        base_x = coords_edomex["serie"][0] - 200 - 15  # posición original - 215 pt
+        base_y = coords_edomex["serie"][1] - 160 + 15  # posición original - 145 pt
+
         rect = fitz.Rect(
-            x0,
-            y0,
-            x0 + orig_w,
-            y0 + orig_h
+            base_x,
+            base_y,
+            base_x + width_pt,
+            base_y + height_pt
         )
-        page.insert_image(rect, stream=img_bytes, keep_proportion=True)
+        page.insert_image(rect, stream=img_bytes, keep_proportion=False)
 
-        # 8. Guardar y devolver el PDF
+        # 8. Guardar y enviar
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out_path = os.path.join(OUTPUT_DIR, f"{serie}_{motor}_edomex.pdf")
         plantilla.save(out_path)
@@ -570,7 +571,7 @@ def formulario_edomex():
         return send_file(out_path, as_attachment=True)
 
     return render_template("formulario_edomex.html")
-
+    
 @app.route("/formulario_morelos", methods=["GET","POST"])
 def formulario_morelos():
     if "user" not in session:
