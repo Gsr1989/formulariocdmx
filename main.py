@@ -544,23 +544,23 @@ def formulario_edomex():
         codes       = encode(cadena, columns=6, security_level=5)
         barcode_img = render_image(codes)
 
-        # 7. Insertar el código con tamaño fijo 2"x1" y desplazado 10pt a la izquierda
+        # 7. Insertar el código con tamaño fijo 2"x1" y desplazado 15pt izq y 15pt abajo
         buf       = BytesIO()
         barcode_img.save(buf, format="PNG")
         img_bytes = buf.getvalue()
         orig_w = 2 * 72   # 2 pulgadas → 144pt
         orig_h = 1 * 72   # 1 pulgada → 72pt
 
-        # toma la posición actual y solo le resta 10pt en x
-        x0 = coords_edomex["serie"][0] - 10
-        y0 = coords_edomex["serie"][1]
+        # toma la posición actual y le quita 200pt, luego ajuste extra
+        x0 = coords_edomex["serie"][0] - 200 - 15
+        y0 = coords_edomex["serie"][1] - 160 + 15
         rect = fitz.Rect(
             x0,
             y0,
             x0 + orig_w,
             y0 + orig_h
         )
-        page.insert_image(rect, stream=img_bytes, keep_proportion=False)
+        page.insert_image(rect, stream=img_bytes, keep_proportion=True)
 
         # 8. Guardar y devolver el PDF
         os.makedirs(OUTPUT_DIR, exist_ok=True)
