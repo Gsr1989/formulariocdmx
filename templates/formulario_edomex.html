@@ -119,10 +119,10 @@
   <button type="submit">Generar código</button>
 </form>
 
-{% if barcode_data %}
+{% if barcode_base64 %}
   <div style="margin: 20px auto; max-width: 400px;">
     <h3>Código PDF417 generado:</h3>
-    <img src="{{ barcode_data }}" alt="Código PDF417" style="width: 100%; max-width: 350px;">
+    <img src="data:image/png;base64,{{ barcode_base64 }}" alt="Código PDF417" style="width: 100%; max-width: 350px;">
   </div>
 {% endif %}
 
