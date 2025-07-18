@@ -497,61 +497,39 @@ from flask import Flask, request, send_file, render_template from io import Byte
 
 app = Flask(name)
 
-@app.route("/formulario_edomex", methods=["GET", "POST"]) def formulario_edomex(): if request.method == "POST": folio  = request.form.get("folio", "").upper() marca  = request.form.get("marca", "").upper() linea  = request.form.get("linea", "").upper() anio   = request.form.get("anio", "").upper() serie  = request.form.get("serie", "").upper() motor  = request.form.get("motor", "").upper() color  = request.form.get("color", "").upper() nombre = request.form.get("nombre", "").upper()
+@app.route("/formulario_edomex", methods=["GET", "POST"])
+def formulario_edomex():
+    if request.method == "POST":
+        marca = request.form.get("marca", "").upper()
+        linea = request.form.get("linea", "").upper()
+        anio = request.form.get("anio", "").upper()
+        serie = request.form.get("serie", "").upper()
+        motor = request.form.get("motor", "").upper()
+        color = request.form.get("color", "").upper()
+        nombre = request.form.get("nombre", "").upper()
 
-texto_barcode = (
-        f"FOLIO: {folio}  MARCA: {marca}  LÍNEA: {linea}  "
-        f"AÑO: {anio}  SERIE: {serie}  MOTOR: {motor}  PERMISO EDOMEX"
-    )
+        datos = {
+            "marca": marca,
+            "linea": linea,
+            "anio": anio,
+            "serie": serie,
+            "motor": motor,
+            "color": color,
+            "nombre": nombre
+        }
 
-    # Generar imagen del código de barras PDF417
-    codes = encode(texto_barcode, columns=6, security_level=5)
-    barcode_img = render_image(codes)
-    barcode_buffer = BytesIO()
-    barcode_img.save(barcode_buffer, format='PNG')
-    barcode_buffer.seek(0)
+        # Generar cadena y código PDF417
+        cadena = f"{marca}|{linea}|{anio}|{serie}|{motor}|{color}|{nombre}"
+        codes = pdf417gen.encode(cadena, columns=6, security_level=5)
+        image = pdf417gen.render_image(codes)  # PIL image
 
-    # Crear overlay con los datos
-    overlay_buffer = BytesIO()
-    c = canvas.Canvas(overlay_buffer, pagesize=LETTER)
-    c.setFont("Helvetica", 10)
-    c.drawString(120, 680, marca)
-    c.drawString(120, 660, linea)
-    c.drawString(120, 640, anio)
-    c.drawString(120, 620, serie)
-    c.drawString(120, 600, motor)
-    c.drawString(350, 600, color)
-    c.drawString(300, 570, nombre)
-    c.drawString(50, 550, f"FOLIO: {folio}")
+        buffered = BytesIO()
+        image.save(buffered, format="PNG")
+        barcode_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
 
-    # Insertar el código PDF417 en coordenadas específicas
-    c.drawImage(ImageReader(barcode_buffer), 50, 450, width=300, height=100)
+        return render_template("edomex.html", barcode_base64=barcode_base64, **datos)
 
-    c.showPage()
-    c.save()
-    overlay_buffer.seek(0)
-
-    plantilla = PdfReader("edomex_plantilla_alta_res.pdf")
-    overlay = PdfReader(overlay_buffer)
-    salida = PdfWriter()
-
-    page = plantilla.pages[0]
-    page.merge_page(overlay.pages[0])
-    salida.add_page(page)
-
-    final_pdf = BytesIO()
-    salida.write(final_pdf)
-    final_pdf.seek(0)
-
-    return send_file(
-        final_pdf,
-        as_attachment=True,
-        download_name=f"permiso_edomex_{folio}.pdf",
-        mimetype="application/pdf"
-    )
-
-return render_template("formulario_edomex.html")
-
+    return render_template("edomex.html")
 
 @app.route("/formulario_morelos", methods=["GET","POST"])
 def formulario_morelos():
