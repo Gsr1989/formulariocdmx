@@ -495,37 +495,56 @@ def formulario_cdmx():
 
     return render_template("formulario.html")
 
+from flask import Flask, render_template, request, send_file
+import fitz  # PyMuPDF
+from pdf417gen import encode, render_image
+from io import BytesIO
+import os, base64, datetime
+
+app = Flask(__name__)
+OUTPUT_DIR = "static/pdfs"
+
 @app.route("/formulario_edomex", methods=["GET", "POST"])
 def formulario_edomex():
     if request.method == "POST":
-        marca = request.form.get("marca", "").upper()
-        linea = request.form.get("linea", "").upper()
-        anio = request.form.get("anio", "").upper()
-        serie = request.form.get("serie", "").upper()
-        motor = request.form.get("motor", "").upper()
-        color = request.form.get("color", "").upper()
-        nombre = request.form.get("nombre", "").upper()
+        # 1. Recoge los campos
+        marca  = request.form["marca"].upper()
+        linea  = request.form["linea"].upper()
+        anio   = request.form["anio"].upper()
+        serie  = request.form["serie"].upper()
+        motor  = request.form["motor"].upper()
+        color  = request.form["color"].upper()
+        nombre = request.form["nombre"].upper()
 
-        datos = {
-            "marca": marca,
-            "linea": linea,
-            "anio": anio,
-            "serie": serie,
-            "motor": motor,
-            "color": color,
-            "nombre": nombre
-        }
-
-        # Generar código PDF417
+        # 2. Genera la cadena y el image PIL
         cadena = f"{marca}|{linea}|{anio}|{serie}|{motor}|{color}|{nombre}"
-        codes = encode(cadena, columns=6, security_level=5)
-        image = render_image(codes)
+        codes  = encode(cadena, columns=6, security_level=5)
+        barcode_img = render_image(codes)
 
-        buffer = BytesIO()
-        image.save(buffer, format="PNG")
-        barcode_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+        # 3. Abre tu plantilla PDF
+        plantilla = fitz.open("edomex_plantilla_alta_res.pdf")
+        page      = plantilla[0]
 
-        return render_template("formulario_edomex.html", barcode_base64=barcode_base64, **datos)
+        # 4. Inserta datos de texto (opcional)
+        # ejemplo: page.insert_text((120, 200), marca, fontsize=10, color=(0,0,0))
+
+        # 5. Prepara imagen del código para PyMuPDF
+        buf = BytesIO()
+        barcode_img.save(buf, format="PNG")
+        img_bytes = buf.getvalue()
+
+        # 6. Define el rect donde lo quieres (ajusta estas coordenadas)
+        rect = fitz.Rect(50, 250, 350, 330)  # (x0, y0, x1, y1) en puntos
+        page.insert_image(rect, stream=img_bytes, keep_proportion=True)
+
+        # 7. Guarda el PDF resultante
+        os.makedirs(OUTPUT_DIR, exist_ok=True)
+        out_path = os.path.join(OUTPUT_DIR, f"{serie}_{motor}_edomex.pdf")
+        plantilla.save(out_path)
+        plantilla.close()
+
+        # 8. Devuélvelo al navegador para descargar
+        return send_file(out_path, as_attachment=True)
 
     return render_template("formulario_edomex.html")
     
