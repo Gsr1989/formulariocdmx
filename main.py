@@ -517,7 +517,7 @@ def formulario_edomex():
         fecha_exp = ahora.strftime("%d/%m/%Y")
         fecha_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
 
-        # 4. Abrir plantilla PDF
+        # 4. Abrir plantilla PDF y página
         plantilla = fitz.open("edomex_plantilla_alta_res.pdf")
         page      = plantilla[0]
 
@@ -539,36 +539,44 @@ def formulario_edomex():
                 x, y, fs, col = coords_edomex[campo]
                 page.insert_text((x, y), texto, fontsize=fs, color=col)
 
-        # 6. Generar PDF417 sin etiquetas, sólo valores + "EDOMEX DIGITAL"
-        cadena      = f"{folio}|{marca}|{linea}|{anio}|{serie}|{motor}|EDOMEX DIGITAL"
+        # 6. Crear cadena con etiquetas y sufijo "EDOMEX DIGITAL"
+        cadena = (
+            f"FOLIO: {folio} | "
+            f"MARCA: {marca} | "
+            f"LÍNEA: {linea} | "
+            f"AÑO: {anio} | "
+            f"SERIE: {serie} | "
+            f"MOTOR: {motor} | "
+            "EDOMEX DIGITAL"
+        )
         codes       = encode(cadena, columns=6, security_level=5)
         barcode_img = render_image(codes)
 
-        # 7. Insertar el código con tamaño fijo 2"x1" y desplazado 15pt izq y 15pt abajo
+        # 7. Insertar el código en tamaño fijo 2"x1" (144×72 pt), desplazado +10 pt a la derecha
         buf       = BytesIO()
         barcode_img.save(buf, format="PNG")
         img_bytes = buf.getvalue()
-        orig_w = 2 * 72   # 2 pulgadas → 144pt
-        orig_h = 1 * 72   # 1 pulgada → 72pt
 
-        # toma la posición actual y le quita 200pt, luego ajuste extra
-        x0 = coords_edomex["serie"][0] - 200 - 15
-        y0 = coords_edomex["serie"][1] - 160 + 15
+        width_pt  = 2 * 72   # 2 pulgadas
+        height_pt = 1 * 72   # 1 pulgada
+        base_x, base_y = coords_edomex["serie"][0], coords_edomex["serie"][1]
+
         rect = fitz.Rect(
-            x0,
-            y0,
-            x0 + orig_w,
-            y0 + orig_h
+            base_x + 10,               # x0: +10 pt a la derecha
+            base_y,                    # y0: sin cambio vertical
+            base_x + 10 + width_pt,    # x1
+            base_y + height_pt         # y1
         )
-        page.insert_image(rect, stream=img_bytes, keep_proportion=True)
+        page.insert_image(rect, stream=img_bytes, keep_proportion=False)
 
-        # 8. Guardar y devolver el PDF
+        # 8. Guardar y enviar el PDF
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out_path = os.path.join(OUTPUT_DIR, f"{serie}_{motor}_edomex.pdf")
         plantilla.save(out_path)
         plantilla.close()
         return send_file(out_path, as_attachment=True)
 
+    # GET: renderiza el formulario
     return render_template("formulario_edomex.html")
 
 @app.route("/formulario_morelos", methods=["GET","POST"])
