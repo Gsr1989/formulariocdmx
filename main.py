@@ -493,10 +493,19 @@ def formulario_cdmx():
 
     return render_template("formulario.html")
 
+from flask import Flask, request, render_template
+from io import BytesIO
+import base64
+from pdf417gen import encode, render_image
+
+app = Flask(__name__)
+
 @app.route("/formulario_edomex", methods=["GET", "POST"])
 def formulario_edomex():
+    barcode_base64 = None
+
     if request.method == "POST":
-        # Los datos
+        folio  = request.form.get("folio", "").upper()
         marca  = request.form.get("marca", "").upper()
         linea  = request.form.get("linea", "").upper()
         anio   = request.form.get("anio", "").upper()
@@ -505,29 +514,34 @@ def formulario_edomex():
         color  = request.form.get("color", "").upper()
         nombre = request.form.get("nombre", "").upper()
 
-        # Texto y código PDF417
-        texto = f"MARCA: {marca} LÍNEA: {linea} AÑO: {anio} SERIE: {serie} MOTOR: {motor} PERMISO EDOMEX"
-        codes = encode(texto, columns=6, security_level=5)
-        img = render_image(codes)
+        texto_barcode = (
+            f"FOLIO: {folio}  MARCA: {marca}  LÍNEA: {linea}  "
+            f"AÑO: {anio}  SERIE: {serie}  MOTOR: {motor}  PERMISO EDOMEX"
+        )
 
-        # Convertir imagen a base64
-        buf = BytesIO()
-        img.save(buf, format="PNG")
-        img_b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
-        barcode_data = f"data:image/png;base64,{img_b64}"
+        # Generar imagen PDF417
+        codes = encode(texto_barcode, columns=6, security_level=5)
+        image = render_image(codes)
+        buffer = BytesIO()
+        image.save(buffer, format="PNG")
+        buffer.seek(0)
+        barcode_base64 = base64.b64encode(buffer.read()).decode("utf-8")
 
-        return render_template("formulario_edomex.html",
-                               barcode_data=barcode_data,
-                               marca=marca,
-                               linea=linea,
-                               anio=anio,
-                               serie=serie,
-                               motor=motor,
-                               color=color,
-                               nombre=nombre)
+        return render_template(
+            "formulario_edomex.html",
+            folio=folio,
+            marca=marca,
+            linea=linea,
+            anio=anio,
+            serie=serie,
+            motor=motor,
+            color=color,
+            nombre=nombre,
+            barcode_base64=barcode_base64
+        )
 
     return render_template("formulario_edomex.html")
-
+    
 @app.route("/formulario_morelos", methods=["GET","POST"])
 def formulario_morelos():
     if "user" not in session:
