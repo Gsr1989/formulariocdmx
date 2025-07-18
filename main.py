@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, send_file, redirect, url_for, session
-from flask import Flask, render_template, request, send_file, redirect, url_for, session
 from io import BytesIO
 import base64
 from pdf417gen import encode, render_image
