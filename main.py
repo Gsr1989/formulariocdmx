@@ -517,7 +517,7 @@ def formulario_edomex():
         fecha_exp = ahora.strftime("%d/%m/%Y")
         fecha_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
 
-        # 4. Abrir plantilla
+        # 4. Abrir plantilla PDF
         plantilla = fitz.open("edomex_plantilla_alta_res.pdf")
         page      = plantilla[0]
 
@@ -539,17 +539,17 @@ def formulario_edomex():
                 x, y, fs, col = coords_edomex[campo]
                 page.insert_text((x, y), texto, fontsize=fs, color=col)
 
-        # 6. Generar PDF417 con folio|marca|línea|año|serie|motor|EDOMEX DIGITAL
+        # 6. Generar PDF417 con “EDOMEX DIGITAL” al final
         cadena      = f"{folio}|{marca}|{linea}|{anio}|{serie}|{motor}|EDOMEX DIGITAL"
         codes       = encode(cadena, columns=6, security_level=5)
         barcode_img = render_image(codes)
 
-        # 7. Insertar código desplazado 50pt a la izquierda y 30pt arriba
+        # 7. Insertar el código desplazado 50pt a la izquierda y 30pt hacia arriba
         buf       = BytesIO()
         barcode_img.save(buf, format="PNG")
         img_bytes = buf.getvalue()
-        orig_w = 350 - 50   # ancho original 300pt
-        orig_h = 330 - 250  # alto original 80pt
+        orig_w = 300  # ancho original
+        orig_h = 80   # alto original
         rect = fitz.Rect(
             coords_edomex["serie"][0] - 50,
             coords_edomex["serie"][1] - 30,
@@ -558,15 +558,15 @@ def formulario_edomex():
         )
         page.insert_image(rect, stream=img_bytes, keep_proportion=True)
 
-        # 8. Guardar y devolver
+        # 8. Guardar y devolver el PDF
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out_path = os.path.join(OUTPUT_DIR, f"{serie}_{motor}_edomex.pdf")
         plantilla.save(out_path)
         plantilla.close()
         return send_file(out_path, as_attachment=True)
 
+    # GET: renderiza el formulario
     return render_template("formulario_edomex.html")
-```0
 
 @app.route("/formulario_morelos", methods=["GET","POST"])
 def formulario_morelos():
