@@ -552,7 +552,7 @@ def formulario_edomex():
         img_bytes = buf.getvalue()
         rect = fitz.Rect(
             coords_edomex["serie"][0] - 200,   # x0: 15pt más a la izquierda
-            coords_edomex["serie"][1] - 150,   # y0: 70pt más arriba
+            coords_edomex["serie"][1] - 115,   # y0: 70pt más arriba
             coords_edomex["serie"][0] - 15 + (350-50),  # ancho igual al original (300pt)
             coords_edomex["serie"][1] - 70 + (330-250)  # alto igual al original (80pt)
         )
