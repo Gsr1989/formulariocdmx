@@ -1,8 +1,8 @@
-flask
-PyMuPDF
-gunicorn
-reportlab
-Pillow
-qrcode[pil]
+Flask>=2.2
+PyMuPDF>=1.26.3
+gunicorn>=23.0.0
+supabase>=0.0.5
 pdf417gen>=0.8.1
-supabase-py
+Pillow>=9.0.0
+qrcode[pil]>=7.3.0
+reportlab>=3.6.12
