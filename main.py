@@ -567,8 +567,7 @@ def formulario_edomex():
 
     # GET: muestra el formulario
     return render_template("formulario_edomex.html")
-```0
-    
+
 @app.route("/formulario_morelos", methods=["GET","POST"])
 def formulario_morelos():
     if "user" not in session:
