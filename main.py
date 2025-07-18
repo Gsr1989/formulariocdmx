@@ -493,9 +493,16 @@ def formulario_cdmx():
 
     return render_template("formulario.html")
 
-from flask import Flask, request, send_file, render_template from io import BytesIO from reportlab.pdfgen import canvas from reportlab.lib.pagesizes import LETTER from reportlab.lib.utils import ImageReader from pdf417gen import encode, render_image from PyPDF2 import PdfReader, PdfWriter
+from flask import Flask, request, send_file, render_template
+from io import BytesIO
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import LETTER
+from reportlab.lib.utils import ImageReader
+from pdf417gen import encode, render_image
+from PyPDF2 import PdfReader, PdfWriter
+import base64
 
-app = Flask(name)
+app = Flask(__name__)
 
 @app.route("/formulario_edomex", methods=["GET", "POST"])
 def formulario_edomex():
@@ -518,18 +525,17 @@ def formulario_edomex():
             "nombre": nombre
         }
 
-        # Generar cadena y código PDF417
         cadena = f"{marca}|{linea}|{anio}|{serie}|{motor}|{color}|{nombre}"
-        codes = pdf417gen.encode(cadena, columns=6, security_level=5)
-        image = pdf417gen.render_image(codes)  # PIL image
+        codes = encode(cadena, columns=6, security_level=5)
+        image = render_image(codes)
 
         buffered = BytesIO()
         image.save(buffered, format="PNG")
         barcode_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
 
-        return render_template("edomex.html", barcode_base64=barcode_base64, **datos)
+        return render_template("formulario_edomex.html", barcode_base64=barcode_base64, **datos)
 
-    return render_template("edomex.html")
+    return render_template("formulario_edomex.html")
 
 @app.route("/formulario_morelos", methods=["GET","POST"])
 def formulario_morelos():
