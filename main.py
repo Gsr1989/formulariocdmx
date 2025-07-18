@@ -494,12 +494,9 @@ def formulario_cdmx():
     return render_template("formulario.html")
 
 from flask import Flask, request, send_file, render_template
-from io import BytesIO
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import LETTER
-from reportlab.lib.utils import ImageReader
+from flask import Flask, request, render_template
 from pdf417gen import encode, render_image
-from PyPDF2 import PdfReader, PdfWriter
+from io import BytesIO
 import base64
 
 app = Flask(__name__)
@@ -525,13 +522,14 @@ def formulario_edomex():
             "nombre": nombre
         }
 
+        # Generar código PDF417
         cadena = f"{marca}|{linea}|{anio}|{serie}|{motor}|{color}|{nombre}"
         codes = encode(cadena, columns=6, security_level=5)
         image = render_image(codes)
 
-        buffered = BytesIO()
-        image.save(buffered, format="PNG")
-        barcode_base64 = base64.b64encode(buffered.getvalue()).decode("utf-8")
+        buffer = BytesIO()
+        image.save(buffer, format="PNG")
+        barcode_base64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
 
         return render_template("formulario_edomex.html", barcode_base64=barcode_base64, **datos)
 
