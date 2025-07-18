@@ -493,7 +493,13 @@ def formulario_cdmx():
 
     return render_template("formulario.html")
 
-@app.route("/formulario_edomex", methods=["GET","POST"])
+import pdf417
+from pdf417gen.encoding import to_image
+from PIL import Image
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import LETTER
+
+@app.route("/formulario_edomex", methods=["GET", "POST"])
 def formulario_edomex():
     if "user" not in session:
         return redirect(url_for("login"))
@@ -501,25 +507,51 @@ def formulario_edomex():
         d = request.form
         fol = generar_folio_automatico()
         ahora = datetime.now()
-        f_exp = ahora.strftime("%d/%m/%Y")
-        f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
         fecha_iso = ahora.isoformat()
         vigencia_iso = (ahora + timedelta(days=30)).isoformat()
 
-        os.makedirs(OUTPUT_DIR, exist_ok=True)
-        out = os.path.join(OUTPUT_DIR, f"{fol}_edomex.pdf")
-        doc = fitz.open("edomex_plantilla_alta_res.pdf")
-        pg = doc[0]
-        pg.insert_text(coords_edomex["folio"][:2], fol, fontsize=coords_edomex["folio"][2], color=coords_edomex["folio"][3])
-        for key in ["marca", "serie", "linea", "motor", "anio", "color"]:
-            x, y, s, col = coords_edomex[key]
-            pg.insert_text((x, y), d[key], fontsize=s, color=col)
-        pg.insert_text(coords_edomex["fecha_exp"][:2], f_exp, fontsize=coords_edomex["fecha_exp"][2], color=coords_edomex["fecha_exp"][3])
-        pg.insert_text(coords_edomex["fecha_ven"][:2], f_ven, fontsize=coords_edomex["fecha_ven"][2], color=coords_edomex["fecha_ven"][3])
-        pg.insert_text(coords_edomex["nombre"][:2], d["nombre"], fontsize=coords_edomex["nombre"][2], color=coords_edomex["nombre"][3])
-        doc.save(out); doc.close()
+        # Datos a incluir en PDF417
+        texto = (
+            f"Folio: {fol}\n"
+            f"Marca: {d['marca']}\n"
+            f"Línea: {d['linea']}\n"
+            f"Año: {d['anio']}\n"
+            f"Serie: {d['serie']}\n"
+            f"Motor: {d['motor']}\n"
+            "PERMISO EDOMEX"
+        )
 
-        _guardar(fol, "EDOMEX", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], fecha_iso, vigencia_iso, d["nombre"])
+        # Crear código de barras PDF417
+        codes = pdf417.encode(texto, columns=6, security_level=5)
+        image = to_image(codes)
+        os.makedirs("outputs", exist_ok=True)
+        barcode_path = f"outputs/{fol}_pdf417.png"
+        image.save(barcode_path)
+
+        # Crear el PDF con reportlab
+        pdf_path = f"outputs/{fol}_permiso_edomex.pdf"
+        c = canvas.Canvas(pdf_path, pagesize=LETTER)
+        width, height = LETTER
+
+        # Imprimir texto en el PDF
+        y = height - 100
+        c.setFont("Helvetica", 12)
+        for line in texto.split("\n"):
+            c.drawString(100, y, line)
+            y -= 20
+
+        # Insertar el código PDF417 en el PDF
+        c.drawImage(barcode_path, 100, y - 120, width=300, height=100)
+        c.save()
+
+        # Guardar en base de datos
+        _guardar(
+            fol, "Edomex",
+            d["serie"], d["marca"], d["linea"],
+            d["motor"], d["anio"], "",
+            fecha_iso, vigencia_iso, d["nombre"]
+        )
+
         return render_template("exitoso.html", folio=fol, edomex=True)
     return render_template("formulario_edomex.html")
     
