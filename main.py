@@ -493,13 +493,6 @@ def formulario_cdmx():
 
     return render_template("formulario.html")
 
-from flask import Flask, request, render_template
-from pdf417gen import encode, render_image
-from io import BytesIO
-import base64
-
-app = Flask(__name__)
-
 @app.route("/formulario_edomex", methods=["GET", "POST"])
 def formulario_edomex():
     if request.method == "POST":
@@ -1004,4 +997,6 @@ def abrir_pdf(entidad, folio):
 generar_folio_automatico = generar_folio_por_mes
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    import os
+    puerto = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=puerto, debug=True)
