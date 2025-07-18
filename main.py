@@ -556,7 +556,7 @@ def formulario_edomex():
     coords_edomex["serie"][1] - 160,             # 150 + 10 pts hacia arriba
     coords_edomex["serie"][0] - 200 + orig_w,
     coords_edomex["serie"][1] - 160 + orig_h
-        )
+                
         page.insert_image(rect, stream=img_bytes, keep_proportion=True)
 
         # 8. Guardar y devolver el PDF
