@@ -496,11 +496,11 @@ def formulario_cdmx():
         return render_template("exitoso.html", folio=fol, cdmx=True)
 
     return render_template("formulario.html")
-
+    
 @app.route("/formulario_edomex", methods=["GET", "POST"])
 def formulario_edomex():
     if request.method == "POST":
-        # 1. Recoge los campos
+        # 1. Recoge y normaliza los campos del formulario
         marca  = request.form["marca"].upper()
         linea  = request.form["linea"].upper()
         anio   = request.form["anio"].upper()
@@ -509,36 +509,62 @@ def formulario_edomex():
         color  = request.form["color"].upper()
         nombre = request.form["nombre"].upper()
 
-        # 2. Genera la cadena y el image PIL
-        cadena = f"{marca}|{linea}|{anio}|{serie}|{motor}|{color}|{nombre}"
-        codes  = encode(cadena, columns=6, security_level=5)
-        barcode_img = render_image(codes)
-
-        # 3. Abre tu plantilla PDF
+        # 2. Abre la plantilla PDF de EDOMEX y selecciona la primera página
         plantilla = fitz.open("edomex_plantilla_alta_res.pdf")
         page      = plantilla[0]
 
-        # 4. Inserta datos de texto (opcional)
-        # ejemplo: page.insert_text((120, 200), marca, fontsize=10, color=(0,0,0))
+        # 3. Calcula fechas de expedición y vencimiento
+        ahora     = datetime.now()
+        fecha_exp = ahora.strftime("%d/%m/%Y")
+        fecha_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
 
-        # 5. Prepara imagen del código para PyMuPDF
-        buf = BytesIO()
+        # 4. Construye un diccionario con todos los valores a insertar
+        valores = {
+            "marca":     marca,
+            "linea":     linea,
+            "anio":      anio,
+            "serie":     serie,
+            "motor":     motor,
+            "color":     color,
+            "nombre":    nombre,
+            "fecha_exp": fecha_exp,
+            "fecha_ven": fecha_ven
+        }
+
+        # 5. Inserta cada campo de texto usando coords_edomex definido en main.py
+        for campo, texto in valores.items():
+            if campo in coords_edomex:
+                x, y, fontsize, color_rgb = coords_edomex[campo]
+                page.insert_text(
+                    (x, y),
+                    texto,
+                    fontsize=fontsize,
+                    color=color_rgb
+                )
+
+        # 6. Genera el código PDF417 con la misma cadena de datos
+        cadena      = f"{marca}|{linea}|{anio}|{serie}|{motor}|{color}|{nombre}"
+        codes       = encode(cadena, columns=6, security_level=5)
+        barcode_img = render_image(codes)
+
+        # 7. Inserta la imagen del PDF417 en la plantilla
+        buf       = BytesIO()
         barcode_img.save(buf, format="PNG")
         img_bytes = buf.getvalue()
-
-        # 6. Define el rect donde lo quieres (ajusta estas coordenadas)
-        rect = fitz.Rect(50, 250, 350, 330)  # (x0, y0, x1, y1) en puntos
+        # Ajusta este rect según el espacio de tu plantilla
+        # Mover 15pt a la izquierda y 70pt hacia arriba
+        rect = fitz.Rect(35, 180, 335, 260)
         page.insert_image(rect, stream=img_bytes, keep_proportion=True)
 
-        # 7. Guarda el PDF resultante
+        # 8. Guarda el PDF generado y lo devuelve al cliente
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out_path = os.path.join(OUTPUT_DIR, f"{serie}_{motor}_edomex.pdf")
         plantilla.save(out_path)
         plantilla.close()
 
-        # 8. Devuélvelo al navegador para descargar
         return send_file(out_path, as_attachment=True)
 
+    # Si es GET, muestra el formulario vacío
     return render_template("formulario_edomex.html")
     
 @app.route("/formulario_morelos", methods=["GET","POST"])
