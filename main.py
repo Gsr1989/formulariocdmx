@@ -493,8 +493,8 @@ def formulario_cdmx():
 
     return render_template("formulario.html")
 
-import pdf417
-from pdf417gen.encoding import to_image
+from pdf417gen.encoding import encode
+from pdf417gen.render import render_image
 from PIL import Image
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import LETTER
