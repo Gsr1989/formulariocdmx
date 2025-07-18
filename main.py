@@ -552,9 +552,9 @@ def formulario_edomex():
         orig_h = 80   # alto original
         rect = fitz.Rect(
             coords_edomex["serie"][0] - 50,
-            coords_edomex["serie"][1] - 30,
+            coords_edomex["serie"][1] - 100,
             coords_edomex["serie"][0] - 50 + orig_w,
-            coords_edomex["serie"][1] - 30 + orig_h
+            coords_edomex["serie"][1] - 100 + orig_h
         )
         page.insert_image(rect, stream=img_bytes, keep_proportion=True)
 
