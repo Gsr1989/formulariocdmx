@@ -493,66 +493,55 @@ def formulario_cdmx():
 
     return render_template("formulario.html")
 
-from pdf417gen.encoding import encode, to_image
+from flask import request, send_file
+from io import BytesIO
+from pdf417gen import encode, render_image
 from PIL import Image
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import LETTER
+from reportlab.lib.utils import ImageReader
 
-@app.route("/formulario_edomex", methods=["GET", "POST"])
+@app.route("/formulario_edomex", methods=["POST"])
 def formulario_edomex():
-    if "user" not in session:
-        return redirect(url_for("login"))
-    if request.method == "POST":
-        d = request.form
-        fol = generar_folio_automatico()
-        ahora = datetime.now()
-        fecha_iso = ahora.isoformat()
-        vigencia_iso = (ahora + timedelta(days=30)).isoformat()
+    folio = request.form.get("folio")
+    marca = request.form.get("marca")
+    linea = request.form.get("linea")
+    año = request.form.get("año")
+    serie = request.form.get("serie")
+    motor = request.form.get("motor")
 
-        # Datos a incluir en PDF417
-        texto = (
-            f"Folio: {fol}\n"
-            f"Marca: {d['marca']}\n"
-            f"Línea: {d['linea']}\n"
-            f"Año: {d['anio']}\n"
-            f"Serie: {d['serie']}\n"
-            f"Motor: {d['motor']}\n"
-            "PERMISO EDOMEX"
-        )
+    texto_barcode = f"FOLIO: {folio} MARCA: {marca} LINEA: {linea} AÑO: {año} SERIE: {serie} MOTOR: {motor} PERMISO EDOMEX"
 
-        # Crear código de barras PDF417
-        codes = pdf417.encode(texto, columns=6, security_level=5)
-        image = to_image(codes)
-        os.makedirs("outputs", exist_ok=True)
-        barcode_path = f"outputs/{fol}_pdf417.png"
-        image.save(barcode_path)
+    # Generar el código de barras
+    codes = encode(texto_barcode, columns=6, security_level=5)
+    image = render_image(codes)
 
-        # Crear el PDF con reportlab
-        pdf_path = f"outputs/{fol}_permiso_edomex.pdf"
-        c = canvas.Canvas(pdf_path, pagesize=LETTER)
-        width, height = LETTER
+    barcode_buffer = BytesIO()
+    image.save(barcode_buffer, format="PNG")
+    barcode_buffer.seek(0)
 
-        # Imprimir texto en el PDF
-        y = height - 100
-        c.setFont("Helvetica", 12)
-        for line in texto.split("\n"):
-            c.drawString(100, y, line)
-            y -= 20
+    # Crear el PDF
+    buffer_pdf = BytesIO()
+    c = canvas.Canvas(buffer_pdf, pagesize=LETTER)
 
-        # Insertar el código PDF417 en el PDF
-        c.drawImage(barcode_path, 100, y - 120, width=300, height=100)
-        c.save()
+    c.drawString(50, 750, f"FOLIO: {folio}")
+    c.drawString(50, 730, f"MARCA: {marca}")
+    c.drawString(50, 710, f"LINEA: {linea}")
+    c.drawString(50, 690, f"AÑO: {año}")
+    c.drawString(50, 670, f"SERIE: {serie}")
+    c.drawString(50, 650, f"MOTOR: {motor}")
+    c.drawString(50, 630, "PERMISO EDOMEX")
 
-        # Guardar en base de datos
-        _guardar(
-            fol, "Edomex",
-            d["serie"], d["marca"], d["linea"],
-            d["motor"], d["anio"], "",
-            fecha_iso, vigencia_iso, d["nombre"]
-        )
+    # Agregar código de barras
+    barcode_img = ImageReader(barcode_buffer)
+    c.drawImage(barcode_img, 50, 500, width=250, height=100)
 
-        return render_template("exitoso.html", folio=fol, edomex=True)
-    return render_template("formulario_edomex.html")
+    c.showPage()
+    c.save()
+
+    buffer_pdf.seek(0)
+
+    return send_file(buffer_pdf, as_attachment=True, download_name="permiso_edomex.pdf", mimetype="application/pdf")
     
 @app.route("/formulario_morelos", methods=["GET","POST"])
 def formulario_morelos():
