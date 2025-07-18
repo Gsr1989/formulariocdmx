@@ -493,22 +493,10 @@ def formulario_cdmx():
 
     return render_template("formulario.html")
 
-from flask import request, render_template, send_file
-from flask import Flask, request, send_file, render_template
-from io import BytesIO
-import base64
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.utils import ImageReader
-from PyPDF2 import PdfReader, PdfWriter
-from pdf417gen import encode, render_image
-
-app = Flask(__name__)
-
 @app.route("/formulario_edomex", methods=["GET", "POST"])
 def formulario_edomex():
     if request.method == "POST":
-        folio  = request.form.get("folio", "").upper()
+        # Los datos
         marca  = request.form.get("marca", "").upper()
         linea  = request.form.get("linea", "").upper()
         anio   = request.form.get("anio", "").upper()
@@ -517,57 +505,26 @@ def formulario_edomex():
         color  = request.form.get("color", "").upper()
         nombre = request.form.get("nombre", "").upper()
 
-        texto_barcode = (
-            f"FOLIO: {folio}  MARCA: {marca}  LÍNEA: {linea}  "
-            f"AÑO: {anio}  SERIE: {serie}  MOTOR: {motor}  PERMISO EDOMEX"
-        )
+        # Texto y código PDF417
+        texto = f"MARCA: {marca} LÍNEA: {linea} AÑO: {anio} SERIE: {serie} MOTOR: {motor} PERMISO EDOMEX"
+        codes = encode(texto, columns=6, security_level=5)
+        img = render_image(codes)
 
-        # Generar imagen del código
-        codes = encode(texto_barcode, columns=6, security_level=5)
-        barcode_img = render_image(codes)
-        barcode_buffer = BytesIO()
-        barcode_img.save(barcode_buffer, format='PNG')
-        barcode_buffer.seek(0)
+        # Convertir imagen a base64
+        buf = BytesIO()
+        img.save(buf, format="PNG")
+        img_b64 = base64.b64encode(buf.getvalue()).decode("utf-8")
+        barcode_data = f"data:image/png;base64,{img_b64}"
 
-        # Crear una capa nueva con texto + imagen encima
-        overlay_buffer = BytesIO()
-        c = canvas.Canvas(overlay_buffer, pagesize=letter)
-        
-        # Coordenadas según tu plantilla visual
-        c.setFont("Helvetica-Bold", 10)
-        c.drawString(120, 680, marca)
-        c.drawString(120, 660, linea)
-        c.drawString(120, 640, anio)
-        c.drawString(120, 620, serie)
-        c.drawString(120, 600, motor)
-        c.drawString(350, 600, color)
-        c.drawString(300, 570, nombre)
-        
-        # Insertar PDF417 en su sitio
-        c.drawImage(ImageReader(barcode_buffer), 430, 730, width=140, height=70)
-
-        c.save()
-        overlay_buffer.seek(0)
-
-        # Cargar la plantilla original
-        plantilla = PdfReader("edomex_plantilla_alta_res.pdf")
-        overlay = PdfReader(overlay_buffer)
-
-        output = PdfWriter()
-        page = plantilla.pages[0]
-        page.merge_page(overlay.pages[0])
-        output.add_page(page)
-
-        final_pdf = BytesIO()
-        output.write(final_pdf)
-        final_pdf.seek(0)
-
-        return send_file(
-            final_pdf,
-            as_attachment=True,
-            download_name=f"permiso_edomex_{folio}.pdf",
-            mimetype="application/pdf"
-        )
+        return render_template("formulario_edomex.html",
+                               barcode_data=barcode_data,
+                               marca=marca,
+                               linea=linea,
+                               anio=anio,
+                               serie=serie,
+                               motor=motor,
+                               color=color,
+                               nombre=nombre)
 
     return render_template("formulario_edomex.html")
 
