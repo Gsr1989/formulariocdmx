@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, send_file, redirect, url_for, session
+from flask import Flask, render_template, request, send_file, redirect, url_for, session
 from io import BytesIO
 import base64
 from pdf417gen import encode, render_image
@@ -9,6 +10,8 @@ import string
 import csv
 from supabase import create_client, Client
 import json
+
+import fitz  # <— ¡Aquí lo agregas!
 
 # Configuración básica
 app = Flask(__name__)
