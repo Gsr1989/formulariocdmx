@@ -503,7 +503,7 @@ def formulario_edomex():
         # 1. Generar folio
         folio = generar_folio_automatico()
 
-        # 2. Recoge y normaliza los campos del formulario
+        # 2. Leer y normalizar campos
         marca  = request.form["marca"].upper()
         linea  = request.form["linea"].upper()
         anio   = request.form["anio"].upper()
@@ -512,16 +512,16 @@ def formulario_edomex():
         color  = request.form["color"].upper()
         nombre = request.form["nombre"].upper()
 
-        # 3. Fechas de expedición y vencimiento
+        # 3. Fechas
         ahora     = datetime.now()
         fecha_exp = ahora.strftime("%d/%m/%Y")
         fecha_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
 
-        # 4. Abre la plantilla y selecciona la primera página
+        # 4. Abrir plantilla
         plantilla = fitz.open("edomex_plantilla_alta_res.pdf")
         page      = plantilla[0]
 
-        # 5. Preparar valores a insertar, incluyendo el folio
+        # 5. Insertar texto (incluye folio)
         valores = {
             "folio":     folio,
             "marca":     marca,
@@ -532,29 +532,24 @@ def formulario_edomex():
             "color":     color,
             "fecha_exp": fecha_exp,
             "fecha_ven": fecha_ven,
-            "nombre":    nombre
+            "nombre":    nombre,
         }
-
-        # 6. Inserta cada texto en su coordenada
         for campo, texto in valores.items():
             if campo in coords_edomex:
-                x, y, fs, rgb = coords_edomex[campo]
-                page.insert_text((x, y), texto, fontsize=fs, color=rgb)
+                x, y, fs, col = coords_edomex[campo]
+                page.insert_text((x, y), texto, fontsize=fs, color=col)
 
-        # 7. Genera el PDF417 con los datos y la frase "EDOMEX DIGITAL"
+        # 6. Generar PDF417 con folio|marca|línea|año|serie|motor|EDOMEX DIGITAL
         cadena      = f"{folio}|{marca}|{linea}|{anio}|{serie}|{motor}|EDOMEX DIGITAL"
         codes       = encode(cadena, columns=6, security_level=5)
         barcode_img = render_image(codes)
 
-        # 8. Inserta la imagen del código desplazada 50pt a la izq y 30pt hacia arriba
+        # 7. Insertar código desplazado 50pt a la izquierda y 30pt arriba
         buf       = BytesIO()
         barcode_img.save(buf, format="PNG")
         img_bytes = buf.getvalue()
-
-        # tamaño original del código en tu plantilla
-        orig_w = 350 - 50   # =300
-        orig_h = 330 - 250  # =80
-
+        orig_w = 350 - 50   # ancho original 300pt
+        orig_h = 330 - 250  # alto original 80pt
         rect = fitz.Rect(
             coords_edomex["serie"][0] - 50,
             coords_edomex["serie"][1] - 30,
@@ -563,14 +558,13 @@ def formulario_edomex():
         )
         page.insert_image(rect, stream=img_bytes, keep_proportion=True)
 
-        # 9. Guarda y envía el PDF
+        # 8. Guardar y devolver
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out_path = os.path.join(OUTPUT_DIR, f"{serie}_{motor}_edomex.pdf")
         plantilla.save(out_path)
         plantilla.close()
         return send_file(out_path, as_attachment=True)
 
-    # Si es GET, renderiza el formulario
     return render_template("formulario_edomex.html")
 ```0
 
