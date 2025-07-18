@@ -493,7 +493,6 @@ def formulario_cdmx():
 
     return render_template("formulario.html")
 
-from flask import Flask, request, send_file, render_template
 from flask import Flask, request, render_template
 from pdf417gen import encode, render_image
 from io import BytesIO
