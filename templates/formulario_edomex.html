@@ -46,7 +46,7 @@
       margin-bottom: 15px;
       border: 1px solid #ccc;
       border-radius: 6px;
-      text-transform: uppercase;
+      /* quitamos text-transform aquí porque lo hacemos vía JS */
     }
     textarea {
       resize: vertical;
@@ -95,7 +95,9 @@
 </header>
 
 <h2>Formulario EDOMEX</h2>
-<form method="POST" autocomplete="off">
+<form action="{{ url_for('formulario_edomex') }}" method="POST" autocomplete="off">
+  <!-- Si necesitas enviar folio desde el servidor, añade aquí:
+       <input type="hidden" name="folio" value="{{ folio }}"> -->
   <label>Marca:
     <input type="text" name="marca" id="marca" required maxlength="20">
   </label>
@@ -134,76 +136,72 @@
 </footer>
 
 <script>
+  // Convierte todo input a MAYÚSCULAS en su valor real
   const campos = ["marca", "linea", "anio", "serie", "motor", "color", "nombre"];
-  for (let i = 0; i < campos.length - 1; i++) {
-    let actual = document.getElementById(campos[i]);
-    let siguiente = document.getElementById(campos[i + 1]);
-
-    actual.addEventListener("input", () => {
-      actual.value = actual.value.toUpperCase();
-      if (actual.value.length >= actual.maxLength) {
-        siguiente.focus();
-      }
+  campos.forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener("input", () => {
+      el.value = el.value.toUpperCase();
     });
+  });
 
-    actual.addEventListener("paste", (e) => {
+  // Control de auto-tab y detección automática
+  for (let i = 0; i < campos.length - 1; i++) {
+    const actual = document.getElementById(campos[i]);
+    const siguiente = document.getElementById(campos[i + 1]);
+    actual.addEventListener("input", () => {
+      if (actual.value.length >= actual.maxLength) siguiente.focus();
+    });
+    actual.addEventListener("paste", () => {
       setTimeout(() => {
-        if (actual.value.length >= actual.maxLength) {
-          siguiente.focus();
-        }
+        if (actual.value.length >= actual.maxLength) siguiente.focus();
       }, 100);
     });
   }
 
   const campo = document.getElementById("autotexto");
   const auto = document.getElementById("modoAuto");
-
   campo.addEventListener("input", async () => {
     if (!auto.checked) return;
-
     const texto = campo.value.toUpperCase();
     const limpiar = txt => txt.replace(/(MARCA|L[ÍI]NEA|SUBMARCA|MODELO|AÑO|N[ÚU]MERO DE SERIE|SERIE|MOTOR|COLOR|NOMBRE DEL SOLICITANTE|NOMBRE|:)/g, '').trim();
 
-    const marca = texto.match(/MARCA\s+[A-Z0-9\s]+/);
-    if (marca) document.getElementById("marca").value = limpiar(marca[0]);
+    const m = texto.match(/MARCA\s+[A-Z0-9\s]+/);
+    if (m) document.getElementById("marca").value = limpiar(m[0]);
 
-    const linea = texto.match(/L[ÍI]NEA\s+[A-Z0-9\s]+/);
-    if (linea) document.getElementById("linea").value = limpiar(linea[0]);
+    const l = texto.match(/L[ÍI]NEA\s+[A-Z0-9\s]+/);
+    if (l) document.getElementById("linea").value = limpiar(l[0]);
 
-    const año = texto.match(/\b(19[5-9][0-9]|20[0-4][0-9]|[1-4][0-9]{3}|50000)\b/);
-    if (año) document.getElementById("anio").value = año[0];
+    const y = texto.match(/\b(19[5-9][0-9]|20[0-4][0-9]|[1-4][0-9]{3}|50000)\b/);
+    if (y) document.getElementById("anio").value = y[0];
 
-    const motor = texto.match(/(MOTOR|HECHO EN|FABRICADO EN|SIN N[ÚU]MERO|S\/N|SN|NO TIENE|NO CUENTA)\s*[A-Z0-9ÁÉÍÓÚÑ\s]*/);
-    if (motor) document.getElementById("motor").value = limpiar(motor[0]);
+    const mo = texto.match(/(MOTOR|HECHO EN|FABRICADO EN|SIN N[ÚU]MERO|S\/N|SN|NO TIENE|NO CUENTA)\s*[A-Z0-9ÁÉÍÓÚÑ\s]*/);
+    if (mo) document.getElementById("motor").value = limpiar(mo[0]);
 
-    const serie = texto.match(/\b[A-HJ-NPR-Z0-9]{11,17}\b/);
-    if (serie) {
-      document.getElementById("serie").value = limpiar(serie[0]);
+    const s = texto.match(/\b[A-HJ-NPR-Z0-9]{11,17}\b/);
+    if (s) {
+      document.getElementById("serie").value = limpiar(s[0]);
       try {
-        const url = `https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/${serie[0]}?format=json`;
-        const response = await fetch(url);
-        const data = await response.json();
-        const res = data.Results[0];
-        if (res.Make) document.getElementById("marca").value = res.Make.toUpperCase();
-        if (res.Model) document.getElementById("linea").value = res.Model.toUpperCase();
-        if (res.ModelYear) document.getElementById("anio").value = res.ModelYear;
+        const url = `https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/${s[0]}?format=json`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+        if (data.Results[0].Make) document.getElementById("marca").value = data.Results[0].Make.toUpperCase();
+        if (data.Results[0].Model) document.getElementById("linea").value = data.Results[0].Model.toUpperCase();
+        if (data.Results[0].ModelYear) document.getElementById("anio").value = data.Results[0].ModelYear;
       } catch (e) {
-        console.warn("Error al consultar la API vPIC:", e);
+        console.warn("Error al consultar API vPIC:", e);
       }
     }
 
     const colores = ["NEGRO","BLANCO","ROJO","AZUL","GRIS","PLATA","VERDE","CAFÉ","AMARILLO","NARANJA","VINO","DORADO","MARRÓN","TURQUESA","BEIGE"];
-    for (let color of colores) {
-      if (texto.includes(color)) {
-        document.getElementById("color").value = color;
-        break;
-      }
+    for (let c of colores) if (texto.includes(c)) {
+      document.getElementById("color").value = c;
+      break;
     }
 
-    const lineas = texto.split("\n").map(l => l.trim()).filter(l => l.length > 5 && isNaN(l));
-    if (lineas.length > 0) {
-      const posibleNombre = lineas[lineas.length - 1];
-      document.getElementById("nombre").value = limpiar(posibleNombre);
+    const lines = texto.split("\n").map(l => l.trim()).filter(l => l.length>5 && isNaN(l));
+    if (lines.length) {
+      document.getElementById("nombre").value = limpiar(lines[lines.length-1]);
     }
   });
 
@@ -216,3 +214,4 @@
 
 </body>
 </html>
+```0
