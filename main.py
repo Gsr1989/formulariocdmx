@@ -540,30 +540,29 @@ def formulario_edomex():
                 page.insert_text((x, y), texto, fontsize=fs, color=col)
 
         # 6. Generar PDF417 sin etiquetas, sólo valores + "EDOMEX DIGITAL"
-        cadena = f"{folio}|{marca}|{linea}|{anio}|{serie}|{motor}|EDOMEX DIGITAL"
-        codes = encode(cadena, columns=6, security_level=5)
+        cadena      = f"{folio}|{marca}|{linea}|{anio}|{serie}|{motor}|EDOMEX DIGITAL"
+        codes       = encode(cadena, columns=6, security_level=5)
         barcode_img = render_image(codes)
 
-        # 7. Insertar código con tamaño fijo 2x1 pulgadas y recortado 1cm de ancho
-        buf = BytesIO()
+        # 7. Insertar el código con tamaño fijo 2"x0.5" y desplazado 10pt derecha, 5pt abajo
+        buf       = BytesIO()
         barcode_img.save(buf, format="PNG")
         img_bytes = buf.getvalue()
+        orig_w = 2 * 72    # 2 pulgadas = 144pt
+        orig_h = 1 * 72 - 36  # 1 pulgada - 0.5 = 36pt
 
-        width_pt  = (2 * 72) - 28.35  # 2 pulgadas menos 1 cm
-        height_pt = 1 * 72            # 1 pulgada exacta
-
-        base_x = coords_edomex["serie"][0] - 200 - 15  # posición original - 215 pt
-        base_y = coords_edomex["serie"][1] - 160 + 15  # posición original - 145 pt
+        x0 = coords_edomex["serie"][0] - 200 - 15 + 10   # original - desplazamiento + derecha
+        y0 = coords_edomex["serie"][1] - 160 + 15 + 5    # original + abajo
 
         rect = fitz.Rect(
-            base_x,
-            base_y,
-            base_x + width_pt,
-            base_y + height_pt
+            x0,
+            y0,
+            x0 + orig_w,
+            y0 + orig_h
         )
-        page.insert_image(rect, stream=img_bytes, keep_proportion=False)
+        page.insert_image(rect, stream=img_bytes, keep_proportion=True)
 
-        # 8. Guardar y enviar
+        # 8. Guardar y devolver el PDF
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out_path = os.path.join(OUTPUT_DIR, f"{serie}_{motor}_edomex.pdf")
         plantilla.save(out_path)
