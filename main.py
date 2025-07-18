@@ -493,56 +493,72 @@ def formulario_cdmx():
 
     return render_template("formulario.html")
 
-from flask import request, send_file
+from flask import request, render_template, send_file
 from io import BytesIO
 from pdf417gen import encode, render_image
-from PIL import Image
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import LETTER
 from reportlab.lib.utils import ImageReader
 
-@app.route("/formulario_edomex", methods=["POST"])
+@app.route("/formulario_edomex", methods=["GET", "POST"])
 def formulario_edomex():
-    folio = request.form.get("folio")
-    marca = request.form.get("marca")
-    linea = request.form.get("linea")
-    año = request.form.get("año")
-    serie = request.form.get("serie")
-    motor = request.form.get("motor")
+    if request.method == "POST":
+        # ─── Obtener campos y forzar mayúsculas ───────────────────────────────
+        folio = request.form.get("folio", "").upper()
+        marca = request.form.get("marca", "").upper()
+        linea = request.form.get("linea", "").upper()
+        anio  = request.form.get("anio",  "").upper()
+        serie = request.form.get("serie", "").upper()
+        motor = request.form.get("motor", "").upper()
+        color = request.form.get("color", "").upper()
+        nombre= request.form.get("nombre","").upper()
 
-    texto_barcode = f"FOLIO: {folio} MARCA: {marca} LINEA: {linea} AÑO: {año} SERIE: {serie} MOTOR: {motor} PERMISO EDOMEX"
+        # ─── Texto para el PDF417 ──────────────────────────────────────────────
+        texto_barcode = (
+            f"FOLIO: {folio}  MARCA: {marca}  LÍNEA: {linea}  "
+            f"AÑO: {anio}  SERIE: {serie}  MOTOR: {motor}  PERMISO EDOMEX"
+        )
 
-    # Generar el código de barras
-    codes = encode(texto_barcode, columns=6, security_level=5)
-    image = render_image(codes)
+        # ─── Generar código de barras PDF417 ───────────────────────────────────
+        codes = encode(texto_barcode, columns=6, security_level=5)
+        img  = render_image(codes)
 
-    barcode_buffer = BytesIO()
-    image.save(barcode_buffer, format="PNG")
-    barcode_buffer.seek(0)
+        buf_img = BytesIO()
+        img.save(buf_img, format="PNG")
+        buf_img.seek(0)
 
-    # Crear el PDF
-    buffer_pdf = BytesIO()
-    c = canvas.Canvas(buffer_pdf, pagesize=LETTER)
+        # ─── Crear el PDF ──────────────────────────────────────────────────────
+        buf_pdf = BytesIO()
+        c = canvas.Canvas(buf_pdf, pagesize=LETTER)
+        c.drawString( 50, 750, f"FOLIO: {folio}" )
+        c.drawString( 50, 730, f"MARCA: {marca}" )
+        c.drawString( 50, 710, f"LÍNEA: {linea}" )
+        c.drawString( 50, 690, f"AÑO: {anio}" )
+        c.drawString( 50, 670, f"SERIE: {serie}" )
+        c.drawString( 50, 650, f"MOTOR: {motor}" )
+        c.drawString( 50, 630, f"COLOR: {color}" )
+        c.drawString( 50, 610, f"NOMBRE: {nombre}" )
+        c.drawString( 50, 590, "PERMISO EDOMEX" )
 
-    c.drawString(50, 750, f"FOLIO: {folio}")
-    c.drawString(50, 730, f"MARCA: {marca}")
-    c.drawString(50, 710, f"LINEA: {linea}")
-    c.drawString(50, 690, f"AÑO: {año}")
-    c.drawString(50, 670, f"SERIE: {serie}")
-    c.drawString(50, 650, f"MOTOR: {motor}")
-    c.drawString(50, 630, "PERMISO EDOMEX")
+        # insertar imagen del código
+        qr_reader = ImageReader(buf_img)
+        c.drawImage(qr_reader, 50, 450, width=300, height=120, preserveAspectRatio=True)
 
-    # Agregar código de barras
-    barcode_img = ImageReader(barcode_buffer)
-    c.drawImage(barcode_img, 50, 500, width=250, height=100)
+        c.showPage()
+        c.save()
+        buf_pdf.seek(0)
 
-    c.showPage()
-    c.save()
+        return send_file(
+            buf_pdf,
+            as_attachment=True,
+            download_name=f"permiso_edomex_{folio}.pdf",
+            mimetype="application/pdf"
+        )
 
-    buffer_pdf.seek(0)
+    # GET → mostrar el formulario
+    return render_template("formulario_edomex.html")
+```0
 
-    return send_file(buffer_pdf, as_attachment=True, download_name="permiso_edomex.pdf", mimetype="application/pdf")
-    
 @app.route("/formulario_morelos", methods=["GET","POST"])
 def formulario_morelos():
     if "user" not in session:
