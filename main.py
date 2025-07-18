@@ -501,7 +501,6 @@ def formulario_cdmx():
 def formulario_edomex():
     if request.method == "POST":
         # 1. Recoge y normaliza los campos del formulario
-        folio  = request.form["folio"].upper()
         marca  = request.form["marca"].upper()
         linea  = request.form["linea"].upper()
         anio   = request.form["anio"].upper()
@@ -521,7 +520,6 @@ def formulario_edomex():
 
         # 4. Construye un diccionario con todos los valores a insertar
         valores = {
-            "folio":     folio, 
             "marca":     marca,
             "linea":     linea,
             "anio":      anio,
