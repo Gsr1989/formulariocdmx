@@ -544,19 +544,19 @@ def formulario_edomex():
         codes       = encode(cadena, columns=6, security_level=5)
         barcode_img = render_image(codes)
 
-        # 7. Insertar el código desplazado 50pt a la izquierda y 30pt hacia arriba
+        # 7. Insertar el código desplazado 150pt a la izquierda y 150pt arriba
         buf       = BytesIO()
         barcode_img.save(buf, format="PNG")
         img_bytes = buf.getvalue()
-        orig_w = 300  # ancho original
-        orig_h = 80   # alto original
+        orig_w = 300  # ancho original del código
+        orig_h = 80   # alto original del código
+
         rect = fitz.Rect(
-            rect = fitz.Rect(
-    coords_edomex["serie"][0] - 200,             # 150 + 50 pts a la izquierda
-    coords_edomex["serie"][1] - 160,             # 150 + 10 pts hacia arriba
-    coords_edomex["serie"][0] - 200 + orig_w,
-    coords_edomex["serie"][1] - 160 + orig_h
-                
+            coords_edomex["serie"][0] - 200,            # x0: 150+50 pts a la izquierda
+            coords_edomex["serie"][1] - 160,            # y0: 150+10 pts hacia arriba
+            coords_edomex["serie"][0] - 200 + orig_w,   # x1
+            coords_edomex["serie"][1] - 160 + orig_h    # y1
+        )
         page.insert_image(rect, stream=img_bytes, keep_proportion=True)
 
         # 8. Guardar y devolver el PDF
@@ -566,7 +566,7 @@ def formulario_edomex():
         plantilla.close()
         return send_file(out_path, as_attachment=True)
 
-    # GET: renderiza el formulario
+    # Si es GET, renderiza el formulario
     return render_template("formulario_edomex.html")
 
 @app.route("/formulario_morelos", methods=["GET","POST"])
