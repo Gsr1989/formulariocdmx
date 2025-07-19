@@ -551,20 +551,22 @@ def formulario_edomex():
         barcode_img.save(buf, format="PNG")
         img_bytes = buf.getvalue()
 
-        orig_w = 144  # ancho actual
-        orig_h = 72   # alto actual
+        orig_w = 144  # ancho original
+        orig_h = 72   # alto original
 
-        # Recortes finales
-        rasura_arriba_pt = 28.35  # 1 cm
-        rasura_abajo_pt  = 28.35  # 1 cm
+        # Ajustes visuales
+        rasura_arriba_pt = 28.35   # 1 cm
+        rasura_abajo_pt  = 28.35   # 1 cm
+        expand_left      = 14.17   # 5 mm
+        expand_right     = 14.17   # 5 mm
 
-        x0 = coords_edomex["serie"][0] - 200
+        x0 = coords_edomex["serie"][0] - 200 - expand_left
         y0 = coords_edomex["serie"][1] - 160
 
         rect = fitz.Rect(
             x0,
             y0 + rasura_arriba_pt,
-            x0 + orig_w,
+            x0 + orig_w + expand_left + expand_right,
             y0 + orig_h - rasura_abajo_pt + rasura_arriba_pt
         )
         page.insert_image(rect, stream=img_bytes, keep_proportion=True)
