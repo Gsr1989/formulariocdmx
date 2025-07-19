@@ -551,12 +551,12 @@ def formulario_edomex():
         barcode_img.save(buf, format="PNG")
         img_bytes = buf.getvalue()
 
-        orig_w = 144  # ancho fijo
-        orig_h = 72   # alto fijo
+        orig_w = 144  # ancho actual
+        orig_h = 72   # alto actual
 
-        # Recortes visuales
-        rasura_arriba_pt = 28.35   # 1 cm
-        rasura_abajo_pt  = 14.17   # 5 mm
+        # Recortes finales
+        rasura_arriba_pt = 28.35  # 1 cm
+        rasura_abajo_pt  = 28.35  # 1 cm
 
         x0 = coords_edomex["serie"][0] - 200
         y0 = coords_edomex["serie"][1] - 160
