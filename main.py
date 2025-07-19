@@ -539,7 +539,7 @@ def formulario_edomex():
                 x, y, fs, col = coords_edomex[campo]
                 page.insert_text((x, y), texto, fontsize=fs, color=col)
 
-        # 6. Generar cadena con etiquetas y "EDOMEX DIGITAL"
+        # 6. Generar PDF417 CON ETIQUETAS y espacio después de los dos puntos
         cadena = (
             f"FOLIO: {folio} | "
             f"MARCA: {marca} | "
@@ -552,22 +552,32 @@ def formulario_edomex():
         codes       = encode(cadena, columns=6, security_level=5)
         barcode_img = render_image(codes)
 
-        # 7. Insertar imagen: tamaño fijo 2.5" x 1", bajado 5pt, sin mover a la derecha
+        # 7. Insertar el código: tamaño 2"x1", luego rasuramos (en pt)
         buf       = BytesIO()
         barcode_img.save(buf, format="PNG")
         img_bytes = buf.getvalue()
 
-        ancho_px = int(2.5 * 72)  # 2.5 pulgadas = 180 puntos
-        alto_px  = int(1 * 72)    # 1 pulgada = 72 puntos
+        # 2 pulgadas ancho = 144 pt, 1 pulgada alto = 72 pt
+        orig_w = 144
+        orig_h = 72
 
-        # posición base (la que quedó chida según tú) ajustada
-        x0 = coords_edomex["serie"][0] - 200           # sin mover
-        y0 = coords_edomex["serie"][1] - 160 + 5       # bajado 5 puntos
+        # Rasurado:
+        # - 0.5 cm = 14.17 pt (abajo)
+        # - 7 mm = 19.84 pt (arriba)
+        # - 1.5 cm = 42.52 pt (derecha)
 
-        rect = fitz.Rect(x0, y0, x0 + ancho_px, y0 + alto_px)
-        page.insert_image(rect, stream=img_bytes, keep_proportion=False)
+        x0 = coords_edomex["serie"][0] - 200
+        y0 = coords_edomex["serie"][1] - 160
 
-        # 8. Guardar PDF
+        rect = fitz.Rect(
+            x0,
+            y0 + 19.84,                      # subir 7mm (recortar arriba)
+            x0 + orig_w - 42.52,             # recortar 1.5cm del lado derecho
+            y0 + orig_h - 14.17 + 19.84      # alto original menos 0.5cm abajo
+        )
+        page.insert_image(rect, stream=img_bytes, keep_proportion=True)
+
+        # 8. Guardar y devolver el PDF
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out_path = os.path.join(OUTPUT_DIR, f"{serie}_{motor}_edomex.pdf")
         plantilla.save(out_path)
