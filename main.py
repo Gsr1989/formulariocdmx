@@ -500,10 +500,8 @@ def formulario_cdmx():
 @app.route("/formulario_edomex", methods=["GET", "POST"])
 def formulario_edomex():
     if request.method == "POST":
-        # 1. Generar folio
         folio = generar_folio_automatico()
 
-        # 2. Leer y normalizar campos
         marca  = request.form["marca"].upper()
         linea  = request.form["linea"].upper()
         anio   = request.form["anio"].upper()
@@ -512,16 +510,13 @@ def formulario_edomex():
         color  = request.form["color"].upper()
         nombre = request.form["nombre"].upper()
 
-        # 3. Fechas
         ahora     = datetime.now()
         fecha_exp = ahora.strftime("%d/%m/%Y")
         fecha_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
 
-        # 4. Abrir plantilla PDF
         plantilla = fitz.open("edomex_plantilla_alta_res.pdf")
         page      = plantilla[0]
 
-        # 5. Insertar texto (incluye folio)
         valores = {
             "folio":     folio,
             "marca":     marca,
@@ -534,12 +529,12 @@ def formulario_edomex():
             "fecha_ven": fecha_ven,
             "nombre":    nombre,
         }
+
         for campo, texto in valores.items():
             if campo in coords_edomex:
                 x, y, fs, col = coords_edomex[campo]
                 page.insert_text((x, y), texto, fontsize=fs, color=col)
 
-        # 6. Generar PDF417 CON ETIQUETAS y espacios
         cadena = (
             f"FOLIO: {folio} | "
             f"MARCA: {marca} | "
@@ -552,17 +547,16 @@ def formulario_edomex():
         codes       = encode(cadena, columns=6, security_level=5)
         barcode_img = render_image(codes)
 
-        # 7. Insertar código con ajustes:
         buf       = BytesIO()
         barcode_img.save(buf, format="PNG")
         img_bytes = buf.getvalue()
 
-        orig_w = 144  # 2 pulgadas → 144 pt
-        orig_h = 72   # 1 pulgada → 72 pt
+        orig_w = 144  # ancho fijo
+        orig_h = 72   # alto fijo
 
-        # Ajustes de recorte y expansión
-        rasura_arriba_pt   = 11.34   # 4 mm
-        expande_derecha_pt = 14.17   # 5 mm
+        # Recortes visuales
+        rasura_arriba_pt = 28.35   # 1 cm
+        rasura_abajo_pt  = 14.17   # 5 mm
 
         x0 = coords_edomex["serie"][0] - 200
         y0 = coords_edomex["serie"][1] - 160
@@ -570,12 +564,11 @@ def formulario_edomex():
         rect = fitz.Rect(
             x0,
             y0 + rasura_arriba_pt,
-            x0 + orig_w + expande_derecha_pt,
-            y0 + orig_h + rasura_arriba_pt
+            x0 + orig_w,
+            y0 + orig_h - rasura_abajo_pt + rasura_arriba_pt
         )
         page.insert_image(rect, stream=img_bytes, keep_proportion=True)
 
-        # 8. Guardar y devolver el PDF
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out_path = os.path.join(OUTPUT_DIR, f"{serie}_{motor}_edomex.pdf")
         plantilla.save(out_path)
