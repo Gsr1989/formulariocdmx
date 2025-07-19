@@ -538,8 +538,8 @@ def formulario_edomex():
         cadena = (
             f"FOLIO: {folio} | "
             f"MARCA: {marca} | "
-            f"LÍNEA: {linea} | "
-            f"AÑO: {anio} | "
+            f"LINEA: {linea} | "
+            f"ANO: {anio} | "
             f"SERIE: {serie} | "
             f"MOTOR: {motor} | "
             f"EDOMEX DIGITAL"
