@@ -539,7 +539,7 @@ def formulario_edomex():
                 x, y, fs, col = coords_edomex[campo]
                 page.insert_text((x, y), texto, fontsize=fs, color=col)
 
-        # 6. Generar PDF417 CON ETIQUETAS y espacio después de los dos puntos
+        # 6. Generar PDF417 CON ETIQUETAS y espacios
         cadena = (
             f"FOLIO: {folio} | "
             f"MARCA: {marca} | "
@@ -552,28 +552,26 @@ def formulario_edomex():
         codes       = encode(cadena, columns=6, security_level=5)
         barcode_img = render_image(codes)
 
-        # 7. Insertar el código: tamaño 2"x1", luego rasuramos (en pt)
+        # 7. Insertar código con ajustes:
         buf       = BytesIO()
         barcode_img.save(buf, format="PNG")
         img_bytes = buf.getvalue()
 
-        # 2 pulgadas ancho = 144 pt, 1 pulgada alto = 72 pt
-        orig_w = 144
-        orig_h = 72
+        orig_w = 144  # 2 pulgadas → 144 pt
+        orig_h = 72   # 1 pulgada → 72 pt
 
-        # Rasurado:
-        # - 0.5 cm = 14.17 pt (abajo)
-        # - 7 mm = 19.84 pt (arriba)
-        # - 1.5 cm = 42.52 pt (derecha)
+        # Ajustes de recorte y expansión
+        rasura_arriba_pt   = 11.34   # 4 mm
+        expande_derecha_pt = 14.17   # 5 mm
 
         x0 = coords_edomex["serie"][0] - 200
         y0 = coords_edomex["serie"][1] - 160
 
         rect = fitz.Rect(
             x0,
-            y0 + 19.84,                      # subir 7mm (recortar arriba)
-            x0 + orig_w - 42.52,             # recortar 1.5cm del lado derecho
-            y0 + orig_h - 14.17 + 19.84      # alto original menos 0.5cm abajo
+            y0 + rasura_arriba_pt,
+            x0 + orig_w + expande_derecha_pt,
+            y0 + orig_h + rasura_arriba_pt
         )
         page.insert_image(rect, stream=img_bytes, keep_proportion=True)
 
