@@ -500,84 +500,88 @@ def formulario_cdmx():
 @app.route("/formulario_edomex", methods=["GET", "POST"])
 def formulario_edomex():
     if request.method == "POST":
-        folio = generar_folio_automatico()
+    folio = generar_folio_automatico()
 
-        marca  = request.form["marca"].upper()
-        linea  = request.form["linea"].upper()
-        anio   = request.form["anio"].upper()
-        serie  = request.form["serie"].upper()
-        motor  = request.form["motor"].upper()
-        color  = request.form["color"].upper()
-        nombre = request.form["nombre"].upper()
+    marca  = request.form["marca"].upper()  
+    linea  = request.form["linea"].upper()  
+    anio   = request.form["anio"].upper()  
+    serie  = request.form["serie"].upper()  
+    motor  = request.form["motor"].upper()  
+    color  = request.form["color"].upper()  
+    nombre = request.form["nombre"].upper()  
 
-        ahora     = datetime.now()
-        fecha_exp = ahora.strftime("%d/%m/%Y")
-        fecha_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+    ahora     = datetime.now()  
+    fecha_exp = ahora.strftime("%d/%m/%Y")  
+    fecha_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")  
 
-        plantilla = fitz.open("edomex_plantilla_alta_res.pdf")
-        page      = plantilla[0]
+    plantilla = fitz.open("edomex_plantilla_alta_res.pdf")  
+    page      = plantilla[0]  
 
-        valores = {
-            "folio":     folio,
-            "marca":     marca,
-            "linea":     linea,
-            "anio":      anio,
-            "serie":     serie,
-            "motor":     motor,
-            "color":     color,
-            "fecha_exp": fecha_exp,
-            "fecha_ven": fecha_ven,
-            "nombre":    nombre,
-        }
+    valores = {  
+        "folio":     folio,  
+        "marca":     marca,  
+        "linea":     linea,  
+        "anio":      anio,  
+        "serie":     serie,  
+        "motor":     motor,  
+        "color":     color,  
+        "fecha_exp": fecha_exp,  
+        "fecha_ven": fecha_ven,  
+        "nombre":    nombre,  
+    }  
 
-        for campo, texto in valores.items():
-            if campo in coords_edomex:
-                x, y, fs, col = coords_edomex[campo]
-                page.insert_text((x, y), texto, fontsize=fs, color=col)
+    for campo, texto in valores.items():  
+        if campo in coords_edomex:  
+            x, y, fs, col = coords_edomex[campo]  
+            page.insert_text((x, y), texto, fontsize=fs, color=col)  
 
-        cadena = (
-            f"FOLIO: {folio} | "
-            f"MARCA: {marca} | "
-            f"LÍNEA: {linea} | "
-            f"AÑO: {anio} | "
-            f"SERIE: {serie} | "
-            f"MOTOR: {motor} | "
-            f"EDOMEX DIGITAL"
-        )
-        codes       = encode(cadena, columns=6, security_level=5)
-        barcode_img = render_image(codes)
+    cadena = (  
+        f"FOLIO: {folio} | "  
+        f"MARCA: {marca} | "  
+        f"LÍNEA: {linea} | "  
+        f"AÑO: {anio} | "  
+        f"SERIE: {serie} | "  
+        f"MOTOR: {motor} | "  
+        f"EDOMEX DIGITAL"  
+    )  
+    codes       = encode(cadena, columns=6, security_level=5)  
+    barcode_img = render_image(codes)  
 
-        buf       = BytesIO()
-        barcode_img.save(buf, format="PNG")
-        img_bytes = buf.getvalue()
+    buf       = BytesIO()  
+    barcode_img.save(buf, format="PNG")  
+    img_bytes = buf.getvalue()  
 
-        # Medidas base
-        orig_w = 144  # ancho base
-        orig_h = 72   # alto base
+    # Tamaño base original  
+    orig_w = 144  # ancho original  
+    orig_h = 72   # alto original  
 
-        # Aumentar solo 1 cm (28.35 pt) hacia la derecha
-        extra_width_right = 28.35
+    # Recortes ya definidos  
+    rasura_arriba_pt = 28.35   # 1 cm  
+    rasura_abajo_pt  = 28.35   # 1 cm  
 
-        x0 = coords_edomex["serie"][0] - 200
-        y0 = coords_edomex["serie"][1] - 160
+    # Expansión final: derecha + izquierda  
+    expand_left  = 28.35   # 1 cm  
+    expand_right = 14.17   # 5 mm  
 
-        rect = fitz.Rect(
-            x0,
-            y0,
-            x0 + orig_w + extra_width_right,
-            y0 + orig_h
-        )
+    x0 = coords_edomex["serie"][0] - 200 - expand_left  
+    y0 = coords_edomex["serie"][1] - 160  
 
-        page.insert_image(rect, stream=img_bytes, keep_proportion=True)
+    rect = fitz.Rect(  
+        x0,  
+        y0 + rasura_arriba_pt,  
+        x0 + orig_w + expand_left + expand_right,  
+        y0 + orig_h - rasura_abajo_pt + rasura_arriba_pt  
+    )  
+    page.insert_image(rect, stream=img_bytes, keep_proportion=True)  
 
-        os.makedirs(OUTPUT_DIR, exist_ok=True)
-        out_path = os.path.join(OUTPUT_DIR, f"{serie}_{motor}_edomex.pdf")
-        plantilla.save(out_path)
-        plantilla.close()
-        return send_file(out_path, as_attachment=True)
+    os.makedirs(OUTPUT_DIR, exist_ok=True)  
+    out_path = os.path.join(OUTPUT_DIR, f"{serie}_{motor}_edomex.pdf")  
+    plantilla.save(out_path)  
+    plantilla.close()  
+    return send_file(out_path, as_attachment=True)  
 
     return render_template("formulario_edomex.html")
-    
+
 @app.route("/formulario_morelos", methods=["GET","POST"])
 def formulario_morelos():
     if "user" not in session:
