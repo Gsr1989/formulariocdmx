@@ -231,7 +231,7 @@ def abrir_pdf_guerrero(folio):
 def generar_folio_guerrero():
     letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     supa = supabase
-    inicio_letras = "AZ"
+    inicio_letras = "GR"
     inicio_num = 2364
 
     existentes = supa.table("borradores_registros").select("folio").eq("entidad", "Guerrero").execute().data
