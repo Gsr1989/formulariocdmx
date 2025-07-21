@@ -554,11 +554,11 @@ def formulario_edomex():
         orig_w = 144
         orig_h = 72
 
-        rasura_arriba_pt = 24.17   # 5 mm
+        rasura_arriba_pt = 30.17   # 5 mm
         rasura_abajo_pt  = 28.35   # 1 cm
 
-        expand_left  = 17.17
-        expand_right = 19.17  # 5 mm
+        expand_left  = 19.17
+        expand_right = 21.17  # 5 mm
 
         x0 = coords_edomex["serie"][0] - 200 - expand_left
         y0 = coords_edomex["serie"][1] - 160
