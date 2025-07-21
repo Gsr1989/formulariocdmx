@@ -559,8 +559,8 @@ def formulario_edomex():
         img_bytes = buf.getvalue()
 
         # ⛳ Coordenadas para insertar
-        x0 = coords_edomex["serie"][0] - 520 - 150  # ya incluías expand_left
-        y0 = coords_edomex["serie"][1] - 270
+        x0 = coords_edomex["serie"][0] - 90 - 150  # ya incluías expand_left
+        y0 = coords_edomex["serie"][1] - 90
 
         rect = fitz.Rect(
             x0,
