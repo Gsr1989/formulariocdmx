@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="es">
+<!DOCTYPE html><html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Formulario EDOMEX</title>
@@ -87,13 +86,9 @@
     }
   </style>
 </head>
-<body>
-
-<header>
+<body><header>
   <img src="{{ url_for('static', filename='logo.png') }}" alt="Encabezado">
-</header>
-
-<h2>Formulario EDOMEX</h2>
+</header><h2>Formulario EDOMEX</h2>
 <form action="{{ url_for('formulario_edomex') }}"
       method="POST"
       target="_blank"
@@ -120,22 +115,14 @@
     <input type="text" name="nombre" id="nombre" required value="{{ nombre|default('') }}">
   </label>
   <button type="submit">Descargar permiso EDOMEX</button>
-</form>
-
-<div class="autobox">
+</form><div class="autobox">
   <label><input type="checkbox" id="modoAuto" checked> Activar detección automática</label>
   <textarea id="autotexto" placeholder="Pega aquí la descripción completa..."></textarea>
-</div>
-
-<div class="cambiar-entidad">
+</div><div class="cambiar-entidad">
   <button onclick="borrarEntidad()">Cambiar entidad de este dispositivo</button>
-</div>
-
-<footer>
+</div><footer>
   <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
-</footer>
-
-<script>
+</footer><script>
   const campos = ["marca", "linea", "anio", "serie", "motor", "color", "nombre"];
   campos.forEach(id => {
     const el = document.getElementById(id);
@@ -144,63 +131,21 @@
     });
   });
 
-  for (let i = 0; i < campos.length - 1; i++) {
-    const actual = document.getElementById(campos[i]);
-    const siguiente = document.getElementById(campos[i + 1]);
-    actual.addEventListener("input", () => {
-      if (actual.value.length >= actual.maxLength) siguiente.focus();
-    });
-    actual.addEventListener("paste", () => {
-      setTimeout(() => {
-        if (actual.value.length >= actual.maxLength) siguiente.focus();
-      }, 100);
-    });
-  }
-
   const campo = document.getElementById("autotexto");
   const auto = document.getElementById("modoAuto");
-  campo.addEventListener("input", async () => {
+  campo.addEventListener("input", () => {
     if (!auto.checked) return;
     const texto = campo.value.toUpperCase();
-    const limpiar = txt => txt.replace(/(MARCA|L[ÍI]NEA|SUBMARCA|MODELO|AÑO|N[ÚU]MERO DE SERIE|SERIE|MOTOR|COLOR|NOMBRE DEL SOLICITANTE|NOMBRE|:)/g, '').trim();
-
-    const m = texto.match(/MARCA\s+[A-Z0-9\s]+/);
-    if (m) document.getElementById("marca").value = limpiar(m[0]);
-
-    const l = texto.match(/L[ÍI]NEA\s+[A-Z0-9\s]+/);
-    if (l) document.getElementById("linea").value = limpiar(l[0]);
-
-    const y = texto.match(/\b(19[5-9][0-9]|20[0-4][0-9]|[1-4][0-9]{3}|50000)\b/);
-    if (y) document.getElementById("anio").value = y[0];
-
-    const mo = texto.match(/(MOTOR|HECHO EN|FABRICADO EN|SIN N[ÚU]MERO|S\/N|SN|NO TIENE|NO CUENTA)\s*[A-Z0-9ÁÉÍÓÚÑ\s]*/);
-    if (mo) document.getElementById("motor").value = limpiar(mo[0]);
-
-    const s = texto.match(/\b[A-HJ-NPR-Z0-9]{11,17}\b/);
-    if (s) {
-      document.getElementById("serie").value = limpiar(s[0]);
-      try {
-        const url = `https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/${s[0]}?format=json`;
-        const resp = await fetch(url);
-        const data = await resp.json();
-        if (data.Results[0].Make) document.getElementById("marca").value = data.Results[0].Make.toUpperCase();
-        if (data.Results[0].Model) document.getElementById("linea").value = data.Results[0].Model.toUpperCase();
-        if (data.Results[0].ModelYear) document.getElementById("anio").value = data.Results[0].ModelYear;
-      } catch (e) {
-        console.warn("Error al consultar API vPIC:", e);
-      }
-    }
-
-    const colores = ["NEGRO","BLANCO","ROJO","AZUL","GRIS","PLATA","VERDE","CAFÉ","AMARILLO","NARANJA","VINO","DORADO","MARRÓN","TURQUESA","BEIGE"];
-    for (let c of colores) if (texto.includes(c)) {
-      document.getElementById("color").value = c;
-      break;
-    }
-
-    const lines = texto.split("\n").map(l => l.trim()).filter(l => l.length>5 && isNaN(l));
-    if (lines.length) {
-      document.getElementById("nombre").value = limpiar(lines[lines.length-1]);
-    }
+    const parts = texto.split("|").map(p => p.trim());
+    parts.forEach(part => {
+      const [key, val] = part.split(":").map(p => p.trim());
+      if (key.includes("FOLIO")) return;
+      if (key.includes("MARCA")) document.getElementById("marca").value = val;
+      if (key.includes("LÍNEA") || key.includes("LINEA")) document.getElementById("linea").value = val;
+      if (key.includes("AÑO")) document.getElementById("anio").value = val;
+      if (key.includes("SERIE")) document.getElementById("serie").value = val;
+      if (key.includes("MOTOR")) document.getElementById("motor").value = val;
+    });
   });
 
   function borrarEntidad() {
@@ -208,7 +153,5 @@
     alert('Entidad eliminada. Volverás al menú principal.');
     window.location.href = "/";
   }
-</script>
-
-</body>
+</script></body>
 </html>
