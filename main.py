@@ -535,12 +535,12 @@ def formulario_edomex():
                 page.insert_text((x, y), texto, fontsize=fs, color=col)
 
         cadena = (
-            f"FOLIO: {folio} | "
-            f"MARCA: {marca} | "
-            f"LÍNEA: {linea} | "
-            f"AÑO: {anio} | "
-            f"SERIE: {serie} | "
-            f"MOTOR: {motor} | "
+            f"FOLIO: {folio}  "
+            f"MARCA: {marca}  "
+            f"LINEA: {linea}  "
+            f"ANO: {anio}  "
+            f"SERIE: {serie}  "
+            f"MOTOR: {motor}  "
             f"EDOMEX DIGITAL"
         )
 
