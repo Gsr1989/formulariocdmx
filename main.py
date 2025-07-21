@@ -545,12 +545,13 @@ def formulario_edomex():
             f"EDOMEX DIGITAL"
         )
 
+        # 🔥 Renderizamos con alta resolución para que no se pixelee
         codes       = encode(cadena, columns=6, security_level=5)
-        barcode_img = render_image(codes)
+        barcode_img = render_image(codes, scale=5)
 
-        # 💥 REDIMENSIONAMOS A 25cm x 2cm en puntos (1 cm = 28.35 pt)
-        ancho_pt = int(4.1 * 28.35)  # 708.75 pt
-        alto_pt  = int(1.1 * 28.35)   # 56.7 pt
+        # 🧱 Redimensionamos a 25cm × 2cm en puntos (1 cm = 28.35 pt)
+        ancho_pt = int(25 * 28.35)  # 708.75 pt
+        alto_pt  = int(2 * 28.35)   # 56.7 pt
 
         barcode_img = barcode_img.resize((ancho_pt, alto_pt))
 
@@ -558,8 +559,8 @@ def formulario_edomex():
         barcode_img.save(buf, format="PNG")
         img_bytes = buf.getvalue()
 
-        # ⛳ Coordenadas para insertar
-        x0 = coords_edomex["serie"][0] - 50 - 150  # ya incluías expand_left
+        # ⛳ Coordenadas que tú ya afinaste
+        x0 = coords_edomex["serie"][0] - 50 - 150
         y0 = coords_edomex["serie"][1] - 121
 
         rect = fitz.Rect(
