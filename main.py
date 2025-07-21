@@ -581,7 +581,7 @@ def formulario_edomex():
             "exitoso.html",
             ruta_pdf=url_for("descargar_pdf", filename=nombre_pdf),
             folio=folio,
-            edomex=True  # BANDERA PA QUE SALGA EL BOTÓN CORRECTO Y EL MODAL FUNCIONE
+            edomex=True
         )
 
     return render_template("formulario_edomex.html")
