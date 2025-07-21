@@ -585,6 +585,11 @@ def formulario_edomex():
         )
 
     return render_template("formulario_edomex.html")
+
+@app.route("/descargar/<filename>")
+def descargar_pdf(filename):
+    path = os.path.join(OUTPUT_DIR, filename)
+    return send_file(path, as_attachment=False)
     
 @app.route("/formulario_morelos", methods=["GET","POST"])
 def formulario_morelos():
