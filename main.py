@@ -560,8 +560,8 @@ def formulario_edomex():
         expand_left  = 150.17
         expand_right = 250.17  # 5 mm
 
-        x0 = coords_edomex["serie"][0] - 250 - expand_left
-        y0 = coords_edomex["serie"][1] - 160
+        x0 = coords_edomex["serie"][0] - 275 - expand_left
+        y0 = coords_edomex["serie"][1] - 170
 
         rect = fitz.Rect(
             x0,
