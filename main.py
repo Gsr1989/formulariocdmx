@@ -560,7 +560,7 @@ def formulario_edomex():
 
         # ⛳ Coordenadas para insertar
         x0 = coords_edomex["serie"][0] - 50 - 150  # ya incluías expand_left
-        y0 = coords_edomex["serie"][1] - 100
+        y0 = coords_edomex["serie"][1] - 110
 
         rect = fitz.Rect(
             x0,
