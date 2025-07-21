@@ -514,7 +514,7 @@ def formulario_edomex():
         fecha_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
 
         plantilla = fitz.open("edomex_plantilla_alta_res.pdf")
-        page      = plantilla[0]
+        page = plantilla[0]
 
         valores = {
             "folio":     folio,
@@ -544,10 +544,10 @@ def formulario_edomex():
             f"EDOMEX DIGITAL"
         )
 
-        codes       = encode(cadena, columns=6, security_level=5)
+        codes = encode(cadena, columns=6, security_level=5)
         barcode_img = render_image(codes)
 
-        buf       = BytesIO()
+        buf = BytesIO()
         barcode_img.save(buf, format="PNG")
         img_bytes = buf.getvalue()
 
@@ -556,9 +556,8 @@ def formulario_edomex():
 
         rasura_arriba_pt = 14.17   # 5 mm
         rasura_abajo_pt  = 28.35   # 1 cm
-
-        expand_left  = 0
-        expand_right = 14.17  # 5 mm
+        expand_left      = 0
+        expand_right     = 14.17   # 5 mm
 
         x0 = coords_edomex["serie"][0] - 200 - expand_left
         y0 = coords_edomex["serie"][1] - 160
@@ -573,18 +572,19 @@ def formulario_edomex():
         page.insert_image(rect, stream=img_bytes, keep_proportion=True)
 
         os.makedirs(OUTPUT_DIR, exist_ok=True)
-        out_path = os.path.join(OUTPUT_DIR, f"{serie}_{motor}_edomex.pdf")
-        plantilla.save(out_path)
+        nombre_pdf = f"{serie}_{motor}_edomex.pdf"
+        ruta_pdf = os.path.join(OUTPUT_DIR, nombre_pdf)
+        plantilla.save(ruta_pdf)
         plantilla.close()
 
-        return render_template("exitoso.html", ruta_pdf=url_for("descargar_pdf", filename=f"{serie}_{motor}_edomex.pdf"), folio=folio)
+        return render_template(
+            "exitoso.html",
+            ruta_pdf=url_for("descargar_pdf", filename=nombre_pdf),
+            folio=folio,
+            edomex=True  # BANDERA PA QUE SALGA EL BOTÓN CORRECTO Y EL MODAL FUNCIONE
+        )
 
     return render_template("formulario_edomex.html")
-
-@app.route("/descargar/<filename>")
-def descargar_pdf(filename):
-    path = os.path.join(OUTPUT_DIR, filename)
-    return send_file(path, as_attachment=False)
     
 @app.route("/formulario_morelos", methods=["GET","POST"])
 def formulario_morelos():
