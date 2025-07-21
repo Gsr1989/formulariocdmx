@@ -558,10 +558,10 @@ def formulario_edomex():
         rasura_abajo_pt  = 38.35   # 1 cm
 
         expand_left  = 150.17
-        expand_right = 250.17  # 5 mm
+        expand_right = 300.17  # 5 mm
 
         x0 = coords_edomex["serie"][0] - 275 - expand_left
-        y0 = coords_edomex["serie"][1] - 170
+        y0 = coords_edomex["serie"][1] - 150
 
         rect = fitz.Rect(
             x0,
