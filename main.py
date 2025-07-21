@@ -557,8 +557,8 @@ def formulario_edomex():
         rasura_arriba_pt = 31.17   # 5 mm
         rasura_abajo_pt  = 29.35   # 1 cm
 
-        expand_left  = 60.17
-        expand_right = 52.17  # 5 mm
+        expand_left  = 80.17
+        expand_right = 70.17  # 5 mm
 
         x0 = coords_edomex["serie"][0] - 200 - expand_left
         y0 = coords_edomex["serie"][1] - 160
