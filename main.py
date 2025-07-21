@@ -577,7 +577,7 @@ def formulario_edomex():
         plantilla.save(out_path)
         plantilla.close()
 
-        return render_template("exito.html", ruta_pdf=url_for("descargar_pdf", filename=f"{serie}_{motor}_edomex.pdf"), folio=folio)
+        return render_template("exitoso.html", ruta_pdf=url_for("descargar_pdf", filename=f"{serie}_{motor}_edomex.pdf"), folio=folio)
 
     return render_template("formulario_edomex.html")
 
