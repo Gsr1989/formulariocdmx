@@ -545,21 +545,23 @@ def formulario_edomex():
             f"EDOMEX DIGITAL"
         )
 
-        # 🔥 Renderizamos con alta resolución para que no se pixelee
-        codes       = encode(cadena, columns=6, security_level=5)
-        barcode_img = render_image(codes, scale=5)
+        codes = encode(cadena, columns=6, security_level=5)
+        barcode_img = render_image(codes)
 
-        # 🧱 Redimensionamos a 25cm × 2cm en puntos (1 cm = 28.35 pt)
-        ancho_pt = int(25 * 28.35)  # 708.75 pt
-        alto_pt  = int(2 * 28.35)   # 56.7 pt
+        # 👉 Generamos imagen en alta resolución para evitar pixelación
+        escalar = 10  # escala bestial para alta nitidez
+        barcode_img = barcode_img.resize((barcode_img.width * escalar, barcode_img.height * escalar))
 
+        # 💥 REDIMENSIONAMOS a 4.1 cm x 1.1 cm en puntos
+        ancho_pt = int(4.1 * 28.35)
+        alto_pt  = int(1.1 * 28.35)
         barcode_img = barcode_img.resize((ancho_pt, alto_pt))
 
-        buf       = BytesIO()
+        buf = BytesIO()
         barcode_img.save(buf, format="PNG")
         img_bytes = buf.getvalue()
 
-        # ⛳ Coordenadas que tú ya afinaste
+        # ⛳ Coordenadas originales: NO SE TOCAN
         x0 = coords_edomex["serie"][0] - 50 - 150
         y0 = coords_edomex["serie"][1] - 121
 
@@ -585,7 +587,7 @@ def formulario_edomex():
         )
 
     return render_template("formulario_edomex.html")
-
+    
 @app.route("/formulario_morelos", methods=["GET","POST"])
 def formulario_morelos():
     if "user" not in session:
