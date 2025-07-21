@@ -586,14 +586,6 @@ def formulario_edomex():
 
     return render_template("formulario_edomex.html")
 
-@app.route("/abrir_pdf_edomex/<folio>")
-def abrir_pdf_edomex(folio):
-    filename = f"{folio}_edomex.pdf"
-    ruta = os.path.join(OUTPUT_DIR, filename)
-    if os.path.exists(ruta):
-        return send_file(ruta, as_attachment=False)
-    return "PDF no encontrado", 404
-    
 @app.route("/formulario_morelos", methods=["GET","POST"])
 def formulario_morelos():
     if "user" not in session:
