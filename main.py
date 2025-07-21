@@ -549,8 +549,8 @@ def formulario_edomex():
         barcode_img = render_image(codes)
 
         # 💥 REDIMENSIONAMOS A 25cm x 2cm en puntos (1 cm = 28.35 pt)
-        ancho_pt = int(7 * 28.35)  # 708.75 pt
-        alto_pt  = int(1.5 * 28.35)   # 56.7 pt
+        ancho_pt = int(5 * 28.35)  # 708.75 pt
+        alto_pt  = int(1.2 * 28.35)   # 56.7 pt
 
         barcode_img = barcode_img.resize((ancho_pt, alto_pt))
 
@@ -559,7 +559,7 @@ def formulario_edomex():
         img_bytes = buf.getvalue()
 
         # ⛳ Coordenadas para insertar
-        x0 = coords_edomex["serie"][0] - 70 - 150  # ya incluías expand_left
+        x0 = coords_edomex["serie"][0] - 80 - 150  # ya incluías expand_left
         y0 = coords_edomex["serie"][1] - 150
 
         rect = fitz.Rect(
