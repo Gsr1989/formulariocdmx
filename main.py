@@ -546,22 +546,18 @@ def formulario_edomex():
         )
 
         codes = encode(cadena, columns=6, security_level=5)
-        barcode_img = render_image(codes)
 
-        # 👉 Generamos imagen en alta resolución para evitar pixelación
-        escalar = 10  # escala bestial para alta nitidez
-        barcode_img = barcode_img.resize((barcode_img.width * escalar, barcode_img.height * escalar))
+        # 🧼 GENERAMOS IMAGEN EN ALTA CALIDAD DESDE AQUÍ (sin resize después)
+        barcode_img = render_image(codes, scale=4)  # <- Esta línea hace la magia
 
-        # 💥 REDIMENSIONAMOS a 4.1 cm x 1.1 cm en puntos
-        ancho_pt = int(4.1 * 28.35)
-        alto_pt  = int(1.1 * 28.35)
-        barcode_img = barcode_img.resize((ancho_pt, alto_pt))
-
-        buf = BytesIO()
+        buf       = BytesIO()
         barcode_img.save(buf, format="PNG")
         img_bytes = buf.getvalue()
 
-        # ⛳ Coordenadas originales: NO SE TOCAN
+        # 💥 MEDIDA FIJA DE 4.1cm x 1.1cm en puntos (no crece, no se deforma)
+        ancho_pt = int(4.1 * 28.35)  # 708.75 pt
+        alto_pt  = int(1.1 * 28.35)  # 56.7 pt
+
         x0 = coords_edomex["serie"][0] - 50 - 150
         y0 = coords_edomex["serie"][1] - 121
 
