@@ -264,7 +264,7 @@ def generar_folio_por_mes():
     consecutivos = [int(folio[2:]) for folio in existentes if folio[2:].isdigit()]
     nuevo_consecutivo = max(consecutivos) + 1 if consecutivos else 1
 
-    return f"{mes}{str(nuevo_consecutivo).zfill(2)}"
+    return f"{mes}{str(nuevo_consecutivo).zfill(5)}"
 
 import pdf417gen
 from PIL import Image
