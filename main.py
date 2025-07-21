@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, send_file, redirect, url_for,
 from io import BytesIO
 import base64
 from pdf417gen import encode, render_image
+from PIL import Image
 import qrcode
 from datetime import datetime, timedelta
 import os
@@ -547,30 +548,28 @@ def formulario_edomex():
         codes       = encode(cadena, columns=6, security_level=5)
         barcode_img = render_image(codes)
 
+        # 💥 REDIMENSIONAMOS A 25cm x 2cm en puntos (1 cm = 28.35 pt)
+        ancho_pt = int(25 * 28.35)  # 708.75 pt
+        alto_pt  = int(2 * 28.35)   # 56.7 pt
+
+        barcode_img = barcode_img.resize((ancho_pt, alto_pt))
+
         buf       = BytesIO()
         barcode_img.save(buf, format="PNG")
         img_bytes = buf.getvalue()
 
-        orig_w = 144
-        orig_h = 72
-
-        rasura_arriba_pt = 38.17   # 5 mm
-        rasura_abajo_pt  = 38.35   # 1 cm
-
-        expand_left  = 150.17
-        expand_right = 300.17  # 5 mm
-
-        x0 = coords_edomex["serie"][0] - 275 - expand_left
+        # ⛳ Coordenadas para insertar
+        x0 = coords_edomex["serie"][0] - 275 - 150  # ya incluías expand_left
         y0 = coords_edomex["serie"][1] - 150
 
         rect = fitz.Rect(
             x0,
-            y0 + rasura_arriba_pt,
-            x0 + orig_w + expand_left + expand_right,
-            y0 + orig_h - rasura_abajo_pt + rasura_arriba_pt
+            y0,
+            x0 + ancho_pt,
+            y0 + alto_pt
         )
 
-        page.insert_image(rect, stream=img_bytes, keep_proportion=True)
+        page.insert_image(rect, stream=img_bytes, keep_proportion=False)
 
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out_path = os.path.join(OUTPUT_DIR, f"{folio}_edomex.pdf")
