@@ -549,8 +549,8 @@ def formulario_edomex():
         barcode_img = render_image(codes)
 
         # 💥 REDIMENSIONAMOS A 25cm x 2cm en puntos (1 cm = 28.35 pt)
-        ancho_pt = int(5 * 28.35)  # 708.75 pt
-        alto_pt  = int(1.2 * 28.35)   # 56.7 pt
+        ancho_pt = int(4 * 28.35)  # 708.75 pt
+        alto_pt  = int(1 * 28.35)   # 56.7 pt
 
         barcode_img = barcode_img.resize((ancho_pt, alto_pt))
 
