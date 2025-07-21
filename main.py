@@ -541,7 +541,7 @@ def formulario_edomex():
             f"AÑO: {anio} | "
             f"SERIE: {serie} | "
             f"MOTOR: {motor} | "
-            f"EDOMEX Digital"
+            f"EDOMEX DIGITAL"
         )
 
         codes       = encode(cadena, columns=6, security_level=5)
@@ -551,13 +551,14 @@ def formulario_edomex():
         barcode_img.save(buf, format="PNG")
         img_bytes = buf.getvalue()
 
-        orig_w = 144  # original width
-        orig_h = 72   # original height
+        orig_w = 144
+        orig_h = 72
 
-        rasura_arriba_pt = 28.35  # 1 cm
-        rasura_abajo_pt  = 14.17  # 5 mm
-        expand_right     = 14.17  # 5 mm
-        expand_left      = 0
+        rasura_arriba_pt = 14.17   # 5 mm
+        rasura_abajo_pt  = 28.35   # 1 cm
+
+        expand_left  = 0
+        expand_right = 14.17  # 5 mm
 
         x0 = coords_edomex["serie"][0] - 200 - expand_left
         y0 = coords_edomex["serie"][1] - 160
@@ -565,7 +566,7 @@ def formulario_edomex():
         rect = fitz.Rect(
             x0,
             y0 + rasura_arriba_pt,
-            x0 + orig_w + expand_right,
+            x0 + orig_w + expand_left + expand_right,
             y0 + orig_h - rasura_abajo_pt + rasura_arriba_pt
         )
 
@@ -576,10 +577,15 @@ def formulario_edomex():
         plantilla.save(out_path)
         plantilla.close()
 
-        return send_file(out_path, as_attachment=True)
+        return render_template("exito.html", ruta_pdf=url_for("descargar_pdf", filename=f"{serie}_{motor}_edomex.pdf"), folio=folio)
 
     return render_template("formulario_edomex.html")
 
+@app.route("/descargar/<filename>")
+def descargar_pdf(filename):
+    path = os.path.join(OUTPUT_DIR, filename)
+    return send_file(path, as_attachment=False)
+    
 @app.route("/formulario_morelos", methods=["GET","POST"])
 def formulario_morelos():
     if "user" not in session:
