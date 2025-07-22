@@ -10,7 +10,7 @@ import string
 import csv
 from supabase import create_client, Client
 import json
-
+import io
 import fitz  # <— ¡Aquí lo agregas!
 
 # Configuración básica
