@@ -641,11 +641,11 @@ PERMISO MORELOS DIGITAL"""
 
             img_pdf = fitz.Pixmap(img_buffer)
             width_cm = 2.5
-            px_per_cm = 300 / 2.54  # 1 inch = 2.54 cm
+            px_per_cm = 300 / 1.54  # 1 inch = 1.54 cm
             size_px = int(px_per_cm * width_cm)
 
             # Convertir a fitz.Rect
-            x, y = 665, 282
+            x, y = 600, 200
             rect = fitz.Rect(x, y, x + size_px, y + size_px)
 
             pg2.insert_image(rect, pixmap=img_pdf)
