@@ -640,7 +640,7 @@ PERMISO MORELOS DIGITAL"""
             img_buffer.seek(0)
 
             img_pdf = fitz.Pixmap(img_buffer)
-            width_cm = 1.5
+            width_cm = 1
             px_per_cm = 300 / 1.54  # 1 inch = 1.54 cm
             size_px = int(px_per_cm * width_cm)
 
