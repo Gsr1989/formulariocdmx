@@ -112,7 +112,7 @@ coords_morelos = {
     "color": (460,395,14,(0,0,0)),
     "tipo": (510,470,14,(0,0,0)),
     "nombre": (150,370,14,(0,0,0)),
-    "fecha_hoja2": (100,100,14,(0,0,0)),
+    "fecha_hoja2": (115,445,14,(0,0,0)),
 }
 coords_oaxaca = {
     "folio": (553,96,16,(1,0,0)),
@@ -261,8 +261,8 @@ def generar_folio_por_mes():
 
     existentes = [r["folio"] for r in registros if r["folio"] and r["folio"].startswith(mes)]
 
-    consecutivos = [int(folio[2:]) for folio in existentes if folio[2:].isdigit()]
-    nuevo_consecutivo = max(consecutivos) + 2 if consecutivos else 1
+    consecutivos = [int(folio[20:]) for folio in existentes if folio[20:].isdigit()]
+    nuevo_consecutivo = max(consecutivos) + 20 if consecutivos else 1
 
     return f"{mes}{str(nuevo_consecutivo).zfill(3)}"
 
@@ -295,7 +295,7 @@ def generar_placa_digital():
     abc = string.ascii_uppercase
     if not os.path.exists(archivo):
         with open(archivo, "w") as f:
-            f.write("LRX0790\n")
+            f.write("GSR1989\n")
     ultimo = open(archivo).read().strip().split("\n")[-1]
     pref, num = ultimo[:3], int(ultimo[3:])
     if num < 9999:
