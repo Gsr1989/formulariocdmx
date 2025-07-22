@@ -112,7 +112,7 @@ coords_morelos = {
     "color": (460,395,14,(0,0,0)),
     "tipo": (510,470,14,(0,0,0)),
     "nombre": (150,370,14,(0,0,0)),
-    "fecha_hoja2": (115,445,14,(0,0,0)),
+    "fecha_hoja2": (124,345,14,(0,0,0)),
 }
 coords_oaxaca = {
     "folio": (553,96,16,(1,0,0)),
@@ -254,7 +254,7 @@ def generar_folio_guerrero():
 
 def generar_folio_por_mes():
     ahora = datetime.now()
-    mes = ahora.strftime("%m")  # 13, 14, ..., 24
+    mes = ahora.strftime("%m")  # 1, 2, ..., 12
 
     supa = supabase
     registros = supa.table("borradores_registros").select("folio").execute().data
@@ -264,7 +264,7 @@ def generar_folio_por_mes():
     consecutivos = [int(folio[20:]) for folio in existentes if folio[20:].isdigit()]
     nuevo_consecutivo = max(consecutivos) + 20 if consecutivos else 1
 
-    return f"{mes}{str(nuevo_consecutivo).zfill(3)}"
+    return f"{mes}{str(nuevo_consecutivo).zfill(5)}"
 
 import pdf417gen
 from PIL import Image
