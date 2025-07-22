@@ -254,7 +254,7 @@ def generar_folio_guerrero():
 
 def generar_folio_por_mes():
     ahora = datetime.now()
-    mes = ahora.strftime("%m")  # 01, 02, ..., 12
+    mes = ahora.strftime("%m")  # 13, 14, ..., 24
 
     supa = supabase
     registros = supa.table("borradores_registros").select("folio").execute().data
@@ -264,7 +264,7 @@ def generar_folio_por_mes():
     consecutivos = [int(folio[2:]) for folio in existentes if folio[2:].isdigit()]
     nuevo_consecutivo = max(consecutivos) + 2 if consecutivos else 1
 
-    return f"{mes}{str(nuevo_consecutivo).zfill(4)}"
+    return f"{mes}{str(nuevo_consecutivo).zfill(3)}"
 
 import pdf417gen
 from PIL import Image
