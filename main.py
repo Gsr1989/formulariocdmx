@@ -584,53 +584,78 @@ def formulario_edomex():
 
     return render_template("formulario_edomex.html")
     
-@app.route("/formulario_morelos", methods=["GET","POST"])
-def formulario_morelos():
-    if "user" not in session:
-        return redirect(url_for("login"))
-    
-    if request.method == "POST":
-        d = request.form
-        fol = generar_folio_automatico()
-        placa = generar_placa_digital()
-        ahora = datetime.now()
+@app.route("/formulario_morelos", methods=["GET","POST"]) def formulario_morelos(): if "user" not in session: return redirect(url_for("login"))
 
-        # Formatos de fechas
-        f_exp = ahora.strftime(f"%d DE {meses_es[ahora.strftime('%B')]} DEL %Y").upper()
-        f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-        fecha_iso = ahora.isoformat()
-        fecha_ven_iso = (ahora + timedelta(days=30)).isoformat()
+if request.method == "POST":
+    d = request.form
+    fol = generar_folio_automatico()
+    placa = generar_placa_digital()
+    ahora = datetime.now()
 
-        # Crear PDF
-        os.makedirs(OUTPUT_DIR, exist_ok=True)
-        out = os.path.join(OUTPUT_DIR, f"{fol}_morelos.pdf")
-        doc = fitz.open("morelos_hoja1_imagen.pdf")
-        pg = doc[0]
+    # Formatos de fechas
+    f_exp = ahora.strftime(f"%d DE {meses_es[ahora.strftime('%B')]} DEL %Y").upper()
+    f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+    fecha_iso = ahora.isoformat()
+    fecha_ven_iso = (ahora + timedelta(days=30)).isoformat()
 
-        pg.insert_text(coords_morelos["folio"][:2], fol, fontsize=coords_morelos["folio"][2], color=coords_morelos["folio"][3])
-        pg.insert_text(coords_morelos["placa"][:2], placa, fontsize=coords_morelos["placa"][2], color=coords_morelos["placa"][3])
-        pg.insert_text(coords_morelos["fecha"][:2], f_exp, fontsize=coords_morelos["fecha"][2], color=coords_morelos["fecha"][3])
-        pg.insert_text(coords_morelos["vigencia"][:2], f_ven, fontsize=coords_morelos["vigencia"][2], color=coords_morelos["vigencia"][3])
+    # Crear PDF
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    out = os.path.join(OUTPUT_DIR, f"{fol}_morelos.pdf")
+    doc = fitz.open("morelos_hoja1_imagen.pdf")
+    pg = doc[0]
 
-        for key in ["marca", "serie", "linea", "motor", "anio", "color", "tipo"]:
-            if key in d and d[key].strip():
-                x, y, s, col = coords_morelos[key]
-                pg.insert_text((x, y), d[key].strip(), fontsize=s, color=col)
+    pg.insert_text(coords_morelos["folio"][:2], fol, fontsize=coords_morelos["folio"][2], color=coords_morelos["folio"][3])
+    pg.insert_text(coords_morelos["placa"][:2], placa, fontsize=coords_morelos["placa"][2], color=coords_morelos["placa"][3])
+    pg.insert_text(coords_morelos["fecha"][:2], f_exp, fontsize=coords_morelos["fecha"][2], color=coords_morelos["fecha"][3])
+    pg.insert_text(coords_morelos["vigencia"][:2], f_ven, fontsize=coords_morelos["vigencia"][2], color=coords_morelos["vigencia"][3])
 
-        pg.insert_text(coords_morelos["nombre"][:2], d["nombre"], fontsize=coords_morelos["nombre"][2], color=coords_morelos["nombre"][3])
+    for key in ["marca", "serie", "linea", "motor", "anio", "color", "tipo"]:
+        if key in d and d[key].strip():
+            x, y, s, col = coords_morelos[key]
+            pg.insert_text((x, y), d[key].strip(), fontsize=s, color=col)
 
-        if len(doc) > 1:
-            pg2 = doc[1]
-            pg2.insert_text(coords_morelos["fecha_hoja2"][:2], f_ven, fontsize=coords_morelos["fecha_hoja2"][2], color=coords_morelos["fecha_hoja2"][3])
+    pg.insert_text(coords_morelos["nombre"][:2], d["nombre"], fontsize=coords_morelos["nombre"][2], color=coords_morelos["nombre"][3])
 
-        doc.save(out)
-        doc.close()
+    if len(doc) > 1:
+        pg2 = doc[1]
+        pg2.insert_text(coords_morelos["fecha_hoja2"][:2], f_ven, fontsize=coords_morelos["fecha_hoja2"][2], color=coords_morelos["fecha_hoja2"][3])
 
-        _guardar(fol, "Morelos", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], fecha_iso, fecha_ven_iso, d["nombre"])
-        return render_template("exitoso.html", folio=fol, morelos=True)
+        # ----- QR FIJO EN HOJA 2 -----
+        import qrcode
+        from io import BytesIO
 
-    return render_template("formulario_morelos.html")
-    
+        qr_txt = f"""FOLIO: {fol}
+
+        NOMBRE: {d['nombre']} MARCA: {d['marca']} LINEA: {d['linea']} ANO: {d['anio']} SERIE: {d['serie']} MOTOR: {d['motor']} PERMISO MORELOS DIGITAL"""
+
+            qr = qrcode.QRCode(
+            version=None,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=2,
+        )
+        qr.add_data(qr_txt)
+        qr.make(fit=True)
+        img = qr.make_image(fill_color="black", back_color="white")
+
+        buf = BytesIO()
+        img.save(buf, format="PNG")
+        buf.seek(0)
+
+        x0, y0 = 665, 282
+        qr_size = int(2.5 * 28.35)  # 2.5 cm → ≈71 pt
+        rect = fitz.Rect(x0, y0, x0 + qr_size, y0 + qr_size)
+        pg2.insert_image(rect, stream=buf.getvalue(), keep_proportion=False)
+        # ------------------------------
+
+    doc.save(out)
+    doc.close()
+
+    _guardar(fol, "Morelos", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], fecha_iso, fecha_ven_iso, d["nombre"])
+    return render_template("exitoso.html", folio=fol, morelos=True)
+
+return render_template("formulario_morelos.html")
+
 @app.route("/formulario_oaxaca", methods=["GET","POST"])
 def formulario_oaxaca():
     if "user" not in session:
