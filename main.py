@@ -454,7 +454,9 @@ def formulario_cdmx():
             f"Línea: {d['linea']}\n"
             f"Año: {d['anio']}\n"
             f"Serie: {d['serie']}\n"
-            f"Motor: {d['motor']}"
+            f"Motor: {d['motor']}\n"
+            f"Nombre: {d['nombre']}\n"
+            F"SEMOVICDMX DIGITAL"
         )
 
         qr = qrcode.QRCode(
@@ -542,6 +544,8 @@ def formulario_edomex():
             f"ANO: {anio}  "
             f"SERIE: {serie}  "
             f"MOTOR: {motor}  "
+            f"COLOR: {color}  "
+            f"NOMBRE: {nombre} " 
             f"EDOMEX DIGITAL"
         )
 
@@ -631,6 +635,8 @@ LINEA: {d["linea"]}
 ANO: {d["anio"]}
 SERIE: {d["serie"]}
 MOTOR: {d["motor"]}
+COLOR: {d["color"]}
+TIPO: {d["tipo"]}
 PERMISO MORELOS DIGITAL"""
 
             # Generar código QR como imagen
