@@ -668,7 +668,6 @@ PERMISO MORELOS DIGITAL"""
 def formulario_oaxaca():
     if "user" not in session:
         return redirect(url_for("login"))
-
     if request.method == "POST":
         d = request.form
         fol = generar_folio_automatico()
@@ -680,55 +679,64 @@ def formulario_oaxaca():
 
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out = os.path.join(OUTPUT_DIR, f"{fol}_oaxaca.pdf")
+
         doc = fitz.open("oaxacachido.pdf")
         pg = doc[0]
 
+        # Insertar texto del formulario
         pg.insert_text(coords_oaxaca["folio"][:2], fol, fontsize=coords_oaxaca["folio"][2], color=coords_oaxaca["folio"][3])
         pg.insert_text(coords_oaxaca["fecha1"][:2], f1, fontsize=coords_oaxaca["fecha1"][2], color=coords_oaxaca["fecha1"][3])
         pg.insert_text(coords_oaxaca["fecha2"][:2], f1, fontsize=coords_oaxaca["fecha2"][2], color=coords_oaxaca["fecha2"][3])
-
         for key in ["marca", "serie", "linea", "motor", "anio", "color"]:
             x, y, s, col = coords_oaxaca[key]
             pg.insert_text((x, y), d[key], fontsize=s, color=col)
-
         pg.insert_text(coords_oaxaca["vigencia"][:2], f_ven, fontsize=coords_oaxaca["vigencia"][2], color=coords_oaxaca["vigencia"][3])
         pg.insert_text(coords_oaxaca["nombre"][:2], d["nombre"], fontsize=coords_oaxaca["nombre"][2], color=coords_oaxaca["nombre"][3])
 
-        # === GENERAR QR EN ALTA DEFINICIÓN ===
-        import qrcode
-        from PIL import Image, ImageResampling
-
-        qr_data = f"""FOLIO: {fol}
+        # --- Generar QR ---
+        texto_qr = f"""FOLIO: {fol}
+NOMBRE: {d['nombre']}
 MARCA: {d['marca']}
 LINEA: {d['linea']}
 AÑO: {d['anio']}
 SERIE: {d['serie']}
 MOTOR: {d['motor']}
-COLOR: {d['color']}
-NOMBRE: {d['nombre']}
 OAXACA PERMISOS DIGITALES"""
 
         qr = qrcode.QRCode(
-            version=None,
+            version=2,  # Ajusta para que el texto quepa sin pixelarse
             error_correction=qrcode.constants.ERROR_CORRECT_H,
-            box_size=10,  # alta resolución
+            box_size=10,  # Aumenta resolución
             border=2
         )
-        qr.add_data(qr_data)
+        qr.add_data(texto_qr.upper())
         qr.make(fit=True)
-        img_hd = qr.make_image(fill_color="black", back_color="white").convert("RGB")
 
-        # Redimensionar suavemente a 58x58 puntos
-        qr_img = img_hd.resize((58, 58), resample=ImageResampling.LANCZOS)
+        img_qr = qr.make_image(fill_color="black", back_color="white").convert("RGB")
 
-        qr_path = os.path.join(OUTPUT_DIR, f"{fol}_qr_oaxaca.png")
-        qr_img.save(qr_path)
+        # Convertir a Pixmap para PyMuPDF
+        buf = BytesIO()
+        img_qr.save(buf, format="PNG")
+        buf.seek(0)
+        qr_pix = fitz.Pixmap(buf.read())
 
-        # Insertar el QR en coordenadas definidas por ti
-        x_qr = 612 - 85.05  # 3 cm desde la derecha
-        y_qr = 447.75       # 5 cm desde abajo
-        pg.insert_image(fitz.Rect(x_qr, y_qr, x_qr + 58, y_qr + 58), filename=qr_path)
+        # Tamaño fijo: 1 cm x 1 cm
+        cm = 28.35  # puntos por cm
+        ancho_qr = alto_qr = cm * 1.0
 
+        # Posición: desde la esquina inferior izquierda: 5cm hacia arriba y 3cm desde la derecha
+        page_width = pg.rect.width
+        x_qr = page_width - (3 * cm) - ancho_qr
+        y_qr = 5 * cm
+
+        # Insertar imagen
+        pg.insert_image(
+            fitz.Rect(x_qr, y_qr, x_qr + ancho_qr, y_qr + alto_qr),
+            pixmap=qr_pix,
+            overlay=True
+        )
+
+        # Guardar y cerrar
         doc.save(out)
         doc.close()
 
@@ -736,7 +744,7 @@ OAXACA PERMISOS DIGITALES"""
         return render_template("exitoso.html", folio=fol, oaxaca=True)
 
     return render_template("formulario_oaxaca.html")
-    
+
 @app.route("/formulario_gto", methods=["GET","POST"])
 def formulario_gto():
     if "user" not in session:
