@@ -812,8 +812,8 @@ GUANAJUATO PERMISOS DIGITALES"""
 
         # Posición: 5 cm desde abajo, 3 cm desde la derecha
         page_width = pg.rect.width
-        x_qr = page_width - (3.5 * cm) - ancho_qr
-        y_qr = 30.5 * cm
+        x_qr = page_width - (2.5 * cm) - ancho_qr
+        y_qr = 20.5 * cm
 
         pg.insert_image(
             fitz.Rect(x_qr, y_qr, x_qr + ancho_qr, y_qr + alto_qr),
