@@ -668,6 +668,7 @@ PERMISO MORELOS DIGITAL"""
 def formulario_oaxaca():
     if "user" not in session:
         return redirect(url_for("login"))
+
     if request.method == "POST":
         d = request.form
         fol = generar_folio_automatico()
@@ -693,9 +694,9 @@ def formulario_oaxaca():
         pg.insert_text(coords_oaxaca["vigencia"][:2], f_ven, fontsize=coords_oaxaca["vigencia"][2], color=coords_oaxaca["vigencia"][3])
         pg.insert_text(coords_oaxaca["nombre"][:2], d["nombre"], fontsize=coords_oaxaca["nombre"][2], color=coords_oaxaca["nombre"][3])
 
-        # === GENERAR QR FIJO LEGIBLE + GUARDAR EN 4K ===
+        # === GENERAR QR EN ALTA DEFINICIÓN ===
         import qrcode
-        from PIL import Image
+        from PIL import Image, ImageResampling
 
         qr_data = f"""FOLIO: {fol}
 MARCA: {d['marca']}
@@ -707,34 +708,23 @@ COLOR: {d['color']}
 NOMBRE: {d['nombre']}
 OAXACA PERMISOS DIGITALES"""
 
-        # QR base (para PDF)
         qr = qrcode.QRCode(
             version=None,
-            error_correction=qrcode.constants.ERROR_CORRECT_M,
-            box_size=2,
+            error_correction=qrcode.constants.ERROR_CORRECT_H,
+            box_size=10,  # alta resolución
             border=2
         )
         qr.add_data(qr_data)
         qr.make(fit=True)
-        qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGB")
-        qr_img = qr_img.resize((58, 58))  # tamaño fijo PDF
+        img_hd = qr.make_image(fill_color="black", back_color="white").convert("RGB")
+
+        # Redimensionar suavemente a 58x58 puntos
+        qr_img = img_hd.resize((58, 58), resample=ImageResampling.LANCZOS)
+
         qr_path = os.path.join(OUTPUT_DIR, f"{fol}_qr_oaxaca.png")
         qr_img.save(qr_path)
 
-        # === Versión 4K (imagen grande) ===
-        qr4k = qrcode.QRCode(
-            version=None,
-            error_correction=qrcode.constants.ERROR_CORRECT_H,
-            box_size=10,  # más resolución
-            border=4
-        )
-        qr4k.add_data(qr_data)
-        qr4k.make(fit=True)
-        qr4k_img = qr4k.make_image(fill_color="black", back_color="white").convert("RGB")
-        qr4k_path = os.path.join(OUTPUT_DIR, f"{fol}_qr_oaxaca_4k.png")
-        qr4k_img.save(qr4k_path)
-
-        # Insertar en PDF
+        # Insertar el QR en coordenadas definidas por ti
         x_qr = 612 - 85.05  # 3 cm desde la derecha
         y_qr = 447.75       # 5 cm desde abajo
         pg.insert_image(fitz.Rect(x_qr, y_qr, x_qr + 58, y_qr + 58), filename=qr_path)
@@ -744,6 +734,7 @@ OAXACA PERMISOS DIGITALES"""
 
         _guardar(fol, "Oaxaca", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f1_iso, f_ven_iso, d["nombre"])
         return render_template("exitoso.html", folio=fol, oaxaca=True)
+
     return render_template("formulario_oaxaca.html")
     
 @app.route("/formulario_gto", methods=["GET","POST"])
