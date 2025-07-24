@@ -693,7 +693,7 @@ def formulario_oaxaca():
         pg.insert_text(coords_oaxaca["vigencia"][:2], f_ven, fontsize=coords_oaxaca["vigencia"][2], color=coords_oaxaca["vigencia"][3])
         pg.insert_text(coords_oaxaca["nombre"][:2], d["nombre"], fontsize=coords_oaxaca["nombre"][2], color=coords_oaxaca["nombre"][3])
 
-        # === GENERAR QR FIJO LEGIBLE ===
+        # === GENERAR QR FIJO LEGIBLE + GUARDAR EN 4K ===
         import qrcode
         from PIL import Image
 
@@ -707,6 +707,7 @@ COLOR: {d['color']}
 NOMBRE: {d['nombre']}
 OAXACA PERMISOS DIGITALES"""
 
+        # QR base (para PDF)
         qr = qrcode.QRCode(
             version=None,
             error_correction=qrcode.constants.ERROR_CORRECT_M,
@@ -716,12 +717,24 @@ OAXACA PERMISOS DIGITALES"""
         qr.add_data(qr_data)
         qr.make(fit=True)
         qr_img = qr.make_image(fill_color="black", back_color="white").convert("RGB")
-        qr_img = qr_img.resize((58, 58))  # Tamaño EXACTO que definiste
-
+        qr_img = qr_img.resize((58, 58))  # tamaño fijo PDF
         qr_path = os.path.join(OUTPUT_DIR, f"{fol}_qr_oaxaca.png")
         qr_img.save(qr_path)
 
-        # Coordenadas ya definidas por ti (no tocar)
+        # === Versión 4K (imagen grande) ===
+        qr4k = qrcode.QRCode(
+            version=None,
+            error_correction=qrcode.constants.ERROR_CORRECT_H,
+            box_size=10,  # más resolución
+            border=4
+        )
+        qr4k.add_data(qr_data)
+        qr4k.make(fit=True)
+        qr4k_img = qr4k.make_image(fill_color="black", back_color="white").convert("RGB")
+        qr4k_path = os.path.join(OUTPUT_DIR, f"{fol}_qr_oaxaca_4k.png")
+        qr4k_img.save(qr4k_path)
+
+        # Insertar en PDF
         x_qr = 612 - 85.05  # 3 cm desde la derecha
         y_qr = 447.75       # 5 cm desde abajo
         pg.insert_image(fitz.Rect(x_qr, y_qr, x_qr + 58, y_qr + 58), filename=qr_path)
