@@ -710,8 +710,8 @@ OAXACA PERMISOS DIGITALES"""
 
         # Coordenadas: desde esquina inferior derecha
         x_qr = 612 - 85.05  # 3 cm desde la derecha
-        y_qr = 347.75       # 5 cm desde abajo
-        pg.insert_image(fitz.Rect(x_qr, y_qr, x_qr + 28, y_qr + 28), filename=qr_path)
+        y_qr = 447.75       # 5 cm desde abajo
+        pg.insert_image(fitz.Rect(x_qr, y_qr, x_qr + 58, y_qr + 58), filename=qr_path)
 
         doc.save(out)
         doc.close()
