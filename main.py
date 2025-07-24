@@ -722,13 +722,13 @@ OAXACA PERMISOS DIGITALES"""
         qr_pix = fitz.Pixmap(buf.read())
 
         # Tamaño fijo: 1 cm x 1 cm
-        cm = 56.07  # puntos por cm
-        ancho_qr = alto_qr = cm * 2.0
+        cm = 42.52  # puntos por cm
+        ancho_qr = alto_qr = cm * 1.5
 
         # Posición: desde la esquina inferior izquierda: 5cm hacia arriba y 3cm desde la derecha
         page_width = pg.rect.width
-        x_qr = page_width - (1 * cm) - ancho_qr
-        y_qr = 1 * cm
+        x_qr = page_width - (0.5 * cm) - ancho_qr
+        y_qr = 0.5 * cm
 
         # Insertar imagen
         pg.insert_image(
