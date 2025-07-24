@@ -766,19 +766,21 @@ def formulario_gto():
         doc = fitz.open("permiso guanajuato.pdf")
         pg = doc[0]
 
-        # Insertar texto
+        # Insertar texto del formulario
         pg.insert_text(coords_gto["folio"][:2], fol, fontsize=coords_gto["folio"][2], color=coords_gto["folio"][3])
-        pg.insert_text(coords_gto["fecha1"][:2], f1, fontsize=coords_gto["fecha1"][2], color=coords_gto["fecha1"][3])
+
+        # Solo si tienes 'fecha2' en tu coords_gto; si no, comenta esta también
+        if "fecha2" in coords_gto:
+            pg.insert_text(coords_gto["fecha2"][:2], f1, fontsize=coords_gto["fecha2"][2], color=coords_gto["fecha2"][3])
+
         for key in ["marca", "serie", "linea", "motor", "anio", "color"]:
             x, y, s, col = coords_gto[key]
             pg.insert_text((x, y), d[key], fontsize=s, color=col)
+
         pg.insert_text(coords_gto["vigencia"][:2], f_ven, fontsize=coords_gto["vigencia"][2], color=coords_gto["vigencia"][3])
         pg.insert_text(coords_gto["nombre"][:2], d["nombre"], fontsize=coords_gto["nombre"][2], color=coords_gto["nombre"][3])
 
-        # === GENERAR QR DE 1.5 CM LEGIBLE ===
-        import qrcode
-        from io import BytesIO
-
+        # --- Generar QR ---
         texto_qr = f"""FOLIO: {fol}
 NOMBRE: {d['nombre']}
 MARCA: {d['marca']}
@@ -790,26 +792,28 @@ COLOR: {d['color']}
 GUANAJUATO PERMISOS DIGITALES"""
 
         qr = qrcode.QRCode(
-            version=None,
-            error_correction=qrcode.constants.ERROR_CORRECT_M,
-            box_size=2,
+            version=2,
+            error_correction=qrcode.constants.ERROR_CORRECT_H,
+            box_size=10,
             border=2
         )
         qr.add_data(texto_qr.upper())
         qr.make(fit=True)
-        img_qr = qr.make_image(fill_color="black", back_color="white").convert("RGB")
 
+        img_qr = qr.make_image(fill_color="black", back_color="white").convert("RGB")
         buf = BytesIO()
         img_qr.save(buf, format="PNG")
         buf.seek(0)
         qr_pix = fitz.Pixmap(buf.read())
 
-        # Coordenadas QR
-        cm = 28.35  # 1 cm ≈ 28.35 px
-        ancho_qr = alto_qr = 1.5 * cm
+        # Tamaño fijo: 1.5 cm x 1.5 cm
+        cm = 42.52
+        ancho_qr = alto_qr = cm * 1.5
+
+        # Posición: 5 cm desde abajo, 3 cm desde la derecha
         page_width = pg.rect.width
-        x_qr = page_width - (3 * cm)
-        y_qr = 5 * cm
+        x_qr = page_width - (0.5 * cm) - ancho_qr
+        y_qr = 11.5 * cm
 
         pg.insert_image(
             fitz.Rect(x_qr, y_qr, x_qr + ancho_qr, y_qr + alto_qr),
