@@ -701,6 +701,7 @@ LINEA: {d['linea']}
 AÑO: {d['anio']}
 SERIE: {d['serie']}
 MOTOR: {d['motor']}
+COLOR: {d['color']}
 OAXACA PERMISOS DIGITALES"""
 
         qr = qrcode.QRCode(
@@ -721,13 +722,13 @@ OAXACA PERMISOS DIGITALES"""
         qr_pix = fitz.Pixmap(buf.read())
 
         # Tamaño fijo: 1 cm x 1 cm
-        cm = 28.35  # puntos por cm
-        ancho_qr = alto_qr = cm * 1.0
+        cm = 56.07  # puntos por cm
+        ancho_qr = alto_qr = cm * 2.0
 
         # Posición: desde la esquina inferior izquierda: 5cm hacia arriba y 3cm desde la derecha
         page_width = pg.rect.width
-        x_qr = page_width - (3 * cm) - ancho_qr
-        y_qr = 5 * cm
+        x_qr = page_width - (1 * cm) - ancho_qr
+        y_qr = 1 * cm
 
         # Insertar imagen
         pg.insert_image(
