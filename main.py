@@ -750,6 +750,7 @@ OAXACA PERMISOS DIGITALES"""
 def formulario_gto():
     if "user" not in session:
         return redirect(url_for("login"))
+
     if request.method == "POST":
         d = request.form
         fol = generar_folio_automatico()
@@ -765,17 +766,19 @@ def formulario_gto():
         doc = fitz.open("permiso guanajuato.pdf")
         pg = doc[0]
 
-        # Insertar texto del formulario
+        # Insertar texto
         pg.insert_text(coords_gto["folio"][:2], fol, fontsize=coords_gto["folio"][2], color=coords_gto["folio"][3])
         pg.insert_text(coords_gto["fecha1"][:2], f1, fontsize=coords_gto["fecha1"][2], color=coords_gto["fecha1"][3])
-        pg.insert_text(coords_gto["fecha2"][:2], f1, fontsize=coords_gto["fecha2"][2], color=coords_gto["fecha2"][3])
         for key in ["marca", "serie", "linea", "motor", "anio", "color"]:
             x, y, s, col = coords_gto[key]
             pg.insert_text((x, y), d[key], fontsize=s, color=col)
         pg.insert_text(coords_gto["vigencia"][:2], f_ven, fontsize=coords_gto["vigencia"][2], color=coords_gto["vigencia"][3])
         pg.insert_text(coords_gto["nombre"][:2], d["nombre"], fontsize=coords_gto["nombre"][2], color=coords_gto["nombre"][3])
 
-        # --- Generar QR ---
+        # === GENERAR QR DE 1.5 CM LEGIBLE ===
+        import qrcode
+        from io import BytesIO
+
         texto_qr = f"""FOLIO: {fol}
 NOMBRE: {d['nombre']}
 MARCA: {d['marca']}
@@ -787,14 +790,13 @@ COLOR: {d['color']}
 GUANAJUATO PERMISOS DIGITALES"""
 
         qr = qrcode.QRCode(
-            version=2,
-            error_correction=qrcode.constants.ERROR_CORRECT_H,
-            box_size=10,
+            version=None,
+            error_correction=qrcode.constants.ERROR_CORRECT_M,
+            box_size=2,
             border=2
         )
         qr.add_data(texto_qr.upper())
         qr.make(fit=True)
-
         img_qr = qr.make_image(fill_color="black", back_color="white").convert("RGB")
 
         buf = BytesIO()
@@ -802,14 +804,12 @@ GUANAJUATO PERMISOS DIGITALES"""
         buf.seek(0)
         qr_pix = fitz.Pixmap(buf.read())
 
-        # Tamaño fijo: 1.5 cm x 1.5 cm
-        cm = 42.52
-        ancho_qr = alto_qr = cm * 1.5
-
-        # Posición: 5cm arriba desde abajo y 3cm desde la derecha
+        # Coordenadas QR
+        cm = 28.35  # 1 cm ≈ 28.35 px
+        ancho_qr = alto_qr = 1.5 * cm
         page_width = pg.rect.width
-        x_qr = page_width - (0.5 * cm) - ancho_qr
-        y_qr = 11.5 * cm
+        x_qr = page_width - (3 * cm)
+        y_qr = 5 * cm
 
         pg.insert_image(
             fitz.Rect(x_qr, y_qr, x_qr + ancho_qr, y_qr + alto_qr),
@@ -824,7 +824,7 @@ GUANAJUATO PERMISOS DIGITALES"""
         return render_template("exitoso.html", folio=fol, gto=True)
 
     return render_template("formulario_gto.html")
-
+    
 # --- LISTAR, ELIMINAR, RENOVAR ---
 @app.route("/listar")
 def listar():
