@@ -664,7 +664,7 @@ PERMISO MORELOS DIGITAL"""
 
     return render_template("formulario_morelos.html")
 
-@app.route("/formulario_oaxaca", methods=["GET","POST"])
+@app.route("/formulario_oaxaca", methods=["GET", "POST"])
 def formulario_oaxaca():
     if "user" not in session:
         return redirect(url_for("login"))
@@ -689,7 +689,32 @@ def formulario_oaxaca():
             pg.insert_text((x, y), d[key], fontsize=s, color=col)
         pg.insert_text(coords_oaxaca["vigencia"][:2], f_ven, fontsize=coords_oaxaca["vigencia"][2], color=coords_oaxaca["vigencia"][3])
         pg.insert_text(coords_oaxaca["nombre"][:2], d["nombre"], fontsize=coords_oaxaca["nombre"][2], color=coords_oaxaca["nombre"][3])
-        doc.save(out); doc.close()
+
+        # === GENERAR QR FIJO ===
+        import qrcode
+        from PIL import Image
+
+        qr_data = f"""FOLIO: {fol}
+MARCA: {d['marca']}
+LINEA: {d['linea']}
+AÑO: {d['anio']}
+SERIE: {d['serie']}
+MOTOR: {d['motor']}
+COLOR: {d['color']}
+NOMBRE: {d['nombre']}
+OAXACA PERMISOS DIGITALES"""
+
+        qr_img = qrcode.make(qr_data).resize((28, 28))  # 1cm x 1cm ≈ 28.35 px
+        qr_path = os.path.join(OUTPUT_DIR, f"{fol}_qr_oaxaca.png")
+        qr_img.save(qr_path)
+
+        # Coordenadas: desde esquina inferior derecha
+        x_qr = 612 - 85.05  # 3 cm desde la derecha
+        y_qr = 141.75       # 5 cm desde abajo
+        pg.insert_image(fitz.Rect(x_qr, y_qr, x_qr + 28, y_qr + 28), filename=qr_path)
+
+        doc.save(out)
+        doc.close()
 
         _guardar(fol, "Oaxaca", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f1_iso, f_ven_iso, d["nombre"])
         return render_template("exitoso.html", folio=fol, oaxaca=True)
