@@ -728,7 +728,7 @@ OAXACA PERMISOS DIGITALES"""
         # Posición: desde la esquina inferior izquierda: 5cm hacia arriba y 3cm desde la derecha
         page_width = pg.rect.width
         x_qr = page_width - (0.5 * cm) - ancho_qr
-        y_qr = 10.0 * cm
+        y_qr = 13.0 * cm
 
         # Insertar imagen
         pg.insert_image(
