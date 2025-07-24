@@ -807,13 +807,13 @@ GUANAJUATO PERMISOS DIGITALES"""
         qr_pix = fitz.Pixmap(buf.read())
 
         # Tamaño fijo: 1.5 cm x 1.5 cm
-        cm = 42.52
-        ancho_qr = alto_qr = cm * 1.5
+        cm = 85.05
+        ancho_qr = alto_qr = cm * 3.0
 
         # Posición: 5 cm desde abajo, 3 cm desde la derecha
         page_width = pg.rect.width
-        x_qr = page_width - (0.5 * cm) - ancho_qr
-        y_qr = 11.5 * cm
+        x_qr = page_width - (3.5 * cm) - ancho_qr
+        y_qr = 50.5 * cm
 
         pg.insert_image(
             fitz.Rect(x_qr, y_qr, x_qr + ancho_qr, y_qr + alto_qr),
