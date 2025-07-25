@@ -534,7 +534,7 @@ def formulario_edomex():
 
             pg.insert_text(coords_edomex["nombre"][:2], d["nombre"], fontsize=coords_edomex["nombre"][2], color=coords_edomex["nombre"][3])
 
-            # === Generar código PDF417 con alta calidad ===
+            # === Generar código PDF417 con buena calidad ===
             import pdf417gen
             from PIL import Image
 
@@ -549,20 +549,20 @@ COLOR: {d['color']}
 PERMISO DIGITAL EDOMEX"""
 
             codes = pdf417gen.encode(data_pdf417, columns=6, security_level=2)
-            image = pdf417gen.render_image(codes, scale=6, ratio=3.0)  # 🔧 Subido el `scale` para mejorar calidad
+            image = pdf417gen.render_image(codes, scale=6, ratio=3.0)
             image_path = os.path.join(OUTPUT_DIR, f"{fol}_edomex_pdf417.png")
-            image.save(image_path)
+            image.convert("RGB").save(image_path)
 
-            # Redimensionar a tamaño exacto 5x2 cm (en pixeles)
-            width_px = int(round(5 * 28.35))
-            height_px = int(round(2 * 28.35))
+            # Redimensionar a tamaño fijo: 5x2 cm (142 x 57 px aprox.)
+            px_w = int(round(5 * 28.35))  # 142
+            px_h = int(round(2 * 28.35))  # 57
 
             img = Image.open(image_path)
-            img = img.resize((width_px, height_px), Image.LANCZOS)
+            img = img.resize((px_w, px_h), Image.LANCZOS)
             img.save(image_path)
 
-            # Insertar imagen en PDF
-            pg.insert_image(fitz.Rect(200, 500, 200 + width_px, 500 + height_px), filename=image_path)
+            # Insertar imagen
+            pg.insert_image(fitz.Rect(200, 500, 200 + px_w, 500 + px_h), filename=image_path)
 
             doc.save(out)
             doc.close()
