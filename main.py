@@ -511,18 +511,18 @@ def formulario_edomex():
             d = request.form
             fol = generar_folio_automatico("06")  # Prefijo fijo EDOMEX
 
-            ahora = datetime.now()
-            f1 = ahora.strftime("%d/%m/%Y")
-            f1_iso = ahora.isoformat()
-            f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+            ahora   = datetime.now()
+            f1      = ahora.strftime("%d/%m/%Y")
+            f1_iso  = ahora.isoformat()
+            f_ven   = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
             f_ven_iso = (ahora + timedelta(days=30)).isoformat()
 
             os.makedirs(OUTPUT_DIR, exist_ok=True)
             out_pdf = os.path.join(OUTPUT_DIR, f"{fol}_edomex.pdf")
 
-            # 📄 Abrir la plantilla correcta
+            # 📄 Abrir plantilla
             doc = fitz.open("edomex_plantilla_alta_res.pdf")
-            pg = doc[0]
+            pg  = doc[0]
 
             # 🖋️ Insertar textos
             pg.insert_text(coords_edomex["folio"][:2], fol,
@@ -535,61 +535,25 @@ def formulario_edomex():
                            fontsize=coords_edomex["fecha_ven"][2],
                            color=coords_edomex["fecha_ven"][3])
 
-            for k in ("marca","serie","linea","motor","anio","color"):
+            for k in ("marca", "serie", "linea", "motor", "anio", "color"):
                 x, y, s, col = coords_edomex[k]
                 pg.insert_text((x, y), d.get(k, ""), fontsize=s, color=col)
 
-            pg.insert_text(coords_edomex["nombre"][:2], d.get("nombre",""),
+            pg.insert_text(coords_edomex["nombre"][:2], d.get("nombre", ""),
                            fontsize=coords_edomex["nombre"][2],
                            color=coords_edomex["nombre"][3])
 
-            # 🏷️ Generar PDF417
-            import pdf417gen
-            from PIL import Image
-
-            txt = (
-                f"FOLIO: {fol}\n"
-                f"NOMBRE: {d['nombre']}\n"
-                f"MARCA: {d['marca']}\n"
-                f"LÍNEA: {d['linea']}\n"
-                f"AÑO: {d['anio']}\n"
-                f"SERIE: {d['serie']}\n"
-                f"MOTOR: {d['motor']}\n"
-                f"COLOR: {d['color']}\n"
-                "PERMISO DIGITAL EDOMEX"
-            )
-            codes = pdf417gen.encode(txt, columns=6, security_level=2)
-            qr_img = pdf417gen.render_image(codes, scale=6, ratio=3.0)
-            qr_path = os.path.join(OUTPUT_DIR, f"{fol}_edomex_pdf417.png")
-            qr_img.save(qr_path)
-
-            # 🔧 Redimensionar usando ENTEROS
-            cm2pt = 28.35
-            w_px = int(5 * cm2pt)
-            h_px = int(2 * cm2pt)
-            img = Image.open(qr_path)
-            img = img.resize((w_px, h_px), Image.LANCZOS)
-            img.save(qr_path)
-
-            # 📌 Insertar imagen con coordenadas ENTERAS
-            x0, y0 = 200, 500
-            pg.insert_image(
-                fitz.Rect(x0, y0, x0 + w_px, y0 + h_px),
-                filename=qr_path,
-                keep_proportion=False,
-                overlay=True
-            )
-
+            # 💾 Guardar PDF y registro
             doc.save(out_pdf)
             doc.close()
 
-            # 💾 Guardar registro en la base
             _guardar(
                 fol, "EDOMEX",
-                d["serie"], d["marca"], d["linea"],
-                d["motor"], d["anio"], d["color"],
-                f1_iso, f_ven_iso, d["nombre"]
+                d.get("serie",""), d.get("marca",""), d.get("linea",""),
+                d.get("motor",""), d.get("anio",""), d.get("color",""),
+                f1_iso, f_ven_iso, d.get("nombre","")
             )
+
             return render_template("exitoso.html", folio=fol, edomex=True)
 
         except Exception as e:
