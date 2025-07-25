@@ -520,21 +520,18 @@ def formulario_edomex():
             os.makedirs(OUTPUT_DIR, exist_ok=True)
             out = os.path.join(OUTPUT_DIR, f"{fol}_edomex.pdf")
 
-            # CORREGIDO: nombre correcto del archivo PDF base
             doc = fitz.open("edomex_plantilla_alta_res.pdf")
             pg = doc[0]
 
-            # Insertar texto en campos del PDF
             pg.insert_text(coords_edomex["folio"][:2], fol, fontsize=coords_edomex["folio"][2], color=coords_edomex["folio"][3])
-            pg.insert_text(coords_edomex["fecha1"][:2], f1, fontsize=coords_edomex["fecha1"][2], color=coords_edomex["fecha1"][3])
-            pg.insert_text(coords_edomex["fecha2"][:2], f1, fontsize=coords_edomex["fecha2"][2], color=coords_edomex["fecha2"][3])
+            pg.insert_text(coords_edomex["fecha_exp"][:2], f1, fontsize=coords_edomex["fecha_exp"][2], color=coords_edomex["fecha_exp"][3])
+            pg.insert_text(coords_edomex["fecha_ven"][:2], f_ven, fontsize=coords_edomex["fecha_ven"][2], color=coords_edomex["fecha_ven"][3])
 
             for key in ["marca", "serie", "linea", "motor", "anio", "color"]:
                 if key in d:
                     x, y, s, col = coords_edomex[key]
                     pg.insert_text((x, y), d[key], fontsize=s, color=col)
 
-            pg.insert_text(coords_edomex["vigencia"][:2], f_ven, fontsize=coords_edomex["vigencia"][2], color=coords_edomex["vigencia"][3])
             pg.insert_text(coords_edomex["nombre"][:2], d["nombre"], fontsize=coords_edomex["nombre"][2], color=coords_edomex["nombre"][3])
 
             # === Generar código PDF417 ===
@@ -556,11 +553,9 @@ PERMISO DIGITAL EDOMEX"""
             image_path = os.path.join(OUTPUT_DIR, f"{fol}_edomex_pdf417.png")
             image.save(image_path)
 
-            # Recortar y redimensionar imagen
             img = Image.open(image_path)
             img = ImageOps.crop(img, (0, 7, 42, 14))  # izquierda, arriba, derecha, abajo
             img = img.resize((int(5 * 28.35), int(2 * 28.35)))  # 5x2 cm
-
             img.save(image_path)
 
             pg.insert_image(fitz.Rect(200, 500, 200 + 5 * 28.35, 500 + 2 * 28.35), filename=image_path)
