@@ -252,19 +252,19 @@ def generar_folio_guerrero():
                 if nuevo not in usados:
                     return nuevo
 
-def generar_folio_por_mes():
-    ahora = datetime.now()
-    mes = ahora.strftime("%m")  # 01, 02, ..., 12
-
+def generar_folio_automatico(prefijo: str):
     supa = supabase
     registros = supa.table("borradores_registros").select("folio").execute().data
 
-    existentes = [r["folio"] for r in registros if r["folio"] and r["folio"].startswith(mes)]
+    # Filtrar los que pertenecen al prefijo de esta entidad
+    existentes = [r["folio"] for r in registros if r["folio"] and r["folio"].startswith(prefijo)]
 
-    consecutivos = [int(folio[2:]) for folio in existentes if folio[2:].isdigit()]
-    nuevo_consecutivo = max(consecutivos) + 2 if consecutivos else 1
+    # Obtener la parte numérica después del prefijo
+    consecutivos = [int(folio[len(prefijo):]) for folio in existentes if folio[len(prefijo):].isdigit()]
 
-    return f"{mes}{str(nuevo_consecutivo).zfill(2)}"
+    nuevo_consecutivo = max(consecutivos) + 1 if consecutivos else 1
+
+    return f"{prefijo}{nuevo_consecutivo}"
 
 import pdf417gen
 from PIL import Image
