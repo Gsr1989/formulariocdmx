@@ -506,28 +506,29 @@ def formulario_edomex():
     if "user" not in session:
         return redirect(url_for("login"))
 
-    if request.method == "POST":
+    if request.method == "POST"):
         try:
+            # 1) Leer formulario y generar folio
             d = request.form
             fol = generar_folio_automatico("06")
 
-            # fechas
+            # 2) Fechas
             ahora = datetime.now()
             f1 = ahora.strftime("%d/%m/%Y")
             f1_iso = ahora.isoformat()
             f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
             f_ven_iso = (ahora + timedelta(days=30)).isoformat()
 
-            # paths
+            # 3) Preparar paths
             os.makedirs(OUTPUT_DIR, exist_ok=True)
             out_pdf = os.path.join(OUTPUT_DIR, f"{fol}_edomex.pdf")
             plantilla = "edomex_plantilla_alta_res.pdf"
 
-            # abrir PDF
+            # 4) Abrir PDF y página 0
             doc = fitz.open(plantilla)
             pg = doc[0]
 
-            # insertar texto
+            # 5) Insertar textos fijos
             pg.insert_text(coords_edomex["folio"][:2], fol,
                            fontsize=coords_edomex["folio"][2],
                            color=coords_edomex["folio"][3])
@@ -538,20 +539,20 @@ def formulario_edomex():
                            fontsize=coords_edomex["fecha_ven"][2],
                            color=coords_edomex["fecha_ven"][3])
 
-            for campo in ["marca","serie","linea","motor","anio","color"]:
-                if campo in d:
-                    x,y,s,col = coords_edomex[campo]
-                    pg.insert_text((x,y), d[campo], fontsize=s, color=col)
+            # 6) Campos del formulario
+            for campo in ("marca","serie","linea","motor","anio","color"):
+                x, y, s, col = coords_edomex[campo]
+                pg.insert_text((x, y), d.get(campo, ""), fontsize=s, color=col)
 
-            pg.insert_text(coords_edomex["nombre"][:2], d["nombre"],
+            pg.insert_text(coords_edomex["nombre"][:2], d.get("nombre", ""),
                            fontsize=coords_edomex["nombre"][2],
                            color=coords_edomex["nombre"][3])
 
-            # generar PDF417
+            # 7) Generar PDF417
             import pdf417gen
             from PIL import Image
 
-            qr_data = (
+            txt = (
                 f"FOLIO: {fol}\n"
                 f"NOMBRE: {d['nombre']}\n"
                 f"MARCA: {d['marca']}\n"
@@ -562,37 +563,39 @@ def formulario_edomex():
                 f"COLOR: {d['color']}\n"
                 "PERMISO DIGITAL EDOMEX"
             )
-            codes = pdf417gen.encode(qr_data, columns=6, security_level=2)
+            codes = pdf417gen.encode(txt, columns=6, security_level=2)
             qr_img = pdf417gen.render_image(codes, scale=6, ratio=3.0)
             qr_path = os.path.join(OUTPUT_DIR, f"{fol}_edomex_pdf417.png")
             qr_img.convert("RGB").save(qr_path)
 
-            # medidas en píxeles (enteros)
-            px_w = int(5 * 28.35)   # 5 cm → ~142 px
-            px_h = int(2 * 28.35)   # 2 cm → ~57 px
-
+            # 8) Redimensionar exactamente 5×2 cm en píxeles
+            cm_to_pt = 28.35
+            w_px = int(5 * cm_to_pt)
+            h_px = int(2 * cm_to_pt)
             im = Image.open(qr_path)
-            im = im.resize((px_w, px_h), Image.LANCZOS)
+            im = im.resize((w_px, h_px), Image.LANCZOS)
             im.save(qr_path)
 
-            # posición en pts (también enteros)
+            # 9) Insertar imagen (coordenadas y tamaños enteros)
             x0, y0 = 200, 500
-            x1, y1 = x0 + px_w, y0 + px_h
             pg.insert_image(
-                fitz.Rect(x0, y0, x1, y1),
+                fitz.Rect(x0, y0, x0 + w_px, y0 + h_px),
                 filename=qr_path,
-                keep_proportion=False, overlay=True
+                keep_proportion=False,
+                overlay=True
             )
 
-            # guardar y cerrar
+            # 10) Guardar y cerrar
             doc.save(out_pdf)
             doc.close()
 
-            # registrar
-            _guardar(fol, "EDOMEX",
-                     d["serie"], d["marca"], d["linea"],
-                     d["motor"], d["anio"], d["color"],
-                     f1_iso, f_ven_iso, d["nombre"])
+            # 11) Registrar en Supabase
+            _guardar(
+                fol, "EDOMEX",
+                d["serie"], d["marca"], d["linea"],
+                d["motor"], d["anio"], d["color"],
+                f1_iso, f_ven_iso, d["nombre"]
+            )
 
             return render_template("exitoso.html", folio=fol, edomex=True)
 
