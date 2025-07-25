@@ -871,51 +871,83 @@ def eliminar_multiples():
 @app.route("/renovar/<folio>")
 def renovar(folio):
     regs = cargar_registros()
-    viejo = next((r for r in regs if r["folio"]==folio), None)
+    viejo = next((r for r in regs if r["folio"] == folio), None)
     if not viejo:
         return redirect(url_for("listar"))
+
     venc = datetime.strptime(viejo["fecha_ven"], "%d/%m/%Y")
     if datetime.now() < venc:
         return redirect(url_for("listar"))
-    nuevo = generar_folio_automatico()
+
+    # NUEVA LÓGICA DE FOLIO CON PREFIJO FIJO
+    entidad = viejo["entidad"]
+    prefijos = {
+        "CDMX": "05",
+        "EDOMEX": "06",
+        "Morelos": "07",
+        "GTO": "08",
+        "Oaxaca": "09"
+    }
+    nuevo = generar_folio_automatico(prefijos.get(entidad, "00"))
+
     ahora = datetime.now()
     exp_f = ahora.strftime("%d/%m/%Y")
     ven_f = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-    entidad = viejo["entidad"]
+
     plantilla = {
-        "CDMX":"cdmxdigital2025ppp.pdf",
-        "EDOMEX":"edomex_plantilla_alta_res.pdf",
-        "Morelos":"morelos_hoja1_imagen.pdf",
-        "Oaxaca":"oaxacachido.pdf",
-        "GTO":"permiso guanajuato.pdf"
+        "CDMX": "cdmxdigital2025ppp.pdf",
+        "EDOMEX": "edomex_plantilla_alta_res.pdf",
+        "Morelos": "morelos_hoja1_imagen.pdf",
+        "Oaxaca": "oaxacachido.pdf",
+        "GTO": "permiso guanajuato.pdf"
     }[entidad]
+
     coords_map = {
-        "CDMX":coords_cdmx,"EDOMEX":coords_edomex,
-        "Morelos":coords_morelos,"Oaxaca":coords_oaxaca,"GTO":coords_gto
+        "CDMX": coords_cdmx,
+        "EDOMEX": coords_edomex,
+        "Morelos": coords_morelos,
+        "Oaxaca": coords_oaxaca,
+        "GTO": coords_gto
     }[entidad]
+
     clave_exp = "fecha_exp" if "fecha_exp" in coords_map else ("fecha" if "fecha" in coords_map else "fecha1")
     clave_ven = "fecha_ven" if "fecha_ven" in coords_map else ("vigencia" if "vigencia" in coords_map else "fecha2")
+
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     out = os.path.join(OUTPUT_DIR, f"{nuevo}_{entidad.lower()}.pdf")
-    doc = fitz.open(plantilla); pg = doc[0]
+    doc = fitz.open(plantilla)
+    pg = doc[0]
+
     pg.insert_text(coords_map["folio"][:2], nuevo, fontsize=coords_map["folio"][2], color=coords_map["folio"][3])
     pg.insert_text(coords_map[clave_exp][:2], exp_f, fontsize=coords_map[clave_exp][2], color=coords_map[clave_exp][3])
     pg.insert_text(coords_map[clave_ven][:2], ven_f, fontsize=coords_map[clave_ven][2], color=coords_map[clave_ven][3])
-    for campo in ["marca","serie","linea","motor","anio","color","nombre"]:
+
+    for campo in ["marca", "serie", "linea", "motor", "anio", "color", "nombre"]:
         if campo in coords_map:
-            x,y,s,col = coords_map[campo]
-            pg.insert_text((x,y), viejo[campo], fontsize=s, color=col)
+            x, y, s, col = coords_map[campo]
+            pg.insert_text((x, y), viejo[campo], fontsize=s, color=col)
+
     # SOLO MORELOS: nueva placa digital en renovación
     if entidad == "Morelos":
         placa = generar_placa_digital()
         x, y, s, col = coords_morelos["placa"]
         pg.insert_text((x, y), placa, fontsize=s, color=col)
-        if len(doc)>1:
+
+        if len(doc) > 1:
             pg2 = doc[1]
             x2, y2, s2, col2 = coords_morelos["fecha_hoja2"]
             pg2.insert_text((x2, y2), ven_f, fontsize=s2, color=col2)
-    doc.save(out); doc.close()
-    _guardar(nuevo, entidad, viejo["serie"], viejo["marca"], viejo["linea"], viejo["motor"], viejo["anio"], viejo["color"], exp_f, ven_f, viejo["nombre"])
+
+    doc.save(out)
+    doc.close()
+
+    _guardar(
+        nuevo, entidad,
+        viejo["serie"], viejo["marca"], viejo["linea"],
+        viejo["motor"], viejo["anio"], viejo["color"],
+        exp_f, ven_f, viejo["nombre"]
+    )
+
     return redirect(url_for(f"abrir_pdf_{entidad.lower()}", folio=nuevo))
 
 # --- DESCARGA PDFs ---
