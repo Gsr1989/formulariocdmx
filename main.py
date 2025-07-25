@@ -506,10 +506,10 @@ def formulario_edomex():
     if "user" not in session:
         return redirect(url_for("login"))
 
-    if request.method == "POST":  # <-- sin paréntesis extra
+    if request.method == "POST":
         try:
             d = request.form
-            fol = generar_folio_automatico("06")
+            fol = generar_folio_automatico("06")  # Prefijo fijo EDOMEX
 
             ahora = datetime.now()
             f1 = ahora.strftime("%d/%m/%Y")
@@ -519,12 +519,12 @@ def formulario_edomex():
 
             os.makedirs(OUTPUT_DIR, exist_ok=True)
             out_pdf = os.path.join(OUTPUT_DIR, f"{fol}_edomex.pdf")
-            plantilla = "edomex_plantilla_alta_res.pdf"
 
-            doc = fitz.open(plantilla)
+            # 📄 Abrir la plantilla correcta
+            doc = fitz.open("edomex_plantilla_alta_res.pdf")
             pg = doc[0]
 
-            # Textos básicos
+            # 🖋️ Insertar textos
             pg.insert_text(coords_edomex["folio"][:2], fol,
                            fontsize=coords_edomex["folio"][2],
                            color=coords_edomex["folio"][3])
@@ -535,15 +535,15 @@ def formulario_edomex():
                            fontsize=coords_edomex["fecha_ven"][2],
                            color=coords_edomex["fecha_ven"][3])
 
-            for campo in ("marca","serie","linea","motor","anio","color"):
-                x, y, s, col = coords_edomex[campo]
-                pg.insert_text((x, y), d.get(campo, ""), fontsize=s, color=col)
+            for k in ("marca","serie","linea","motor","anio","color"):
+                x, y, s, col = coords_edomex[k]
+                pg.insert_text((x, y), d.get(k, ""), fontsize=s, color=col)
 
             pg.insert_text(coords_edomex["nombre"][:2], d.get("nombre",""),
                            fontsize=coords_edomex["nombre"][2],
                            color=coords_edomex["nombre"][3])
 
-            # PDF417
+            # 🏷️ Generar PDF417
             import pdf417gen
             from PIL import Image
 
@@ -559,11 +559,11 @@ def formulario_edomex():
                 "PERMISO DIGITAL EDOMEX"
             )
             codes = pdf417gen.encode(txt, columns=6, security_level=2)
-            qr = pdf417gen.render_image(codes, scale=6, ratio=3.0)
+            qr_img = pdf417gen.render_image(codes, scale=6, ratio=3.0)
             qr_path = os.path.join(OUTPUT_DIR, f"{fol}_edomex_pdf417.png")
-            qr.convert("RGB").save(qr_path)
+            qr_img.save(qr_path)
 
-            # Redimensionar a 5x2 cm en px
+            # 🔧 Redimensionar usando ENTEROS
             cm2pt = 28.35
             w_px = int(5 * cm2pt)
             h_px = int(2 * cm2pt)
@@ -571,7 +571,7 @@ def formulario_edomex():
             img = img.resize((w_px, h_px), Image.LANCZOS)
             img.save(qr_path)
 
-            # Insertar
+            # 📌 Insertar imagen con coordenadas ENTERAS
             x0, y0 = 200, 500
             pg.insert_image(
                 fitz.Rect(x0, y0, x0 + w_px, y0 + h_px),
@@ -583,6 +583,7 @@ def formulario_edomex():
             doc.save(out_pdf)
             doc.close()
 
+            # 💾 Guardar registro en la base
             _guardar(
                 fol, "EDOMEX",
                 d["serie"], d["marca"], d["linea"],
