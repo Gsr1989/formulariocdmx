@@ -509,46 +509,49 @@ def formulario_edomex():
     if request.method == "POST":
         try:
             d = request.form
-            # 1) Generar folio
             fol = generar_folio_automatico("06")
 
-            # 2) Fechas
+            # fechas
             ahora = datetime.now()
             f1 = ahora.strftime("%d/%m/%Y")
             f1_iso = ahora.isoformat()
             f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
             f_ven_iso = (ahora + timedelta(days=30)).isoformat()
 
-            # 3) Preparar salida
+            # paths
             os.makedirs(OUTPUT_DIR, exist_ok=True)
             out_pdf = os.path.join(OUTPUT_DIR, f"{fol}_edomex.pdf")
-            base_pdf = "edomex_plantilla_alta_res.pdf"
+            plantilla = "edomex_plantilla_alta_res.pdf"
 
-            # 4) Abrir plantilla
-            doc = fitz.open(base_pdf)
+            # abrir PDF
+            doc = fitz.open(plantilla)
             pg = doc[0]
 
-            # 5) Insertar texto
+            # insertar texto
             pg.insert_text(coords_edomex["folio"][:2], fol,
-                           fontsize=coords_edomex["folio"][2], color=coords_edomex["folio"][3])
+                           fontsize=coords_edomex["folio"][2],
+                           color=coords_edomex["folio"][3])
             pg.insert_text(coords_edomex["fecha_exp"][:2], f1,
-                           fontsize=coords_edomex["fecha_exp"][2], color=coords_edomex["fecha_exp"][3])
+                           fontsize=coords_edomex["fecha_exp"][2],
+                           color=coords_edomex["fecha_exp"][3])
             pg.insert_text(coords_edomex["fecha_ven"][:2], f_ven,
-                           fontsize=coords_edomex["fecha_ven"][2], color=coords_edomex["fecha_ven"][3])
+                           fontsize=coords_edomex["fecha_ven"][2],
+                           color=coords_edomex["fecha_ven"][3])
 
-            for key in ["marca","serie","linea","motor","anio","color"]:
-                if key in d:
-                    x,y,s,col = coords_edomex[key]
-                    pg.insert_text((x,y), d[key], fontsize=s, color=col)
+            for campo in ["marca","serie","linea","motor","anio","color"]:
+                if campo in d:
+                    x,y,s,col = coords_edomex[campo]
+                    pg.insert_text((x,y), d[campo], fontsize=s, color=col)
 
             pg.insert_text(coords_edomex["nombre"][:2], d["nombre"],
-                           fontsize=coords_edomex["nombre"][2], color=coords_edomex["nombre"][3])
+                           fontsize=coords_edomex["nombre"][2],
+                           color=coords_edomex["nombre"][3])
 
-            # 6) Generar PDF417 de alta resolución
+            # generar PDF417
             import pdf417gen
             from PIL import Image
 
-            data = (
+            qr_data = (
                 f"FOLIO: {fol}\n"
                 f"NOMBRE: {d['nombre']}\n"
                 f"MARCA: {d['marca']}\n"
@@ -559,34 +562,33 @@ def formulario_edomex():
                 f"COLOR: {d['color']}\n"
                 "PERMISO DIGITAL EDOMEX"
             )
-
-            codes = pdf417gen.encode(data, columns=6, security_level=2)
-            img417 = pdf417gen.render_image(codes, scale=6, ratio=3.0)
+            codes = pdf417gen.encode(qr_data, columns=6, security_level=2)
+            qr_img = pdf417gen.render_image(codes, scale=6, ratio=3.0)
             qr_path = os.path.join(OUTPUT_DIR, f"{fol}_edomex_pdf417.png")
-            img417.convert("RGB").save(qr_path)
+            qr_img.convert("RGB").save(qr_path)
 
-            # 7) Redimensionar estrictamente a 5×2 cm en píxeles (int)
-            px_w = int(5 * 28.35)   # ≈142 px
-            px_h = int(2 * 28.35)   # ≈57 px
+            # medidas en píxeles (enteros)
+            px_w = int(5 * 28.35)   # 5 cm → ~142 px
+            px_h = int(2 * 28.35)   # 2 cm → ~57 px
+
             im = Image.open(qr_path)
             im = im.resize((px_w, px_h), Image.LANCZOS)
             im.save(qr_path)
 
-            # 8) Insertar QR en el PDF (coordenadas en pts)
-            #    FitZ entiende floats, pero cambiamos a int para evitar confusiones.
+            # posición en pts (también enteros)
             x0, y0 = 200, 500
             x1, y1 = x0 + px_w, y0 + px_h
             pg.insert_image(
-                fitz.Rect(float(x0), float(y0), float(x1), float(y1)),
+                fitz.Rect(x0, y0, x1, y1),
                 filename=qr_path,
                 keep_proportion=False, overlay=True
             )
 
-            # 9) Guardar y cerrar
+            # guardar y cerrar
             doc.save(out_pdf)
             doc.close()
 
-            # 10) Registrar en Supabase
+            # registrar
             _guardar(fol, "EDOMEX",
                      d["serie"], d["marca"], d["linea"],
                      d["motor"], d["anio"], d["color"],
@@ -596,7 +598,6 @@ def formulario_edomex():
 
         except Exception as e:
             import traceback
-            print("❌ ERROR en formulario EDOMEX")
             traceback.print_exc()
             return f"ERROR INTERNO: {e}", 500
 
