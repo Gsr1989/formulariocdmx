@@ -519,7 +519,7 @@ def formulario_edomex():
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out = os.path.join(OUTPUT_DIR, f"{fol}_edomex.pdf")
 
-        doc = fitz.open("edomexplantilla2025.pdf")
+        doc = fitz.open("edomex_plantilla_alta_res.pdf")
         pg = doc[0]
 
         pg.insert_text(coords_edomex["folio"][:2], fol, fontsize=coords_edomex["folio"][2], color=coords_edomex["folio"][3])
