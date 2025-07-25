@@ -503,89 +503,71 @@ def formulario_cdmx():
 
 @app.route("/formulario_edomex", methods=["GET", "POST"])
 def formulario_edomex():
+    if "user" not in session:
+        return redirect(url_for("login"))
+
     if request.method == "POST":
-        folio  = generar_folio_automatico()
-        marca  = request.form["marca"].upper()
-        linea  = request.form["linea"].upper()
-        anio   = request.form["anio"].upper()
-        serie  = request.form["serie"].upper()
-        motor  = request.form["motor"].upper()
-        color  = request.form["color"].upper()
-        nombre = request.form["nombre"].upper()
+        d = request.form
+        fol = generar_folio_automatico("06")  # Prefijo fijo para EDOMEX
 
-        ahora     = datetime.now()
-        fecha_exp = ahora.strftime("%d/%m/%Y")
-        fecha_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-
-        plantilla = fitz.open("edomex_plantilla_alta_res.pdf")
-        page      = plantilla[0]
-
-        valores = {
-            "folio":     folio,
-            "marca":     marca,
-            "linea":     linea,
-            "anio":      anio,
-            "serie":     serie,
-            "motor":     motor,
-            "color":     color,
-            "fecha_exp": fecha_exp,
-            "fecha_ven": fecha_ven,
-            "nombre":    nombre,
-        }
-
-        for campo, texto in valores.items():
-            if campo in coords_edomex:
-                x, y, fs, col = coords_edomex[campo]
-                page.insert_text((x, y), texto, fontsize=fs, color=col)
-
-        cadena = (
-            f"FOLIO: {folio}  "
-            f"MARCA: {marca}  "
-            f"LINEA: {linea}  "
-            f"ANO: {anio}  "
-            f"SERIE: {serie}  "
-            f"MOTOR: {motor}  "
-            f"COLOR: {color}  "
-            f"NOMBRE: {nombre} " 
-            f"EDOMEX DIGITAL"
-        )
-
-        codes = encode(cadena, columns=6, security_level=5)
-
-        # 🧼 GENERAMOS IMAGEN EN ALTA CALIDAD DESDE AQUÍ (sin resize después)
-        barcode_img = render_image(codes, scale=4)  # <- Esta línea hace la magia
-
-        buf       = BytesIO()
-        barcode_img.save(buf, format="PNG")
-        img_bytes = buf.getvalue()
-
-        # 💥 MEDIDA FIJA DE 4.1cm x 1.1cm en puntos (no crece, no se deforma)
-        ancho_pt = int(4.1 * 28.35)  # 708.75 pt
-        alto_pt  = int(1.1 * 28.35)  # 56.7 pt
-
-        x0 = coords_edomex["serie"][0] - 50 - 150
-        y0 = coords_edomex["serie"][1] - 121
-
-        rect = fitz.Rect(
-            x0,
-            y0,
-            x0 + ancho_pt,
-            y0 + alto_pt
-        )
-
-        page.insert_image(rect, stream=img_bytes, keep_proportion=False)
+        ahora = datetime.now()
+        f1 = ahora.strftime("%d/%m/%Y")
+        f1_iso = ahora.isoformat()
+        f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
+        f_ven_iso = (ahora + timedelta(days=30)).isoformat()
 
         os.makedirs(OUTPUT_DIR, exist_ok=True)
-        out_path = os.path.join(OUTPUT_DIR, f"{folio}_edomex.pdf")
-        plantilla.save(out_path)
-        plantilla.close()
+        out = os.path.join(OUTPUT_DIR, f"{fol}_edomex.pdf")
 
-        return render_template(
-            "exitoso.html",
-            ruta_pdf=url_for("abrir_pdf_edomex", folio=folio),
-            folio=folio,
-            edomex=True
-        )
+        doc = fitz.open("edomexplantilla2025.pdf")
+        pg = doc[0]
+
+        pg.insert_text(coords_edomex["folio"][:2], fol, fontsize=coords_edomex["folio"][2], color=coords_edomex["folio"][3])
+        pg.insert_text(coords_edomex["fecha1"][:2], f1, fontsize=coords_edomex["fecha1"][2], color=coords_edomex["fecha1"][3])
+        pg.insert_text(coords_edomex["fecha2"][:2], f1, fontsize=coords_edomex["fecha2"][2], color=coords_edomex["fecha2"][3])
+        for key in ["marca", "serie", "linea", "motor", "anio", "color"]:
+            x, y, s, col = coords_edomex[key]
+            pg.insert_text((x, y), d[key], fontsize=s, color=col)
+
+        pg.insert_text(coords_edomex["vigencia"][:2], f_ven, fontsize=coords_edomex["vigencia"][2], color=coords_edomex["vigencia"][3])
+        pg.insert_text(coords_edomex["nombre"][:2], d["nombre"], fontsize=coords_edomex["nombre"][2], color=coords_edomex["nombre"][3])
+
+        # === Generar código PDF417 ===
+        import pdf417gen
+        from PIL import Image
+
+        data_pdf417 = f"""FOLIO: {fol}
+NOMBRE: {d['nombre']}
+MARCA: {d['marca']}
+LINEA: {d['linea']}
+AÑO: {d['anio']}
+SERIE: {d['serie']}
+MOTOR: {d['motor']}
+COLOR: {d['color']}
+PERMISO DIGITAL EDOMEX"""
+
+        codes = pdf417gen.encode(data_pdf417, columns=6, security_level=2)
+        image = pdf417gen.render_image(codes, scale=1, ratio=3)
+        image_path = os.path.join(OUTPUT_DIR, f"{fol}_edomex_pdf417.png")
+        image.save(image_path)
+
+        # Insertar imagen recortada y centrada
+        from PIL import ImageOps
+
+        img = Image.open(image_path)
+        img = ImageOps.crop(img, (0, 7, 42, 14))  # izquierda, arriba, derecha, abajo
+        img = img.resize((int(5 * 28.35), int(2 * 28.35)))  # tamaño fijo en cm
+
+        img.save(image_path)
+
+        pg.insert_image(fitz.Rect(200, 500, 200 + 5 * 28.35, 500 + 2 * 28.35), filename=image_path)
+
+        doc.save(out)
+        doc.close()
+
+        _guardar(fol, "EDOMEX", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f1_iso, f_ven_iso, d["nombre"])
+
+        return render_template("exitoso.html", folio=fol, edomex=True)
 
     return render_template("formulario_edomex.html")
     
@@ -596,7 +578,7 @@ def formulario_morelos():
     
     if request.method == "POST":
         d = request.form
-        fol = generar_folio_automatico()
+        fol = generar_folio_automatico("07")  # Prefijo fijo para Morelos
         placa = generar_placa_digital()
         ahora = datetime.now()
 
@@ -671,7 +653,7 @@ def formulario_oaxaca():
         return redirect(url_for("login"))
     if request.method == "POST":
         d = request.form
-        fol = generar_folio_automatico()
+        fol = generar_folio_automatico("09")  # Prefijo fijo para Oaxaca
         ahora = datetime.now()
         f1 = ahora.strftime("%d/%m/%Y")
         f1_iso = ahora.isoformat()
@@ -706,9 +688,9 @@ COLOR: {d['color']}
 OAXACA PERMISOS DIGITALES"""
 
         qr = qrcode.QRCode(
-            version=2,  # Ajusta para que el texto quepa sin pixelarse
+            version=2,
             error_correction=qrcode.constants.ERROR_CORRECT_H,
-            box_size=10,  # Aumenta resolución
+            box_size=10,
             border=2
         )
         qr.add_data(texto_qr.upper())
@@ -716,29 +698,26 @@ OAXACA PERMISOS DIGITALES"""
 
         img_qr = qr.make_image(fill_color="black", back_color="white").convert("RGB")
 
-        # Convertir a Pixmap para PyMuPDF
         buf = BytesIO()
         img_qr.save(buf, format="PNG")
         buf.seek(0)
         qr_pix = fitz.Pixmap(buf.read())
 
-        # Tamaño fijo: 1 cm x 1 cm
-        cm = 42.52  # puntos por cm
+        # Tamaño fijo: 1.5 cm x 1.5 cm
+        cm = 42.52
         ancho_qr = alto_qr = cm * 1.5
 
-        # Posición: desde la esquina inferior izquierda: 5cm hacia arriba y 3cm desde la derecha
+        # Posición: desde esquina inferior izquierda: 5cm arriba y 3cm desde la derecha
         page_width = pg.rect.width
         x_qr = page_width - (0.5 * cm) - ancho_qr
         y_qr = 11.5 * cm
 
-        # Insertar imagen
         pg.insert_image(
             fitz.Rect(x_qr, y_qr, x_qr + ancho_qr, y_qr + alto_qr),
             pixmap=qr_pix,
             overlay=True
         )
 
-        # Guardar y cerrar
         doc.save(out)
         doc.close()
 
@@ -754,7 +733,7 @@ def formulario_gto():
 
     if request.method == "POST":
         d = request.form
-        fol = generar_folio_automatico()
+        fol = generar_folio_automatico("08")  # Prefijo fijo para Guanajuato
         ahora = datetime.now()
         f1 = ahora.strftime("%d/%m/%Y")
         f1_iso = ahora.isoformat()
