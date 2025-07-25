@@ -1200,10 +1200,10 @@ def abrir_pdf(entidad, folio):
     url_pdf = res.data[0]["url_pdf"]
     return redirect(url_pdf)
 
-# <- Aquí la pegas
-generar_folio_automatico = generar_folio_por_mes
+# <- AQUÍ YA NO VA NADA
 
 if __name__ == "__main__":
     import os
     puerto = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=puerto, debug=True)
+
