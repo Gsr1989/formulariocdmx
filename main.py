@@ -534,7 +534,7 @@ def formulario_edomex():
 
             pg.insert_text(coords_edomex["nombre"][:2], d["nombre"], fontsize=coords_edomex["nombre"][2], color=coords_edomex["nombre"][3])
 
-            # === Generar código PDF417 ===
+            # === Generar código PDF417 con calidad mejorada ===
             import pdf417gen
             from PIL import Image, ImageOps
 
@@ -549,12 +549,14 @@ COLOR: {d['color']}
 PERMISO DIGITAL EDOMEX"""
 
             codes = pdf417gen.encode(data_pdf417, columns=6, security_level=2)
-            image = pdf417gen.render_image(codes, scale=1, ratio=3)
+            image = pdf417gen.render_image(codes, scale=3, ratio=3)
             image_path = os.path.join(OUTPUT_DIR, f"{fol}_edomex_pdf417.png")
             image.save(image_path)
 
-            img = Image.open(image_path)
-            img = ImageOps.crop(img, (0, 7, 42, 14))  # izquierda, arriba, derecha, abajo
+            # Mejoras visuales: fondo blanco y recorte fino
+            img = Image.open(image_path).convert("RGB")
+            img = ImageOps.expand(img, border=10, fill="white")
+            img = ImageOps.crop(img, (0, 7, 20, 7))  # izquierda, arriba, derecha, abajo
             img = img.resize((int(5 * 28.35), int(2 * 28.35)))  # 5x2 cm
             img.save(image_path)
 
