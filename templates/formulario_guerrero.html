@@ -54,6 +54,10 @@
             text-transform: uppercase;
         }
 
+        input[type="date"] {
+            text-transform: none;
+        }
+
         button {
             background-color: #bc2b29;
             color: white;
@@ -116,6 +120,9 @@
         <input type="text" name="color" placeholder="Color" required maxlength="20" autocomplete="off" oninput="this.value = this.value.toUpperCase(); saltar(this)">
         <input type="text" name="nombre" placeholder="Nombre del Contribuyente" required maxlength="50" autocomplete="off" oninput="this.value = this.value.toUpperCase();">
 
+        <label for="fecha_inicio" style="font-weight: bold; color: #333;">Fecha de Expedición:</label>
+        <input type="date" name="fecha_inicio" id="fecha_inicio" required>
+
         <label for="vigencia" style="font-weight: bold; color: #333;">Vigencia:</label>
         <select name="vigencia" id="vigencia" required>
             <option value="30" selected>30 días</option>
@@ -155,6 +162,11 @@
                 }
             }
         }
+
+        window.onload = function () {
+            const hoy = new Date().toISOString().split("T")[0];
+            document.getElementById("fecha_inicio").value = hoy;
+        };
     </script>
 </body>
 </html>
