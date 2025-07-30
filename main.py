@@ -187,13 +187,23 @@ def formulario_guerrero():
     if request.method == "POST":
         d = request.form
         fol = generar_folio_guerrero()
-        ahora = datetime.now()
 
-        dias_vigencia = int(request.form.get("vigencia", 30))  # ← scroll dinámico
-        f_exp = ahora.strftime("%d/%m/%Y")
-        f_exp_iso = ahora.isoformat()
-        f_ven = (ahora + timedelta(days=dias_vigencia)).strftime("%d/%m/%Y")
-        f_ven_iso = (ahora + timedelta(days=dias_vigencia)).isoformat()
+        # 👇 Tomar fecha de expedición del form
+        fecha_exp_str = d.get("fecha_exp", "")
+        vigencia_dias = int(d.get("vigencia", 30))
+
+        # 👇 Convertir fecha de string a datetime
+        try:
+            fecha_exp_dt = datetime.strptime(fecha_exp_str, "%Y-%m-%d")
+        except ValueError:
+            fecha_exp_dt = datetime.now()
+
+        f_exp = fecha_exp_dt.strftime("%d/%m/%Y")
+        f_exp_iso = fecha_exp_dt.isoformat()
+
+        fecha_ven_dt = fecha_exp_dt + timedelta(days=vigencia_dias)
+        f_ven = fecha_ven_dt.strftime("%d/%m/%Y")
+        f_ven_iso = fecha_ven_dt.isoformat()
 
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out = os.path.join(OUTPUT_DIR, f"{fol}_guerrero.pdf")
@@ -202,10 +212,12 @@ def formulario_guerrero():
 
         for campo in ["folio", "fecha_exp", "fecha_ven", "serie", "motor", "marca", "linea", "color", "nombre"]:
             x, y, s, col = coords_guerrero[campo]
-            texto = fol if campo == "folio" else (f_exp if campo == "fecha_exp" else (f_ven if campo == "fecha_ven" else d.get(campo)))
+            texto = fol if campo == "folio" else (
+                f_exp if campo == "fecha_exp" else (
+                    f_ven if campo == "fecha_ven" else d.get(campo)))
             pg.insert_text((x, y), texto, fontsize=s, color=col)
 
-        # Rotados
+        # 🌀 Rotados
         pg.insert_text(coords_guerrero["rot_folio"][:2], fol, fontsize=coords_guerrero["rot_folio"][2], rotate=270)
         pg.insert_text(coords_guerrero["rot_fecha_exp"][:2], f_exp, fontsize=coords_guerrero["rot_fecha_exp"][2], rotate=270)
         pg.insert_text(coords_guerrero["rot_fecha_ven"][:2], f_ven, fontsize=coords_guerrero["rot_fecha_ven"][2], rotate=270)
@@ -220,23 +232,12 @@ def formulario_guerrero():
         doc.save(out)
         doc.close()
 
-        _guardar(
-            fol,
-            "Guerrero",
-            d["serie"],
-            d["marca"],
-            d["linea"],
-            d["motor"],
-            d["anio"],
-            d["color"],
-            f_exp_iso,
-            f_ven_iso,
-            d["nombre"]
-        )
-
+        _guardar(fol, "Guerrero", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f_exp_iso, f_ven_iso, d["nombre"])
         return render_template("exitoso.html", folio=fol, guerrero=True)
 
-    return render_template("formulario_guerrero.html")
+    # Si es GET, renderiza con fecha actual por defecto
+    hoy = datetime.now().strftime("%Y-%m-%d")
+    return render_template("formulario_guerrero.html", fecha_actual=hoy)
 
 @app.route("/abrir_pdf_guerrero/<folio>")
 def abrir_pdf_guerrero(folio):
