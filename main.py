@@ -248,7 +248,8 @@ def formulario_guerrero():
 
         return render_template("exitoso.html", folio=fol, guerrero=True)
 
-    return render_template("formulario_guerrero.html")
+    # GET — se envía datetime para prefijar fecha actual en el HTML
+    return render_template("formulario_guerrero.html", datetime=datetime)
 
 @app.route("/abrir_pdf_guerrero/<folio>")
 def abrir_pdf_guerrero(folio):
