@@ -121,7 +121,7 @@
         <input type="text" name="nombre" placeholder="Nombre del Contribuyente" required maxlength="50" autocomplete="off" oninput="this.value = this.value.toUpperCase();">
 
         <label for="fecha_exp" style="font-weight:bold; color:#333;">Fecha de expedición:</label>
-        <input type="date" name="fecha_exp" id="fecha_exp" value="{{ datetime.utcnow().strftime('%Y-%m-%d') }}" required>
+        <input type="date" name="fecha_exp" id="fecha_exp" value="{{ datetime.now().strftime('%Y-%m-%d') }}" required>
 
         <label for="vigencia" style="font-weight: bold; color: #333;">Vigencia:</label>
         <select name="vigencia" id="vigencia" required>
