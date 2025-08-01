@@ -451,11 +451,20 @@ def formulario_cdmx():
         d = request.form
         fol = generar_folio_automatico("05")  # Prefijo fijo para CDMX
 
-        ahora = datetime.now()
-        fecha_visual = ahora.strftime(f"%d DE {meses_es[ahora.strftime('%B')]} DEL %Y").upper()
-        vigencia_visual = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-        fecha_iso = ahora.isoformat()
-        vigencia_iso = (ahora + timedelta(days=30)).isoformat()
+        # === FECHAS ===
+        fecha_str = d.get("fecha_exp")
+        try:
+            fecha_exp = datetime.strptime(fecha_str, "%Y-%m-%d")
+        except:
+            fecha_exp = datetime.now()
+
+        vigencia_dias = int(d.get("vigencia", 30))
+        fecha_ven = fecha_exp + timedelta(days=vigencia_dias)
+
+        fecha_visual = fecha_exp.strftime(f"%d DE {meses_es[fecha_exp.strftime('%B')]} DEL %Y").upper()
+        vigencia_visual = fecha_ven.strftime("%d/%m/%Y")
+        fecha_iso = fecha_exp.isoformat()
+        vigencia_iso = fecha_ven.isoformat()
 
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out = os.path.join(OUTPUT_DIR, f"{fol}_cdmx.pdf")
@@ -476,7 +485,7 @@ def formulario_cdmx():
         pg.insert_text(coords_cdmx["nombre"][:2], d["nombre"],
                        fontsize=coords_cdmx["nombre"][2], color=coords_cdmx["nombre"][3])
 
-        # -------- Generar QR de texto --------
+        # === QR === NO SE TOCA 😤
         qr_text = (
             f"Folio: {fol}\n"
             f"Marca: {d['marca']}\n"
@@ -501,19 +510,15 @@ def formulario_cdmx():
         qr_path = os.path.join(OUTPUT_DIR, f"{fol}_cdmx_qr.png")
         img.save(qr_path)
 
-        # -------- Insertar QR centrado abajo --------
-        tam_qr = 1.6 * 28.35  # 1.6 cm → 45.36 pts       
+        tam_qr = 1.6 * 28.35
         ancho_pagina = pg.rect.width
-
         x0 = (ancho_pagina / 2) - (tam_qr / 2) - 19
         x1 = (ancho_pagina / 2) + (tam_qr / 2) - 19
-
-        y0 = 680.17  # 0.5 cm desde abajo
+        y0 = 680.17
         y1 = y0 + tam_qr
 
         qr_rect = fitz.Rect(x0, y0, x1, y1)
         pg.insert_image(qr_rect, filename=qr_path, keep_proportion=False, overlay=True)
-        # --------------------------------------------
 
         doc.save(out)
         doc.close()
@@ -527,7 +532,9 @@ def formulario_cdmx():
 
         return render_template("exitoso.html", folio=fol, cdmx=True)
 
-    return render_template("formulario.html")
+    # Manda la fecha de hoy al HTML (para prefijar el input type="date")
+    hoy = datetime.now().strftime('%Y-%m-%d')
+    return render_template("formulario.html", fecha_actual=hoy)
 
 @app.route("/formulario_edomex", methods=["GET", "POST"])
 def formulario_edomex():
@@ -539,11 +546,20 @@ def formulario_edomex():
             d = request.form
             fol = generar_folio_automatico("06")  # Prefijo fijo EDOMEX
 
-            ahora   = datetime.now()
-            f1      = ahora.strftime("%d/%m/%Y")
-            f1_iso  = ahora.isoformat()
-            f_ven   = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-            f_ven_iso = (ahora + timedelta(days=30)).isoformat()
+            # === FECHAS ===
+            fecha_str = d.get("fecha_exp", "")
+            try:
+                fecha_exp = datetime.strptime(fecha_str, "%Y-%m-%d")
+            except:
+                fecha_exp = datetime.now()
+
+            vigencia_dias = int(d.get("vigencia", 30))
+            fecha_ven = fecha_exp + timedelta(days=vigencia_dias)
+
+            f1 = fecha_exp.strftime("%d/%m/%Y")
+            f_ven = fecha_ven.strftime("%d/%m/%Y")
+            f1_iso = fecha_exp.isoformat()
+            f_ven_iso = fecha_ven.isoformat()
 
             os.makedirs(OUTPUT_DIR, exist_ok=True)
             out_pdf = os.path.join(OUTPUT_DIR, f"{fol}_edomex.pdf")
@@ -589,7 +605,8 @@ def formulario_edomex():
             traceback.print_exc()
             return f"ERROR INTERNO: {e}", 500
 
-    return render_template("formulario_edomex.html")
+    hoy = datetime.now().strftime("%Y-%m-%d")
+    return render_template("formulario_edomex.html", fecha_actual=hoy)
     
 @app.route("/formulario_morelos", methods=["GET", "POST"])
 def formulario_morelos():
@@ -600,15 +617,22 @@ def formulario_morelos():
         d = request.form
         fol = generar_folio_automatico("07")  # Prefijo fijo para Morelos
         placa = generar_placa_digital()
-        ahora = datetime.now()
 
-        # Formatos de fechas
-        f_exp = ahora.strftime(f"%d DE {meses_es[ahora.strftime('%B')]} DEL %Y").upper()
-        f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-        fecha_iso = ahora.isoformat()
-        fecha_ven_iso = (ahora + timedelta(days=30)).isoformat()
+        # === FECHAS ===
+        fecha_str = d.get("fecha_exp", "")
+        try:
+            fecha_exp = datetime.strptime(fecha_str, "%Y-%m-%d")
+        except:
+            fecha_exp = datetime.now()
 
-        # Crear PDF
+        vigencia_dias = int(d.get("vigencia", 30))
+        fecha_ven = fecha_exp + timedelta(days=vigencia_dias)
+
+        f_exp = fecha_exp.strftime(f"%d DE {meses_es[fecha_exp.strftime('%B')]} DEL %Y").upper()
+        f_ven = fecha_ven.strftime("%d/%m/%Y")
+        fecha_iso = fecha_exp.isoformat()
+        fecha_ven_iso = fecha_ven.isoformat()
+
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out = os.path.join(OUTPUT_DIR, f"{fol}_morelos.pdf")
         doc = fitz.open("morelos_hoja1_imagen.pdf")
@@ -630,7 +654,6 @@ def formulario_morelos():
             pg2 = doc[1]
             pg2.insert_text(coords_morelos["fecha_hoja2"][:2], f_ven, fontsize=coords_morelos["fecha_hoja2"][2], color=coords_morelos["fecha_hoja2"][3])
 
-            # Generar contenido del QR
             texto_qr = f"""FOLIO: {fol}
 NOMBRE: {d["nombre"]}
 MARCA: {d["marca"]}
@@ -642,7 +665,6 @@ COLOR: {d["color"]}
 TIPO: {d["tipo"]}
 PERMISO MORELOS DIGITAL"""
 
-            # Generar código QR como imagen
             qr = qrcode.make(texto_qr)
             img_buffer = io.BytesIO()
             qr.save(img_buffer, format="PNG")
@@ -650,13 +672,11 @@ PERMISO MORELOS DIGITAL"""
 
             img_pdf = fitz.Pixmap(img_buffer)
             width_cm = 0.4
-            px_per_cm = 300 / 1.0  # 1 inch = 1.0 cm
+            px_per_cm = 300 / 1.0
             size_px = int(px_per_cm * width_cm)
 
-            # Convertir a fitz.Rect
             x, y = 650, 128
             rect = fitz.Rect(x, y, x + size_px, y + size_px)
-
             pg2.insert_image(rect, pixmap=img_pdf)
 
         doc.save(out)
@@ -665,20 +685,32 @@ PERMISO MORELOS DIGITAL"""
         _guardar(fol, "Morelos", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], fecha_iso, fecha_ven_iso, d["nombre"])
         return render_template("exitoso.html", folio=fol, morelos=True)
 
-    return render_template("formulario_morelos.html")
-
+    hoy = datetime.now().strftime("%Y-%m-%d")
+    return render_template("formulario_morelos.html", fecha_actual=hoy)
+    
 @app.route("/formulario_oaxaca", methods=["GET", "POST"])
 def formulario_oaxaca():
     if "user" not in session:
         return redirect(url_for("login"))
+
     if request.method == "POST":
         d = request.form
         fol = generar_folio_automatico("09")  # Prefijo fijo para Oaxaca
-        ahora = datetime.now()
-        f1 = ahora.strftime("%d/%m/%Y")
-        f1_iso = ahora.isoformat()
-        f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-        f_ven_iso = (ahora + timedelta(days=30)).isoformat()
+
+        # === FECHAS ===
+        fecha_str = d.get("fecha_exp", "")
+        try:
+            fecha_exp = datetime.strptime(fecha_str, "%Y-%m-%d")
+        except:
+            fecha_exp = datetime.now()
+
+        vigencia_dias = int(d.get("vigencia", 30))
+        fecha_ven = fecha_exp + timedelta(days=vigencia_dias)
+
+        f1 = fecha_exp.strftime("%d/%m/%Y")
+        f1_iso = fecha_exp.isoformat()
+        f_ven = fecha_ven.strftime("%d/%m/%Y")
+        f_ven_iso = fecha_ven.isoformat()
 
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out = os.path.join(OUTPUT_DIR, f"{fol}_oaxaca.pdf")
@@ -690,9 +722,11 @@ def formulario_oaxaca():
         pg.insert_text(coords_oaxaca["folio"][:2], fol, fontsize=coords_oaxaca["folio"][2], color=coords_oaxaca["folio"][3])
         pg.insert_text(coords_oaxaca["fecha1"][:2], f1, fontsize=coords_oaxaca["fecha1"][2], color=coords_oaxaca["fecha1"][3])
         pg.insert_text(coords_oaxaca["fecha2"][:2], f1, fontsize=coords_oaxaca["fecha2"][2], color=coords_oaxaca["fecha2"][3])
+
         for key in ["marca", "serie", "linea", "motor", "anio", "color"]:
             x, y, s, col = coords_oaxaca[key]
             pg.insert_text((x, y), d[key], fontsize=s, color=col)
+
         pg.insert_text(coords_oaxaca["vigencia"][:2], f_ven, fontsize=coords_oaxaca["vigencia"][2], color=coords_oaxaca["vigencia"][3])
         pg.insert_text(coords_oaxaca["nombre"][:2], d["nombre"], fontsize=coords_oaxaca["nombre"][2], color=coords_oaxaca["nombre"][3])
 
@@ -727,7 +761,6 @@ OAXACA PERMISOS DIGITALES"""
         cm = 42.52
         ancho_qr = alto_qr = cm * 1.5
 
-        # Posición: desde esquina inferior izquierda: 5cm arriba y 3cm desde la derecha
         page_width = pg.rect.width
         x_qr = page_width - (0.5 * cm) - ancho_qr
         y_qr = 11.5 * cm
@@ -744,8 +777,9 @@ OAXACA PERMISOS DIGITALES"""
         _guardar(fol, "Oaxaca", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f1_iso, f_ven_iso, d["nombre"])
         return render_template("exitoso.html", folio=fol, oaxaca=True)
 
-    return render_template("formulario_oaxaca.html")
-
+    hoy = datetime.now().strftime("%Y-%m-%d")
+    return render_template("formulario_oaxaca.html", fecha_actual=hoy)
+    
 @app.route("/formulario_gto", methods=["GET", "POST"])
 def formulario_gto():
     if "user" not in session:
@@ -754,11 +788,21 @@ def formulario_gto():
     if request.method == "POST":
         d = request.form
         fol = generar_folio_automatico("08")  # Prefijo fijo para Guanajuato
-        ahora = datetime.now()
-        f1 = ahora.strftime("%d/%m/%Y")
-        f1_iso = ahora.isoformat()
-        f_ven = (ahora + timedelta(days=30)).strftime("%d/%m/%Y")
-        f_ven_iso = (ahora + timedelta(days=30)).isoformat()
+
+        # === FECHAS ===
+        fecha_str = d.get("fecha_exp", "")
+        try:
+            fecha_exp = datetime.strptime(fecha_str, "%Y-%m-%d")
+        except:
+            fecha_exp = datetime.now()
+
+        vigencia_dias = int(d.get("vigencia", 30))
+        fecha_ven = fecha_exp + timedelta(days=vigencia_dias)
+
+        f1 = fecha_exp.strftime("%d/%m/%Y")
+        f1_iso = fecha_exp.isoformat()
+        f_ven = fecha_ven.strftime("%d/%m/%Y")
+        f_ven_iso = fecha_ven.isoformat()
 
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out = os.path.join(OUTPUT_DIR, f"{fol}_gto.pdf")
@@ -769,7 +813,6 @@ def formulario_gto():
         # Insertar texto del formulario
         pg.insert_text(coords_gto["folio"][:2], fol, fontsize=coords_gto["folio"][2], color=coords_gto["folio"][3])
 
-        # Solo si tienes 'fecha2' en tu coords_gto; si no, comenta esta también
         if "fecha2" in coords_gto:
             pg.insert_text(coords_gto["fecha2"][:2], f1, fontsize=coords_gto["fecha2"][2], color=coords_gto["fecha2"][3])
 
@@ -810,7 +853,6 @@ GUANAJUATO PERMISOS DIGITALES"""
         cm = 85.05
         ancho_qr = alto_qr = cm * 3.0
 
-        # Posición: 5 cm desde abajo, 3 cm desde la derecha
         page_width = pg.rect.width
         x_qr = page_width - (2.5 * cm) - ancho_qr
         y_qr = 20.5 * cm
@@ -827,7 +869,8 @@ GUANAJUATO PERMISOS DIGITALES"""
         _guardar(fol, "GTO", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f1_iso, f_ven_iso, d["nombre"])
         return render_template("exitoso.html", folio=fol, gto=True)
 
-    return render_template("formulario_gto.html")
+    hoy = datetime.now().strftime("%Y-%m-%d")
+    return render_template("formulario_gto.html", fecha_actual=hoy)
     
 # --- LISTAR, ELIMINAR, RENOVAR ---
 @app.route("/listar")
@@ -1004,11 +1047,19 @@ def formulario_jalisco():
     if request.method == "POST":
         d = request.form
         fol = generar_folio_jalisco()
-        ahora = datetime.now()
 
-        # Fechas para guardar en Supabase (no se imprimen ya en el PDF)
-        f_exp_iso = ahora.isoformat()
-        f_ven_iso = (ahora + timedelta(days=30)).isoformat()
+        # === FECHAS ===
+        fecha_str = d.get("fecha_exp", "")
+        try:
+            fecha_exp = datetime.strptime(fecha_str, "%Y-%m-%d")
+        except:
+            fecha_exp = datetime.now()
+
+        vigencia_dias = int(d.get("vigencia", 30))
+        fecha_ven = fecha_exp + timedelta(days=vigencia_dias)
+
+        f_exp_iso = fecha_exp.isoformat()
+        f_ven_iso = fecha_ven.isoformat()
 
         # Crear carpeta de salida
         os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -1020,7 +1071,9 @@ def formulario_jalisco():
         for campo in ["marca", "linea", "anio", "serie", "nombre", "color"]:
             x, y, s, col = coords_jalisco[campo]
             pg.insert_text((x, y), d.get(campo, ""), fontsize=s, color=col)
-            pg.insert_text(coords_jalisco["fecha_ven"][:2], (ahora + timedelta(days=30)).strftime("%d/%m/%Y"), fontsize=coords_jalisco["fecha_ven"][2], color=coords_jalisco["fecha_ven"][3])
+
+        # --- Insertar fecha de vencimiento ---
+        pg.insert_text(coords_jalisco["fecha_ven"][:2], fecha_ven.strftime("%d/%m/%Y"), fontsize=coords_jalisco["fecha_ven"][2], color=coords_jalisco["fecha_ven"][3])
 
         # --- Imprimir FOLIO generado automáticamente ---
         pg.insert_text((930, 391), fol, fontsize=14, color=(0, 0, 0))
@@ -1049,18 +1102,17 @@ MOTOR:{d.get('motor')}
 
         # --- Insertar imagen en tamaño FIJO (siempre igual) ---
         pg.insert_image(fitz.Rect(937.65, 75, 1168.955, 132), filename=ine_img_path, keep_proportion=False, overlay=True)
-        # Guardar PDF
+
         doc.save(out)
         doc.close()
 
-        # Guardar en la base con todos los datos
         _guardar(fol, "Jalisco", d["serie"], d["marca"], d["linea"], d["motor"], d["anio"], d["color"], f_exp_iso, f_ven_iso, d["nombre"])
 
         return render_template("exitoso.html", folio=fol, jalisco=True)
 
-    return render_template("formulario_jalisco.html")
-
-
+    hoy = datetime.now().strftime("%Y-%m-%d")
+    return render_template("formulario_jalisco.html", fecha_actual=hoy)
+    
 @app.route("/abrir_pdf_jalisco/<folio>")
 def abrir_pdf_jalisco(folio):
     p = os.path.join(OUTPUT_DIR, f"{folio}_jalisco.pdf")
