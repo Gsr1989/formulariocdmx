@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="es">
+<!DOCTYPE html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Formulario Morelos</title>
@@ -45,7 +46,7 @@
       margin: 10px 0 5px;
       display: block;
     }
-    input, textarea {
+    input, textarea, select {
       width: 100%;
       padding: 10px;
       font-size: 15px;
@@ -80,28 +81,92 @@
 <body>
 <header>
   <img src="{{ url_for('static', filename='logo.png') }}" alt="Encabezado">
-</header><main>
-  <h2>Formulario Morelos</h2>  <div class="autobox">
+</header>
+<main>
+  <h2>Formulario Morelos</h2>
+
+  <div class="autobox">
     <label><input type="checkbox" id="modoAuto" checked> Activar detección automática</label>
     <textarea id="autotexto" placeholder="Pega aquí la descripción completa..."></textarea>
-  </div>  <form method="POST" autocomplete="off">
-    <label>Marca: <input type="text" name="marca" id="marca" required maxlength="20" autocomplete="off"></label>
-    <label>Línea: <input type="text" name="linea" id="linea" required maxlength="20" autocomplete="off"></label>
-    <label>Año: <input type="text" name="anio" id="anio" required maxlength="4" autocomplete="off"></label>
-    <label>Número de serie: <input type="text" name="serie" id="serie" required maxlength="17" autocomplete="off"></label>
-    <label>Número de motor: <input type="text" name="motor" id="motor" required maxlength="25" autocomplete="off"></label>
-    <label>Color: <input type="text" name="color" id="color" required maxlength="15" autocomplete="off"></label>
-    <label>Tipo de vehículo: <input type="text" name="tipo" id="tipo" required maxlength="20" autocomplete="off"></label>
-    <label>Nombre del solicitante: <input type="text" name="nombre" id="nombre" required autocomplete="off"></label><button class="boton verde-militar" type="submit">Generar PDF</button>
+  </div>
 
-  </form>  <form action="/seleccionar_entidad">
+  <form method="POST" autocomplete="off">
+    <label>Marca: <input type="text" name="marca" id="marca" required maxlength="20"></label>
+    <label>Línea: <input type="text" name="linea" id="linea" required maxlength="20"></label>
+    <label>Año: <input type="text" name="anio" id="anio" required maxlength="4"></label>
+    <label>Número de serie: <input type="text" name="serie" id="serie" required maxlength="17"></label>
+    <label>Número de motor: <input type="text" name="motor" id="motor" required maxlength="25"></label>
+    <label>Color: <input type="text" name="color" id="color" required maxlength="15"></label>
+    <label>Tipo de vehículo: <input type="text" name="tipo" id="tipo" required maxlength="20"></label>
+    <label>Nombre del solicitante: <input type="text" name="nombre" id="nombre" required></label>
+    <label>Fecha de expedición: <input type="date" name="fecha_exp" id="fecha_exp"></label>
+    <label>Vigencia (días):
+      <select name="vigencia" id="vigencia">
+        <option value="30" selected>30</option>
+        <option value="60">60</option>
+        <option value="90">90</option>
+      </select>
+    </label>
+    <button class="boton verde-militar" type="submit">Generar PDF</button>
+  </form>
+
+  <form action="/seleccionar_entidad" method="get">
     <button class="boton gris" type="submit">Menú principal</button>
-  </form>  <form>
+  </form>
+
+  <form>
     <button type="button" class="boton rojo" onclick="borrarEntidad()">Cambiar entidad de este dispositivo</button>
-  </form>  <div class="espaciado"></div>
-</main><script>
-// ... El script permanece igual ...
-</script><footer>
+  </form>
+
+  <div class="espaciado"></div>
+</main>
+
+<script>
+  // Transformar texto a mayúsculas
+  const campos = ["marca", "linea", "anio", "serie", "motor", "color", "tipo", "nombre"];
+  campos.forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener("input", () => {
+      el.value = el.value.toUpperCase();
+    });
+  });
+
+  // Autollenado
+  const campo = document.getElementById("autotexto");
+  const auto = document.getElementById("modoAuto");
+  campo.addEventListener("input", () => {
+    if (!auto.checked) return;
+    const texto = campo.value.toUpperCase();
+    const parts = texto.split("|").map(p => p.trim());
+    parts.forEach(part => {
+      const [key, val] = part.split(":").map(p => p.trim());
+      if (key.includes("MARCA")) document.getElementById("marca").value = val;
+      if (key.includes("LÍNEA") || key.includes("LINEA")) document.getElementById("linea").value = val;
+      if (key.includes("AÑO")) document.getElementById("anio").value = val;
+      if (key.includes("SERIE")) document.getElementById("serie").value = val;
+      if (key.includes("MOTOR")) document.getElementById("motor").value = val;
+      if (key.includes("COLOR")) document.getElementById("color").value = val;
+      if (key.includes("TIPO")) document.getElementById("tipo").value = val;
+      if (key.includes("NOMBRE")) document.getElementById("nombre").value = val;
+    });
+  });
+
+  // Fecha de expedición prefijada al día actual
+  const fechaInput = document.getElementById("fecha_exp");
+  if (fechaInput) {
+    const hoy = new Date().toISOString().split("T")[0];
+    fechaInput.value = hoy;
+  }
+
+  // Borrar entidad
+  function borrarEntidad() {
+    localStorage.removeItem('entidad_preferida');
+    alert('Entidad eliminada. Puedes elegir una nueva.');
+    window.location.href = "/seleccionar_entidad";
+  }
+</script>
+
+<footer>
   <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
 </footer>
 </body>
