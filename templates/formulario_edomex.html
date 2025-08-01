@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="es"><head>
+<!DOCTYPE html>
+<html lang="es">
+<head>
   <meta charset="UTF-8">
   <title>Formulario EDOMEX</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -44,6 +46,7 @@
       margin-bottom: 15px;
       border: 1px solid #ccc;
       border-radius: 6px;
+      text-transform: uppercase;
     }
     textarea {
       resize: vertical;
@@ -85,117 +88,13 @@
     }
   </style>
 </head>
-<body><header>
+<body>
+<header>
   <img src="{{ url_for('static', filename='logo.png') }}" alt="Encabezado">
-</header><h2>Formulario EDOMEX</h2>
-<form action="{{ url_for('formulario_edomex') }}"
-      method="POST"
-      target="_blank"
-      autocomplete="off">
-  <label>Marca:
-    <input type="text" name="marca" id="marca" required maxlength="20" value="{{ marca|default('') }}">
-  </label>
-  <label>Línea:
-    <input type="text" name="linea" id="linea" required maxlength="20" value="{{ linea|default('') }}">
-  </label>
-  <label>Año:
-    <input type="text" name="anio" id="anio" required maxlength="4" value="{{ anio|default('') }}">
-  </label>
-  <label>Número de serie:
-    <input type="text" name="serie" id="serie" required maxlength="17" value="{{ serie|default('') }}">
-  </label>
-  <label>Número de motor:
-    <input type="text" name="motor" id="motor" required maxlength="25" value="{{ motor|default('') }}">
-  </label>
-  <label>Color:
-    <input type="text" name="color" id="color" required maxlength="15" value="{{ color|default('') }}">
-  </label>
-  <label>Nombre del solicitante:
-    <input type="text" name="nombre" id="nombre" required value="{{ nombre|default('') }}">
-  </label><label>Fecha de expedición: <input type="date" name="fecha_exp" id="fecha_exp" value="{{ fecha_exp|default(today) }}"> </label> <label>Vigencia en días: <select name="vigencia" id="vigencia"> <option value="30" selected>30 días</option> <option value="60">60 días</option> <option value="90">90 días</option> </select> </label>
+</header>
 
-<button type="submit">Descargar permiso EDOMEX</button>
+<h2>Formulario EDOMEX</h2>
 
-</form><div class="autobox">
-  <label><input type="checkbox" id="modoAuto" checked> Activar detección automática</label>
-  <textarea id="autotexto" placeholder="Pega aquí la descripción completa..."></textarea>
-</div><div class="cambiar-entidad">
-  <button onclick="borrarEntidad()">Cambiar entidad de este dispositivo</button>
-</div><footer>
-  <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
-</footer><script>
-  const campos = ["marca", "linea", "anio", "serie", "motor", "color", "nombre"];
-  campos.forEach(id => {
-    const el = document.getElementById(id);
-    el.addEventListener("input", () => {
-      el.value = el.value.toUpperCase();
-    });
-  });const campo = document.getElementById("autotexto"); const auto = document.getElementById("modoAuto"); campo.addEventListener("input", () => { if (!auto.checked) return; const texto = campo.value.toUpperCase(); const parts = texto.split("|").map(p => p.trim()); parts.forEach(part => { const [key, val] = part.split(":").map(p => p.trim()); if (key.includes("FOLIO")) return; if (key.includes("MARCA")) document.getElementById("marca").value = val; if (key.includes("LÍNEA") || key.includes("LINEA")) document.getElementById("linea").value = val; if (key.includes("AÑO")) document.getElementById("anio").value = val; if (key.includes("SERIE")) document.getElementById("serie").value = val; if (key.includes("MOTOR")) document.getElementById("motor").value = val; }); });
-
-function borrarEntidad() { localStorage.removeItem('entidad_preferida'); alert('Entidad eliminada. Volverás al menú principal.'); window.location.href = "/"; } </script></body>
-
-</html>      border-radius: 12px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.1);
-      max-width: 400px;
-      width: 90%;
-      text-align: left;
-    }
-    label {
-      font-size: 15px;
-      margin: 10px 0 5px;
-      display: block;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 10px;
-      font-size: 15px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-    textarea {
-      resize: vertical;
-      min-height: 100px;
-      overflow-y: auto;
-    }
-    button {
-      width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      background-color: #c8102e;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #9e0d22;
-    }
-    .autobox {
-      margin: 20px auto;
-      max-width: 400px;
-      width: 90%;
-      text-align: left;
-    }
-    .cambiar-entidad {
-      margin: 30px auto;
-      max-width: 400px;
-    }
-    .cambiar-entidad button {
-      background-color: #ff4444;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 5px;
-      font-size: 14px;
-      cursor: pointer;
-      width: 100%;
-    }
-  </style>
-</head>
-<body><header>
-  <img src="{{ url_for('static', filename='logo.png') }}" alt="Encabezado">
-</header><h2>Formulario EDOMEX</h2>
 <form action="{{ url_for('formulario_edomex') }}"
       method="POST"
       target="_blank"
@@ -221,15 +120,34 @@ function borrarEntidad() { localStorage.removeItem('entidad_preferida'); alert('
   <label>Nombre del solicitante:
     <input type="text" name="nombre" id="nombre" required value="{{ nombre|default('') }}">
   </label>
+  <label>Fecha de expedición:
+    <input type="date" name="fecha_exp" id="fecha_exp">
+  </label>
+  <label>Vigencia en días:
+    <select name="vigencia" id="vigencia">
+      <option value="30" selected>30 días</option>
+      <option value="60">60 días</option>
+      <option value="90">90 días</option>
+    </select>
+  </label>
+
   <button type="submit">Descargar permiso EDOMEX</button>
-</form><div class="autobox">
+</form>
+
+<div class="autobox">
   <label><input type="checkbox" id="modoAuto" checked> Activar detección automática</label>
   <textarea id="autotexto" placeholder="Pega aquí la descripción completa..."></textarea>
-</div><div class="cambiar-entidad">
+</div>
+
+<div class="cambiar-entidad">
   <button onclick="borrarEntidad()">Cambiar entidad de este dispositivo</button>
-</div><footer>
+</div>
+
+<footer>
   <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
-</footer><script>
+</footer>
+
+<script>
   const campos = ["marca", "linea", "anio", "serie", "motor", "color", "nombre"];
   campos.forEach(id => {
     const el = document.getElementById(id);
@@ -260,5 +178,15 @@ function borrarEntidad() { localStorage.removeItem('entidad_preferida'); alert('
     alert('Entidad eliminada. Volverás al menú principal.');
     window.location.href = "/";
   }
-</script></body>
+
+  // Prellenar automáticamente la fecha actual (CDMX) en el input de fecha_exp
+  const fechaInput = document.getElementById("fecha_exp");
+  if (fechaInput && !fechaInput.value) {
+    const hoyCDMX = new Date(
+      new Date().toLocaleString("en-US", { timeZone: "America/Mexico_City" })
+    ).toISOString().split("T")[0];
+    fechaInput.value = hoyCDMX;
+  }
+</script>
+</body>
 </html>
