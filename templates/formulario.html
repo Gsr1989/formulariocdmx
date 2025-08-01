@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="es">
+<!DOCTYPE html>
+<html lang="es">
 <head>
   <meta charset="UTF-8">
   <title>Registro Ciudad de Mexico</title>
@@ -90,7 +91,8 @@
 <body>
 <header>
   <img src="{{ url_for('static', filename='logo.png') }}" alt="Encabezado">
-</header><h2>Registro Cuidad de México</h2>
+</header>
+<h2>Registro Ciudad de México</h2>
 <form method="POST" autocomplete="off">
   <label>Marca:
     <input type="text" name="marca" id="marca" required maxlength="20">
@@ -109,11 +111,19 @@
   </label>
   <label>Nombre del contribuyente:
     <input type="text" name="nombre" id="nombre" required>
-  </label><label>Fecha de expedición: <input type="date" name="fecha_exp" id="fecha_exp"> </label>
+  </label>
+  <label>Fecha de expedición:
+    <input type="date" name="fecha_exp" id="fecha_exp">
+  </label>
+  <label>Vigencia (días):
+    <select name="vigencia">
+      <option value="30" selected>30</option>
+      <option value="60">60</option>
+      <option value="90">90</option>
+    </select>
+  </label>
 
-<label>Vigencia (días): <select name="vigencia"> <option value="30" selected>30</option> <option value="60">60</option> <option value="90">90</option> </select> </label>
-
-<button type="submit">Generar Permiso</button>
+  <button type="submit">Generar Permiso</button>
 
   <div class="autobox">
     <label style="margin-top: 20px;">
@@ -122,11 +132,14 @@
     </label>
     <textarea id="autotexto" placeholder="Pega aquí la descripción completa..."></textarea>
   </div>
-</form><div class="cambiar-entidad">
+</form>
+<div class="cambiar-entidad">
   <button onclick="borrarEntidad()">Cambiar entidad de este dispositivo</button>
-</div><footer>
+</div>
+<footer>
   <img src="{{ url_for('static', filename='footer.png') }}" alt="Pie de página">
-</footer><script>
+</footer>
+<script>
   function borrarEntidad() {
     localStorage.removeItem('entidad_preferida');
     alert('Entidad eliminada. Puedes seleccionar una nueva.');
@@ -135,6 +148,7 @@
 
   const campo = document.getElementById("autotexto");
   const auto = document.getElementById("modoAuto");
+
   campo.addEventListener("input", () => {
     campo.style.height = "auto";
     campo.style.height = campo.scrollHeight + "px";
@@ -189,11 +203,16 @@
     }
   });
 
-  // Prellenar fecha actual por defecto
+  // Prellenar fecha actual por defecto (zona horaria CDMX)
   const fechaInput = document.getElementById("fecha_exp");
   if (fechaInput) {
-    const hoy = new Date().toISOString().split("T")[0];
-    fechaInput.value = hoy;
+    const hoyCDMX = new Date(
+      new Date().toLocaleString("en-US", { timeZone: "America/Mexico_City" })
+    )
+      .toISOString()
+      .split("T")[0];
+    fechaInput.value = hoyCDMX;
   }
-</script></body>
+</script>
+</body>
 </html>
