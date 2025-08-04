@@ -1062,7 +1062,7 @@ def formulario_jalisco():
         f_ven_iso = fecha_ven.isoformat()
 
         # === FECHA Y HORA ACTUAL DE CDMX ===
-        zona_cdmx = timezone("America/Mexico_City")
+        zona_cdmx = pytz.timezone("America/Mexico_City")
         ahora_cdmx = datetime.now(zona_cdmx)
         fecha_hora_actual_str = ahora_cdmx.strftime("%d/%m/%Y %H:%M:%S")
 
