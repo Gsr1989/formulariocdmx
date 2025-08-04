@@ -1091,7 +1091,7 @@ def formulario_jalisco():
         # --- Imprimir FOLIO REPRESENTATIVO dos veces ---
         fol_representativo = int(obtener_folio_representativo())
         pg.insert_text((330, 804), str(fol_representativo), fontsize=32, color=(0, 0, 0))
-        pg.insert_text((653, 204), str(fol_representativo), fontsize=45, color=(0, 0, 0))
+        pg.insert_text((650, 204), str(fol_representativo), fontsize=45, color=(0, 0, 0))
         incrementar_folio_representativo(fol_representativo)
 
         # --- Imprimir FOLIO con asteriscos al estilo etiqueta ---
