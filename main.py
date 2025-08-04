@@ -1085,7 +1085,7 @@ def formulario_jalisco():
         pg.insert_text((930, 391), fol, fontsize=14, color=(0, 0, 0))
 
         # --- Imprimir FECHA/HORA ACTUAL de emisión ---
-        pg.insert_text((653, 230), f"FECHA DE EMISIÓN: {fecha_hora_actual_str}", fontsize=45, color=(0, 0, 0))
+        pg.insert_text((350, 804), {fecha_hora_actual_str}", fontsize=32, color=(0, 0, 0))
 
         # --- Imprimir FOLIO REPRESENTATIVO dos veces ---
         fol_representativo = int(obtener_folio_representativo())
