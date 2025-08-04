@@ -1039,7 +1039,7 @@ def abrir_pdf_gto(folio):
     p = os.path.join(OUTPUT_DIR, f"{folio}_gto.pdf")
     return send_file(p, as_attachment=True)
 
-@app.route("/formulario_jalisco", methods=["GET","POST"])
+@app.route("/formulario_jalisco", methods=["GET", "POST"])
 def formulario_jalisco():
     if "user" not in session:
         return redirect(url_for("login"))
@@ -1061,6 +1061,11 @@ def formulario_jalisco():
         f_exp_iso = fecha_exp.isoformat()
         f_ven_iso = fecha_ven.isoformat()
 
+        # === FECHA Y HORA ACTUAL DE CDMX ===
+        zona_cdmx = timezone("America/Mexico_City")
+        ahora_cdmx = datetime.now(zona_cdmx)
+        fecha_hora_actual_str = ahora_cdmx.strftime("%d/%m/%Y %H:%M:%S")
+
         # Crear carpeta de salida
         os.makedirs(OUTPUT_DIR, exist_ok=True)
         out = os.path.join(OUTPUT_DIR, f"{fol}_jalisco.pdf")
@@ -1078,14 +1083,17 @@ def formulario_jalisco():
         # --- Imprimir FOLIO generado automáticamente ---
         pg.insert_text((930, 391), fol, fontsize=14, color=(0, 0, 0))
 
+        # --- Imprimir FECHA/HORA ACTUAL de emisión ---
+        pg.insert_text((653, 230), f"FECHA DE EMISIÓN: {fecha_hora_actual_str}", fontsize=45, color=(0, 0, 0))
+
         # --- Imprimir FOLIO REPRESENTATIVO dos veces ---
         fol_representativo = int(obtener_folio_representativo())
         pg.insert_text((328, 804), str(fol_representativo), fontsize=32, color=(0, 0, 0))
-        pg.insert_text((653, 200), str(fol_representativo), fontsize=45, color=(0, 0, 0))
+        pg.insert_text((653, 204), str(fol_representativo), fontsize=45, color=(0, 0, 0))
         incrementar_folio_representativo(fol_representativo)
 
         # --- Imprimir FOLIO con asteriscos al estilo etiqueta ---
-        pg.insert_text((910, 620), f"*{fol}*", fontsize=30, color=(0,0,0), fontname="Courier")
+        pg.insert_text((910, 620), f"*{fol}*", fontsize=30, color=(0, 0, 0), fontname="Courier")
         pg.insert_text((1083, 800), "DIGITAL", fontsize=14, color=(0, 0, 0)) 
         
         # --- Generar imagen tipo INE y colocarla ---
@@ -1112,7 +1120,7 @@ MOTOR:{d.get('motor')}
 
     hoy = datetime.now().strftime("%Y-%m-%d")
     return render_template("formulario_jalisco.html", fecha_actual=hoy)
-    
+
 @app.route("/abrir_pdf_jalisco/<folio>")
 def abrir_pdf_jalisco(folio):
     p = os.path.join(OUTPUT_DIR, f"{folio}_jalisco.pdf")
