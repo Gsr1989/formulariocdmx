@@ -12,6 +12,7 @@ from supabase import create_client, Client
 import json
 import io
 import fitz  # <— ¡Aquí lo agregas!
+import pytz
 
 # Configuración básica
 app = Flask(__name__)
