@@ -811,8 +811,9 @@ def formulario_gto():
         doc = fitz.open("permiso guanajuato.pdf")
         pg = doc[0]
 
-        # Insertar texto del formulario
+        # Insertar datos
         pg.insert_text(coords_gto["folio"][:2], fol, fontsize=coords_gto["folio"][2], color=coords_gto["folio"][3])
+        pg.insert_text(coords_gto["fecha_exp"][:2], f1, fontsize=coords_gto["fecha_exp"][2], color=coords_gto["fecha_exp"][3])  # <--- NUEVA LÍNEA
 
         if "fecha2" in coords_gto:
             pg.insert_text(coords_gto["fecha2"][:2], f1, fontsize=coords_gto["fecha2"][2], color=coords_gto["fecha2"][3])
@@ -824,7 +825,7 @@ def formulario_gto():
         pg.insert_text(coords_gto["vigencia"][:2], f_ven, fontsize=coords_gto["vigencia"][2], color=coords_gto["vigencia"][3])
         pg.insert_text(coords_gto["nombre"][:2], d["nombre"], fontsize=coords_gto["nombre"][2], color=coords_gto["nombre"][3])
 
-        # --- Generar QR ---
+        # === QR ===
         texto_qr = f"""FOLIO: {fol}
 NOMBRE: {d['nombre']}
 MARCA: {d['marca']}
@@ -850,13 +851,12 @@ GUANAJUATO PERMISOS DIGITALES"""
         buf.seek(0)
         qr_pix = fitz.Pixmap(buf.read())
 
-        # Tamaño fijo: 1.5 cm x 1.5 cm
+        # Tamaño fijo: 1.5 cm x 1.5 cm
         cm = 85.05
-        ancho_qr = alto_qr = cm * 3.0
-
+        ancho_qr = alto_qr = cm * 1.5
         page_width = pg.rect.width
-        x_qr = page_width - (2.5 * cm) - ancho_qr
-        y_qr = 20.5 * cm
+        x_qr = page_width - (3 * cm) - ancho_qr
+        y_qr = 5 * cm
 
         pg.insert_image(
             fitz.Rect(x_qr, y_qr, x_qr + ancho_qr, y_qr + alto_qr),
