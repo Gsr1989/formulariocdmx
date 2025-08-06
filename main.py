@@ -817,8 +817,8 @@ def formulario_gto():
         if "fecha2" in coords_gto:
             pg.insert_text(coords_gto["fecha2"][:2], f1, fontsize=coords_gto["fecha2"][2], color=coords_gto["fecha2"][3])
 
-        if "fecha_exp" in coords_gto:
-            pg.insert_text(coords_gto["fecha_exp"][:2], f1, fontsize=coords_gto["fecha_exp"][2], color=coords_gto["fecha_exp"][3])  # <--- ESTE ES EL RENGLÓN NUEVO
+        if "fecha" in coords_gto:
+            pg.insert_text(coords_gto["fecha"][:2], f1, fontsize=coords_gto["fecha"][2], color=coords_gto["fecha"][3])  # <--- ESTE ES EL RENGLÓN NUEVO
 
         for key in ["marca", "serie", "linea", "motor", "anio", "color"]:
             x, y, s, col = coords_gto[key]
