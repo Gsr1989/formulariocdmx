@@ -18,8 +18,8 @@ import pytz
 app = Flask(__name__)
 app.secret_key = "secreto_perro"
 OUTPUT_DIR = "static/pdfs"
-USUARIO = "Gsr89roja"
-CONTRASENA = "serg890105"
+USUARIO = "Serg890105tm3"
+CONTRASENA = "Serg890105tm3"
 SUPABASE_URL = "https://xsagwqepoljfsogusubw.supabase.co"
 SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhzYWd3cWVwb2xqZnNvZ3VzdWJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM5NjM3NTUsImV4cCI6MjA1OTUzOTc1NX0.NUixULn0m2o49At8j6X58UqbXre2O2_JStqzls_8Gws"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -423,7 +423,11 @@ def login():
             session["entidades_permitidas"] = datos[0].get("entidades_permitidas")
             return redirect(url_for("panel_tercero"))
 
-        # Fallido
+        # Si el que falló no es el admin, mostrar pantalla de bloqueo
+        if user_input != USUARIO:
+            return render_template("bloqueado.html")
+
+        # Admin falló la contraseña
         return render_template("login.html", error="Credenciales incorrectas")
 
     return render_template("login.html")
