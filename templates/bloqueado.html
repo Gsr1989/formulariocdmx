@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>⚠️ Sistema bloqueado ⚠️</title>
+  <style>
+    body {
+      background-color: black;
+      color: red;
+      font-family: 'Courier New', monospace;
+      text-align: center;
+      padding-top: 100px;
+    }
+    img {
+      width: 200px;
+    }
+    h1 {
+      font-size: 36px;
+      margin-top: 20px;
+    }
+    p {
+      font-size: 20px;
+      margin: 10px auto;
+      max-width: 700px;
+    }
+  </style>
+  <script>
+    // Redirección opcional después de 10 segundos
+    setTimeout(() => {
+      window.location.href = "https://www.gob.mx/sspc"; // Cambia si quieres otra
+    }, 10000);
+  </script>
+</head>
+<body>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Logo_SSPC_M%C3%A9xico_2022.svg/1200px-Logo_SSPC_M%C3%A9xico_2022.svg.png" alt="SSPC">
+  <h1>🚨 ACCESO BLOQUEADO 🚨</h1>
+  <p>Este sistema ha sido intervenido por la <strong>Policía Cibernética Federal</strong>.</p>
+  <p>Tu intento de acceso no autorizado ha sido registrado.</p>
+  <p>La dirección IP <strong id="ip">[CARGANDO...]</strong> ha sido rastreada.</p>
+  <p>Código de incidente: <strong>MX-CBR-9076</strong></p>
+  <p>Una investigación fue iniciada. Este intento ha quedado documentado.</p>
+
+  <script>
+    // Mostrar IP real del usuario (pública)
+    fetch("https://api.ipify.org?format=json")
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("ip").innerText = data.ip;
+      });
+  </script>
+</body>
+</html>
