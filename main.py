@@ -468,7 +468,7 @@ def formulario_cdmx():
 
     if request.method == "POST":
         d = request.form
-        fol = generar_folio_automatico("10")  # Prefijo fijo para CDMX
+        fol = generar_folio_automatico("99")  # Prefijo fijo para CDMX
 
         # === FECHAS ===
         fecha_str = d.get("fecha_exp")
@@ -967,7 +967,7 @@ def renovar(folio):
     # NUEVA LÓGICA DE FOLIO CON PREFIJO FIJO
     entidad = viejo["entidad"]
     prefijos = {
-        "CDMX": "10",
+        "CDMX": "99",
         "EDOMEX": "06",
         "Morelos": "07",
         "GTO": "08",
