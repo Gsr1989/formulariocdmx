@@ -13,6 +13,7 @@ import json
 import io
 import fitz  # <— ¡Aquí lo agregas!
 import pytz
+import time
 
 # Configuración básica
 app = Flask(__name__)
