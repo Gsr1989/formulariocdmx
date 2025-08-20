@@ -283,32 +283,18 @@ def generar_folio_guerrero():
                     return nuevo
 
 def generar_folio_automatico(prefijo: str):
-    max_intentos = 10
-    for intento in range(max_intentos):
-        try:
-            registros = supabase.table("borradores_registros").select("folio").execute().data
-            existentes = [r["folio"] for r in registros if r["folio"] and r["folio"].startswith(prefijo)]
-            consecutivos = [int(folio[len(prefijo):]) for folio in existentes if folio[len(prefijo):].isdigit()]
-            nuevo_consecutivo = max(consecutivos) + 1 if consecutivos else 1
-            nuevo_folio = f"{prefijo}{nuevo_consecutivo}"
-            
-            supabase.table("borradores_registros").insert({
-                "folio": nuevo_folio,
-                "entidad": "TEMP",
-                "marca": "RESERVADO"
-            }).execute()
-            
-            return nuevo_folio
-            
-        except Exception as e:
-            if "duplicate" in str(e).lower() or "unique" in str(e).lower():
-                time.sleep(0.1)
-                continue
-            else:
-                raise e
-    
-    timestamp = int(datetime.now().timestamp())
-    return f"{prefijo}{timestamp}"
+    supa = supabase
+    registros = supa.table("borradores_registros").select("folio").execute().data
+
+    # Filtrar los que pertenecen al prefijo de esta entidad
+    existentes = [r["folio"] for r in registros if r["folio"] and r["folio"].startswith(prefijo)]
+
+    # Obtener la parte numérica después del prefijo
+    consecutivos = [int(folio[len(prefijo):]) for folio in existentes if folio[len(prefijo):].isdigit()]
+
+    nuevo_consecutivo = max(consecutivos) + 1 if consecutivos else 1
+
+    return f"{prefijo}{nuevo_consecutivo}"
 
 import pdf417gen
 from PIL import Image
