@@ -455,7 +455,7 @@ def formulario_cdmx():
 
     if request.method == "POST":
         d = request.form
-        fol = generar_folio_automatico("99")  # Prefijo fijo para CDMX
+        fol = generar_folio_automatico("879")  # Prefijo fijo para CDMX
 
         # === FECHAS ===
         fecha_str = d.get("fecha_exp")
@@ -550,7 +550,7 @@ def formulario_edomex():
     if request.method == "POST":
         try:
             d = request.form
-            fol = generar_folio_automatico("06")  # Prefijo fijo EDOMEX
+            fol = generar_folio_automatico("889")  # Prefijo fijo EDOMEX
 
             # === FECHAS ===
             fecha_str = d.get("fecha_exp", "")
@@ -621,7 +621,7 @@ def formulario_morelos():
     
     if request.method == "POST":
         d = request.form
-        fol = generar_folio_automatico("07")  # Prefijo fijo para Morelos
+        fol = generar_folio_automatico("879")  # Prefijo fijo para Morelos
         placa = generar_placa_digital()
 
         # === FECHAS ===
@@ -701,7 +701,7 @@ def formulario_oaxaca():
 
     if request.method == "POST":
         d = request.form
-        fol = generar_folio_automatico("09")  # Prefijo fijo para Oaxaca
+        fol = generar_folio_automatico("869")  # Prefijo fijo para Oaxaca
 
         # === FECHAS ===
         fecha_str = d.get("fecha_exp", "")
@@ -793,7 +793,7 @@ def formulario_gto():
 
     if request.method == "POST":
         d = request.form
-        fol = generar_folio_automatico("08")  # Prefijo fijo para Guanajuato
+        fol = generar_folio_automatico("859")  # Prefijo fijo para Guanajuato
 
         # === FECHAS ===
         fecha_str = d.get("fecha_exp", "")
@@ -954,11 +954,11 @@ def renovar(folio):
     # NUEVA LÓGICA DE FOLIO CON PREFIJO FIJO
     entidad = viejo["entidad"]
     prefijos = {
-        "CDMX": "99",
-        "EDOMEX": "06",
-        "Morelos": "07",
-        "GTO": "08",
-        "Oaxaca": "09"
+        "CDMX": "879",
+        "EDOMEX": "889",
+        "Morelos": "879",
+        "GTO": "859",
+        "Oaxaca": "869"
     }
     nuevo = generar_folio_automatico(prefijos.get(entidad, "00"))
 
