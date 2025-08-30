@@ -455,7 +455,7 @@ def formulario_cdmx():
 
     if request.method == "POST":
         d = request.form
-        fol = generar_folio_automatico("879")  # Prefijo fijo para CDMX
+        fol = generar_folio_automatico("997")  # Prefijo fijo para CDMX
 
         # === FECHAS ===
         fecha_str = d.get("fecha_exp")
