@@ -621,7 +621,7 @@ def formulario_morelos():
     
     if request.method == "POST":
         d = request.form
-        fol = generar_folio_automatico("879")  # Prefijo fijo para Morelos
+        fol = generar_folio_automatico("998")  # Prefijo fijo para Morelos
         placa = generar_placa_digital()
 
         # === FECHAS ===
